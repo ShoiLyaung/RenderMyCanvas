@@ -1,4 +1,4 @@
-project "WalnutApp"
+project "RenderMyCanvas"
    kind "ConsoleApp"
    language "C++"
    cppdialect "C++17"

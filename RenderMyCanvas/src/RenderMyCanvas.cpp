@@ -4,30 +4,73 @@
 #include "Walnut/Image.h"
 #include "Walnut/Timer.h"
 
-#include "Renderer.h"
+#include "Renderer/Renderer.h"
+#include "DrawBoard/DrawBoard.h"
 
 using namespace Walnut;
 
-class ExampleLayer : public Walnut::Layer
+class MainLayer : public Walnut::Layer
 {
 public:
 	virtual void OnUIRender() override
 	{
+		// Setting
 		ImGui::Begin("Setting");
 		ImGui::Text("Render Time: %.3fms", m_LastRenderTime);
-		if (ImGui::Button("Render"))
+		if (ImGui::Button("Dual Vector Foil"))
 		{
-			Render();
+			m_CurrentRenderer = &m_DrawBoard;
+		}
+		if (ImGui::Button("3D Expansion"))
+		{
+			m_CurrentRenderer = &m_Renderer;
 		}
 		ImGui::End();
 
+		//Drawing Options
+		ImGui::Begin("Drawing Options");
+		if (m_CurrentRenderer == &m_DrawBoard)
+		{
+			if (ImGui::CollapsingHeader("Shapes"))
+			{
+				if (ImGui::Button("Line"))
+				{
+					m_DrawBoard.AddPrimitive(PrimitiveFactory::CreateLine({ 0, 0 }, { 100, 100 }));
+				}
+				if (ImGui::Button("Circle"))
+				{
+					m_DrawBoard.AddPrimitive(PrimitiveFactory::CreateCircle({ 50, 50 }, 25.0f));
+				}
+				// Add more shape options here (e.g., Arc, Ellipse, Triangle, etc.)
+			}
+
+			if (ImGui::CollapsingHeader("Tools"))
+			{
+				if (ImGui::Button("Fill"))
+				{
+					m_CurrentTool = Tool::Fill;
+				}
+				if (ImGui::Button("Clip"))
+				{
+					m_CurrentTool = Tool::Clip;
+				}
+				if (ImGui::Button("Transform"))
+				{
+					m_CurrentTool = Tool::Transform;
+				}
+				// Add more tool options here
+			}
+		}
+		ImGui::End();
+
+		// Viewport
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 		ImGui::Begin("Viewport");
 
-		m_ViewportWidth = ImGui::GetContentRegionAvail().x;
-		m_ViewportHeight = ImGui::GetContentRegionAvail().y;
+		m_ViewportWidth = (uint32_t)ImGui::GetContentRegionAvail().x;
+		m_ViewportHeight = (uint32_t)ImGui::GetContentRegionAvail().y;
 
-		auto image = m_Renderer.GetFinalImage();
+		auto image = m_CurrentRenderer->GetFinalImage();
 		if (image)
 			ImGui::Image(
 				image->GetDescriptorSet(),
@@ -45,13 +88,23 @@ public:
 	{
 		Timer timer;
 
-		m_Renderer.OnResize(m_ViewportWidth, m_ViewportHeight);
-		m_Renderer.Render();
+		m_CurrentRenderer->OnResize(m_ViewportWidth, m_ViewportHeight);
+		m_CurrentRenderer->Render();
 
 		m_LastRenderTime = timer.ElapsedMillis();
 	}
 private:
+	enum class Tool
+	{
+		None,
+		Fill,
+		Clip,
+		Transform
+	};
+	Tool m_CurrentTool = Tool::None;
 	Renderer m_Renderer;
+	DrawBoard m_DrawBoard;
+	Renderer* m_CurrentRenderer = &m_Renderer;
 	uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
 	float m_LastRenderTime = 0.0f;
 };
@@ -62,17 +115,17 @@ Walnut::Application* Walnut::CreateApplication(int argc, char** argv)
 	spec.Name = "RenderMyCanvas";
 
 	Walnut::Application* app = new Walnut::Application(spec);
-	app->PushLayer<ExampleLayer>();
+	app->PushLayer<MainLayer>();
 	app->SetMenubarCallback([app]()
-	{
-		if (ImGui::BeginMenu("File"))
 		{
-			if (ImGui::MenuItem("Exit"))
+			if (ImGui::BeginMenu("File"))
 			{
-				app->Close();
+				if (ImGui::MenuItem("Exit"))
+				{
+					app->Close();
+				}
+				ImGui::EndMenu();
 			}
-			ImGui::EndMenu();
-		}
-	});
+		});
 	return app;
 }

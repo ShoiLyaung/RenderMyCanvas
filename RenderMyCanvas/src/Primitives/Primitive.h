@@ -9,7 +9,7 @@ class Primitive
 {
 public:
     virtual ~Primitive() = default;
-    virtual void Draw() const = 0; // Pure virtual function to draw the primitive
+    virtual void Draw(uint32_t* imageData, uint32_t width, uint32_t height) const = 0; // Pure virtual function to draw the primitive
 };
 
 // 2D Primitive derived class

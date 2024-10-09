@@ -34,14 +34,14 @@ void Renderer::Render()
 	m_FinalImage->SetData(m_ImageData);
 }
 
-void Renderer::AddPrimitive(std::shared_ptr<Primitive> primitive)
-{
-	//TODO: Implement this
-}
-
 uint32_t Renderer::PerPixel(glm::vec2 coord)
 {
 	uint8_t r = (uint8_t)(coord.x * 255.0f);
 	uint8_t g = (uint8_t)(coord.y * 255.0f);
 	return 0xff000000 | (g << 8) | r;
+}
+
+void Renderer::AddPrimitive(std::shared_ptr<Primitive> primitive)
+{
+	//TODO: Implement this
 }

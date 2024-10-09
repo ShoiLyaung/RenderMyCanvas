@@ -1,13 +1,6 @@
 #include "DrawBoard.h"
 #include <iostream>
 
-DrawBoard::DrawBoard()
-    : m_IsDrawing(false) {}
-
-void DrawBoard::AddPrimitive(std::shared_ptr<Primitive> primitive) {
-    m_Primitives.push_back(primitive);
-}
-
 void DrawBoard::OnMouseEvent(int button, int action, int x, int y) {
     if (button == 0 && action == 1) { // Example: Left mouse button down
         if (!m_IsDrawing) {
@@ -24,20 +17,33 @@ void DrawBoard::OnMouseEvent(int button, int action, int x, int y) {
 
 void DrawBoard::Render()
 {
-    // Render all primitives
+    // Clear the image
+    std::memset(m_ImageData, 0, m_FinalImage->GetWidth() * m_FinalImage->GetHeight() * sizeof(uint32_t));
+
+    // Render all primitives into m_ImageData
     for (const auto& primitive : m_Primitives)
     {
-        primitive->Draw();
+        primitive->Draw(m_ImageData, m_FinalImage->GetWidth(), m_FinalImage->GetHeight());
     }
-    //render every pixel
 
-    for (uint32_t y = 0; y < m_FinalImage->GetHeight(); y++)
+    // Render the temporary primitive, if it exists
+    if (m_TemporaryPrimitive)
     {
-        for (uint32_t x = 0; x < m_FinalImage->GetWidth(); x++)
-        {
-            glm::vec2 coord = { (float)x / (float)m_FinalImage->GetWidth(), (float)y / (float)m_FinalImage->GetHeight() };
-            m_ImageData[y * m_FinalImage->GetWidth() + x] = PerPixel(coord);
-        }
+        m_TemporaryPrimitive->Draw(m_ImageData, m_FinalImage->GetWidth(), m_FinalImage->GetHeight());
     }
+
+    // Set the final image data
     m_FinalImage->SetData(m_ImageData);
+}
+
+void DrawBoard::AddPrimitive(std::shared_ptr<Primitive> primitive) {
+    m_Primitives.push_back(primitive);
+}
+
+void DrawBoard::SetTemporaryPrimitive(std::shared_ptr<Primitive> primitive) {
+    m_TemporaryPrimitive = primitive;
+}
+
+void DrawBoard::ClearTemporaryPrimitive() {
+    m_TemporaryPrimitive.reset();
 }

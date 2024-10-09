@@ -12,7 +12,7 @@ public:
 	Renderer() = default;
 	~Renderer() = default;
 	void OnResize(uint32_t width, uint32_t height);
-	void Render();
+	virtual void Render();
 	std::shared_ptr<Walnut::Image> GetFinalImage() const { return m_FinalImage; }
 
 	virtual void AddPrimitive(std::shared_ptr<Primitive> primitive);

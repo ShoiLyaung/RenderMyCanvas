@@ -4,7 +4,8 @@
 
 #include <memory>
 #include <glm/glm.hpp>
-#include "../Primitives/Primitive.h"
+#include <entt.hpp>
+#include "Primitives/Primitive.h"
 
 class Renderer
 {
@@ -15,9 +16,10 @@ public:
 	virtual void Render();
 	std::shared_ptr<Walnut::Image> GetFinalImage() const { return m_FinalImage; }
 
+	//virtual void Draw(entt::registry& registry);
 	virtual void AddPrimitive(std::shared_ptr<Primitive> primitive);
 protected:
-	uint32_t PerPixel(glm::vec2 coord);
+	glm::vec4 PerPixel(glm::vec2 coord);
 	std::shared_ptr<Walnut::Image> m_FinalImage;
 	uint32_t* m_ImageData = nullptr;
 };

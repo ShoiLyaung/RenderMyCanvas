@@ -1,9 +1,9 @@
 #pragma once
 #include <vector>
 #include <glm/glm.hpp>
-#include "../Renderer/Renderer.h"
-#include "../Primitives/Primitive.h"
-#include "../Primitives/Line.h"
+#include "Renderer/Renderer.h"
+#include "Primitives/Primitive.h"
+#include "Primitives/Line.h"
 
 class DrawBoard : public Renderer
 {

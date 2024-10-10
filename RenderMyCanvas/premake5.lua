@@ -9,13 +9,16 @@ project "RenderMyCanvas"
 
    includedirs
    {
+      "src",
+      "vendor/entt/single_include",
+      
       "../Walnut/vendor/imgui",
       "../Walnut/vendor/glfw/include",
       "../Walnut/vendor/glm",
 
       "../Walnut/Walnut/src",
 
-      "%{IncludeDir.VulkanSDK}",
+      "%{IncludeDir.VulkanSDK}"
    }
 
    links

@@ -15,7 +15,7 @@ void DrawBoard::OnMouseEvent(int button, int action, int x, int y) {
     }
 }
 
-void DrawBoard::Render()
+void DrawBoard::Render(const Camera& camera)
 {
     // Clear the image
     std::memset(m_ImageData, 0, m_FinalImage->GetWidth() * m_FinalImage->GetHeight() * sizeof(uint32_t));

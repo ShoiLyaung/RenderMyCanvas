@@ -11,7 +11,7 @@ public:
     DrawBoard() = default;
 	~DrawBoard() = default;
     void OnMouseEvent(int button, int action, int x, int y);
-    void Render();
+    void Render(const Camera& camera);
     std::shared_ptr<Walnut::Image> GetFinalImage() const { return m_FinalImage; }
 
     void AddPrimitive(std::shared_ptr<Primitive> primitive);

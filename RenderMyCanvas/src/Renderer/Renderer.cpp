@@ -1,5 +1,17 @@
 #include "Renderer.h"
 
+namespace Utils {
+	static uint32_t ConvertToRGBA(const glm::vec4& color)
+	{
+		uint32_t r = (uint32_t)(color.r * 255.0f);
+		uint32_t g = (uint32_t)(color.g * 255.0f);
+		uint32_t b = (uint32_t)(color.b * 255.0f);
+		uint32_t a = (uint32_t)(color.a * 255.0f);
+
+		return (a << 24) | (b << 16) | (g << 8) | r;
+	}
+}
+
 void Renderer::OnResize(uint32_t width, uint32_t height)
 {
 	//resize the image
@@ -19,7 +31,7 @@ void Renderer::OnResize(uint32_t width, uint32_t height)
 	m_ImageData = new uint32_t[width * height];
 }
 
-void Renderer::Render()
+void Renderer::Render(const Camera& camera)
 {
 	//render every pixel
 
@@ -29,7 +41,11 @@ void Renderer::Render()
 		{
 			glm::vec2 coord = { (float)x / (float)m_FinalImage->GetWidth(), (float)y / (float)m_FinalImage->GetHeight() };
 			coord = coord * 2.0f - 1.0f;
-			//m_ImageData[y * m_FinalImage->GetWidth() + x] = PerPixel(coord);
+
+			glm::vec4 color = PerPixel(coord);
+			color = glm::clamp(color, glm::vec4(0.0f), glm::vec4(1.0f));
+
+			m_ImageData[y * m_FinalImage->GetWidth() + x] = Utils::ConvertToRGBA(color);
 		}
 	}
 	m_FinalImage->SetData(m_ImageData);
@@ -37,7 +53,7 @@ void Renderer::Render()
 
 glm::vec4 Renderer::PerPixel(glm::vec2 coord)
 {
-	glm::vec3 rayOrigin(0.0f, 0.0f, 2.0f);
+	glm::vec3 rayOrigin(0.0f, 0.0f, 1.0f);
 	glm::vec3 rayDirection(coord.x, coord.y, -1.0f);
 	float radius = 0.5f;
 
@@ -53,9 +69,14 @@ glm::vec4 Renderer::PerPixel(glm::vec2 coord)
 	float closestT = (-b - glm::sqrt(discriminant)) / (2.0f * a);
 
 	glm::vec3 hitPoint = rayOrigin + rayDirection * closestT;
+	glm::vec3 normal = glm::normalize(hitPoint);
+
+	glm::vec3 lightDir = glm::normalize(glm::vec3(-1.0f, -1.0f, -1.0f));
+
+	float diff = glm::max(glm::dot(normal, -lightDir), 0.0f);
 
 	glm::vec3 sphereColor(1.0f, 0.0f, 1.0f);
-	sphereColor *= hitPoint;
+	sphereColor *= diff;
 
 	return glm::vec4(sphereColor, 1.0f);
 }
@@ -73,8 +94,3 @@ glm::vec4 Renderer::PerPixel(glm::vec2 coord)
 //		DrawPrimitive(circle);
 //	}
 //}
-
-void Renderer::AddPrimitive(std::shared_ptr<Primitive> primitive)
-{
-	//TODO: Implement this
-}

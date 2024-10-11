@@ -1,5 +1,6 @@
 #pragma once
 #include "Walnut/Application.h"
+#include <glm/gtc/type_ptr.hpp>
 
 #include "ToolManager.h"
 #include "Renderer/Renderer.h"
@@ -10,6 +11,6 @@ namespace RMC {
     class DrawingOptionsWindow
     {
     public:
-        static void Render(float& lastRenderTime, ToolManager::Tool& currentTool, DrawBoard& drawBoard);
+        static void Render(float& lastRenderTime, ToolManager::Tool& currentTool, DrawBoard& drawBoard, Scene& scene, Camera& camera);
     };
 }

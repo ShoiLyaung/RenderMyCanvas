@@ -1,8 +1,7 @@
 #include "DrawingOptionsWindow.h"
-#include "imgui.h"
 
 namespace RMC {
-    void DrawingOptionsWindow::Render(float& lastRenderTime, ToolManager::Tool& currentTool, DrawBoard& drawBoard)
+    void DrawingOptionsWindow::Render(float& lastRenderTime, ToolManager::Tool& currentTool, DrawBoard& drawBoard, Scene& scene, Camera& camera)
     {
         ImGui::Begin("Drawing Options");
         ImGui::Text("Render Time: %.3fms", lastRenderTime);
@@ -36,6 +35,19 @@ namespace RMC {
             {
                 currentTool = ToolManager::Tool::Transform;
             }
+        }
+        ImGui::End();
+
+        ImGui::Begin("Scene");
+        for (size_t i = 0; i < scene.Spheres.size(); i++)
+        {
+            ImGui::PushID((int)i);
+            Sphere& sphere = scene.Spheres[i];
+            ImGui::DragFloat3("Position", glm::value_ptr(sphere.Position), 0.1f);
+            ImGui::DragFloat("Radius", &sphere.Radius, 0.1f);
+            ImGui::ColorEdit3("Albedo", glm::value_ptr(sphere.Albedo));
+            ImGui::Separator();
+            ImGui::PopID();
         }
         ImGui::End();
     }

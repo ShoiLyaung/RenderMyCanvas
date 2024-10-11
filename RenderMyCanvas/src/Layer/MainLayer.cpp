@@ -11,12 +11,12 @@ namespace RMC
 
     void MainLayer::RenderSettingWindow()
     {
-        SettingWindow::Render(m_LastRenderTime, m_CurrentRenderer, m_DrawBoard, m_Renderer, m_Scene);
+        SettingWindow::Render(m_LastRenderTime, m_CurrentRenderer, m_DrawBoard, m_Renderer, m_Scene, m_Camera);
     }
 
     void MainLayer::RenderDrawingOptionsWindow()
     {
-        DrawingOptionsWindow::Render(m_LastRenderTime, m_ToolManager, m_DrawBoard);
+        DrawingOptionsWindow::Render(m_LastRenderTime, m_ToolManager, m_DrawBoard, m_Scene, m_Camera);
     }
 
     void MainLayer::RenderViewport()
@@ -26,6 +26,7 @@ namespace RMC
 
     void MainLayer::OnUpdate(float ts)
     {
+		m_Scene.OnUpdate(ts);
 		m_Camera.OnUpdate(ts);
 
         // Handle mouse input for drawing in DrawBoard

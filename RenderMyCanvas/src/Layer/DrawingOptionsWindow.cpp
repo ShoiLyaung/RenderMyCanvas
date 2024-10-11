@@ -1,7 +1,7 @@
 #include "DrawingOptionsWindow.h"
 #include "imgui.h"
 
-namespace RMC::layer {
+namespace RMC {
     void DrawingOptionsWindow::Render(float& lastRenderTime, ToolManager::Tool& currentTool, DrawBoard& drawBoard)
     {
         ImGui::Begin("Drawing Options");

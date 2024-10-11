@@ -6,7 +6,7 @@
 #include "DrawBoard/DrawBoard.h"
 
 
-namespace RMC::layer {
+namespace RMC {
     class DrawingOptionsWindow
     {
     public:

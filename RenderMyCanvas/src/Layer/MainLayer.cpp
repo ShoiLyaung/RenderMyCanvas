@@ -1,6 +1,7 @@
 #include "MainLayer.h"
 
-namespace RMC::layer {
+namespace RMC
+{
         void MainLayer::OnUIRender()
     {
         RenderSettingWindow();
@@ -10,7 +11,7 @@ namespace RMC::layer {
 
     void MainLayer::RenderSettingWindow()
     {
-        SettingWindow::Render(m_LastRenderTime, m_CurrentRenderer, m_DrawBoard, m_Renderer);
+        SettingWindow::Render(m_LastRenderTime, m_CurrentRenderer, m_DrawBoard, m_Renderer, m_Scene);
     }
 
     void MainLayer::RenderDrawingOptionsWindow()
@@ -20,7 +21,7 @@ namespace RMC::layer {
 
     void MainLayer::RenderViewport()
     {
-        ViewportWindow::Render(m_ViewportWidth, m_ViewportHeight, m_ViewportOffset, m_CurrentRenderer, m_LastRenderTime, m_Camera);
+        ViewportWindow::Render(m_ViewportWidth, m_ViewportHeight, m_ViewportOffset, m_CurrentRenderer, m_LastRenderTime, m_Scene,m_Camera);
     }
 
     void MainLayer::OnUpdate(float ts)
@@ -58,4 +59,4 @@ namespace RMC::layer {
             }
         }
     }
-} // namespace RMC::layer
+} // namespace RMC

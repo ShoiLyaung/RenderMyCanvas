@@ -1,7 +1,7 @@
 #include "ViewportWindow.h"
 
-namespace RMC::layer {
-   void ViewportWindow::Render(uint32_t& viewportWidth, uint32_t& viewportHeight, glm::vec2& viewportOffset, Renderer* currentRenderer, float& lastRenderTime, Camera& camera)
+namespace RMC {
+   void ViewportWindow::Render(uint32_t& viewportWidth, uint32_t& viewportHeight, glm::vec2& viewportOffset, Renderer* currentRenderer, float& lastRenderTime, Scene& scene, Camera& camera)
    {
        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
        ImGui::Begin("Viewport");
@@ -27,7 +27,7 @@ namespace RMC::layer {
        Walnut::Timer timer;
        currentRenderer->OnResize(viewportWidth, viewportHeight);
        camera.OnResize(viewportWidth, viewportHeight);
-       currentRenderer->Render(camera);
+       currentRenderer->Render(scene, camera);
        lastRenderTime = timer.ElapsedMillis();
    }
 }

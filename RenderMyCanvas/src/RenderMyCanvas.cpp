@@ -9,7 +9,7 @@ Walnut::Application* Walnut::CreateApplication(int argc, char** argv)
 	spec.Name = "RenderMyCanvas";
 
 	Walnut::Application* app = new Walnut::Application(spec);
-	std::shared_ptr<RMC::layer::MainLayer> mainLayer = std::make_shared<RMC::layer::MainLayer>();
+	std::shared_ptr<RMC::MainLayer> mainLayer = std::make_shared<RMC::MainLayer>();
 	app->PushLayer(mainLayer);
 	app->SetMenubarCallback([app]()
 		{

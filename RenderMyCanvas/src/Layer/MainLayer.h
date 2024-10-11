@@ -3,6 +3,7 @@
 
 #include "Renderer/Renderer.h"
 #include "DrawBoard/DrawBoard.h"
+#include "Scene/Scene.h"
 #include "Camera/Camera.h"
 
 #include "ToolManager.h"
@@ -10,8 +11,8 @@
 #include "DrawingOptionsWindow.h"
 #include "ViewportWindow.h"
 
-namespace RMC::layer {
-
+namespace RMC
+{
 	class MainLayer : public Walnut::Layer
 	{
 	public:
@@ -19,7 +20,23 @@ namespace RMC::layer {
             : m_Camera(45.0f, 0.1f, 100.0f),
                 m_DrawStart(0.0f, 0.0f),
                 m_ToolManager(ToolManager::Tool::None),
-                m_ViewportOffset(0.0f, 0.0f) {}
+                m_ViewportOffset(0.0f, 0.0f) 
+		{
+			{
+				Sphere sphere;
+				sphere.Position = { 0.0f, 0.0f, 0.0f };
+				sphere.Radius = 0.5f;
+				sphere.Albedo = { 1.0f, 0.0f, 1.0f };
+				m_Scene.Spheres.push_back(sphere);
+			}
+			{
+				Sphere sphere;
+				sphere.Position = { 1.0f, 0.0f, -5.0f };
+				sphere.Radius = 1.5f;
+				sphere.Albedo = { 0.2f, 0.3f, 1.0f };
+				m_Scene.Spheres.push_back(sphere);
+			}
+		}
 
 		virtual void OnUIRender() override;
 		virtual void OnUpdate(float ts) override;
@@ -33,6 +50,7 @@ namespace RMC::layer {
 		Renderer m_Renderer;
 		DrawBoard m_DrawBoard;
 		Renderer* m_CurrentRenderer = &m_DrawBoard;
+		Scene m_Scene;
 		Camera m_Camera;
 
 		ToolManager::Tool m_ToolManager;
@@ -42,4 +60,4 @@ namespace RMC::layer {
 		glm::vec2 m_DrawStart;
 		glm::vec2 m_ViewportOffset;
 	};
-} // namespace RMC::layer
+} // namespace RMC

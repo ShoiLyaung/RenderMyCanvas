@@ -2,8 +2,11 @@
 
 #include <glm/glm.hpp>
 
-struct Ray
+namespace RMC
 {
-	glm::vec3 Origin;
-	glm::vec3 Direction;
-};
+	struct Ray
+	{
+		glm::vec3 Origin;
+		glm::vec3 Direction;
+	};
+}

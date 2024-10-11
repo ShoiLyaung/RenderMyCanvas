@@ -25,9 +25,9 @@ namespace RMC::layer {
        viewportOffset = { cursorPos.x, cursorPos.y };
 
        Walnut::Timer timer;
-       camera.OnResize(viewportWidth, viewportHeight);
        currentRenderer->OnResize(viewportWidth, viewportHeight);
-       currentRenderer->Render(camera); // Pass the dereferenced camera pointer
+       camera.OnResize(viewportWidth, viewportHeight);
+       currentRenderer->Render(camera);
        lastRenderTime = timer.ElapsedMillis();
    }
 }

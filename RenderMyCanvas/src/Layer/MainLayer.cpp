@@ -25,10 +25,11 @@ namespace RMC::layer {
 
     void MainLayer::OnUpdate(float ts)
     {
+		m_Camera.OnUpdate(ts);
+
         // Handle mouse input for drawing in DrawBoard
         if (m_CurrentRenderer == &m_DrawBoard)
         {
-			m_Camera.OnUpdate(ts);
             ImGuiIO& io = ImGui::GetIO();
             glm::vec2 mousePos = glm::vec2(io.MousePos.x - m_ViewportOffset.x, io.MousePos.y - m_ViewportOffset.y);
             // Limit drawing to inside the viewport bounds

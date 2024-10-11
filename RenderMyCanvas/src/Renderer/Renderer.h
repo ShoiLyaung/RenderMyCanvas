@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 #include <entt.hpp>
 #include "Camera/Camera.h"
+#include "Camera/Ray.h"
 
 class Renderer
 {
@@ -17,7 +18,8 @@ public:
 	std::shared_ptr<Walnut::Image> GetFinalImage() const { return m_FinalImage; }
 
 protected:
-	virtual glm::vec4 PerPixel(glm::vec2 coord);
+	glm::vec4 TraceRay(const Ray& ray);
+	// virtual glm::vec4 PerPixel(glm::vec2 coord);
 	std::shared_ptr<Walnut::Image> m_FinalImage;
 	uint32_t* m_ImageData = nullptr;
 };

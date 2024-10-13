@@ -19,7 +19,7 @@ namespace RMC {
     class DrawBoard : public Renderer
     {
     public:
-        DrawBoard() = default;
+        DrawBoard();
         ~DrawBoard() = default;
         void OnMouseEvent(int action, float x, float y);
         void Render(const Scene& scene, const Camera& camera);
@@ -34,8 +34,8 @@ namespace RMC {
         std::vector<std::shared_ptr<Primitive>> m_Primitives;
         std::shared_ptr<Primitive> m_TemporaryPrimitive;
         std::vector<glm::vec2> m_CurrentPoints;
-		glm::vec2 currentPoint;
-		glm::vec2 tempPoint;
+		glm::vec2 currentPoint = { 0, 0 };
+		glm::vec2 tempPoint = { 0, 0 };
         DrawingMode m_CurrentDrawingMode = DrawingMode::None;
         bool m_IsDrawing = false;
 		bool m_IsHold = false;

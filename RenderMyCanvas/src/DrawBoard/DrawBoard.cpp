@@ -1,7 +1,11 @@
 #include "DrawBoard.h"
-#include <iostream>
 
 namespace RMC {
+	DrawBoard::DrawBoard() {
+		m_uv0 = ImVec2(0, 0);
+		m_uv1 = ImVec2(1, 1);
+	}
+
     void DrawBoard::OnMouseEvent(int action, float x, float y) {
         glm::vec2 currentPos(x, y);
 

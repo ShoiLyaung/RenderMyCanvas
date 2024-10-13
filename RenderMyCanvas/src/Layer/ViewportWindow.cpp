@@ -16,7 +16,9 @@ namespace RMC {
        if (image)
            ImGui::Image(
                image->GetDescriptorSet(),
-               { (float)image->GetWidth(), (float)image->GetHeight() }
+			   { (float)image->GetWidth(), (float)image->GetHeight() },
+               currentRenderer->Get_uv0(),
+			   currentRenderer->Get_uv1()
            );
 
        ImGui::End();

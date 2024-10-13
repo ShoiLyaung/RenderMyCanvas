@@ -4,24 +4,44 @@
 #include "Renderer/Renderer.h"
 #include "Primitives/Primitive.h"
 #include "Primitives/Line.h"
+#include "Primitives/Circle.h"
+#include "Primitives/Ellipse.h"
 
 namespace RMC {
+    enum class DrawingMode {
+        None,
+        Line,
+        Circle_CenterRadius,
+        Circle_Diameter,
+        Ellipse_Foci,
+        Ellipse_CenterAxes
+    };
     class DrawBoard : public Renderer
     {
     public:
         DrawBoard() = default;
         ~DrawBoard() = default;
-        void OnMouseEvent(int button, int action, int x, int y);
+        void OnMouseEvent(int action, float x, float y);
         void Render(const Scene& scene, const Camera& camera);
         std::shared_ptr<Walnut::Image> GetFinalImage() const { return m_FinalImage; }
 
         void AddPrimitive(std::shared_ptr<Primitive> primitive);
         void SetTemporaryPrimitive(std::shared_ptr<Primitive> primitive);
         void ClearTemporaryPrimitive();
+
+        void SetDrawingMode(DrawingMode mode) { m_CurrentDrawingMode = mode; }
     private:
         std::vector<std::shared_ptr<Primitive>> m_Primitives;
         std::shared_ptr<Primitive> m_TemporaryPrimitive;
-        glm::vec2 m_TempPoint = glm::vec2(0.0f, 0.0f);
+        std::vector<glm::vec2> m_CurrentPoints;
+		glm::vec2 currentPoint;
+		glm::vec2 tempPoint;
+        DrawingMode m_CurrentDrawingMode = DrawingMode::None;
         bool m_IsDrawing = false;
+		bool m_IsHold = false;
+
+        std::shared_ptr<Primitive> CreatePrimitiveFromPoints(const std::vector<glm::vec2>& points);
+        std::shared_ptr<Primitive> CreateTemporaryPrimitive(const std::vector<glm::vec2>& points);
+		size_t DrawBoard::RequiredPointsForCurrentShape() const;
     };
 } // namespace RMC

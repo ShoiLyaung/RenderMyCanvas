@@ -38,25 +38,7 @@ namespace RMC
             if (m_ToolManager != ToolManager::Tool::None && mousePos.x >= 0 && mousePos.y >= 0 && mousePos.x < m_ViewportWidth && mousePos.y < m_ViewportHeight)
             {
                 ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-                if (io.MouseDown[0]) // Left mouse button is down
-                {
-                    if (!m_IsDrawing)
-                    {
-                        m_DrawStart = mousePos;
-                        m_IsDrawing = true;
-                    }
-                    else
-                    {
-                        m_DrawBoard.SetTemporaryPrimitive(PrimitiveFactory::CreateLine(m_DrawStart, mousePos));
-                    }
-                }
-                else if (m_IsDrawing)
-                {
-                    // Finalize the drawing
-                    m_DrawBoard.AddPrimitive(PrimitiveFactory::CreateLine(m_DrawStart, mousePos));
-                    m_DrawBoard.ClearTemporaryPrimitive();
-                    m_IsDrawing = false;
-                }
+				m_DrawBoard.OnMouseEvent(io.MouseDown[0], mousePos.x, mousePos.y);
             }
         }
     }

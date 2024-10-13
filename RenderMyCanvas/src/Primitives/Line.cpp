@@ -1,5 +1,5 @@
 #include "Line.h"
-#include "Algorithm/LineAlgorithm.h"
+#include "Algorithms/LineAlgorithm.h"
 
 namespace RMC {
 

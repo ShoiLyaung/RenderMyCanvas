@@ -35,6 +35,6 @@ namespace RMC {
             }
         }
 
-    } // namespace LineAlgorithms
+    } // namespace LineAlgorithm
 
 } // namespace RMC

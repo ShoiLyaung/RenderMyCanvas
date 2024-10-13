@@ -1,5 +1,5 @@
 #include "Circle.h"
-#include "Algorithm/CircleAlgorithm.h"
+#include "Algorithms/CircleAlgorithm.h"
 
 namespace RMC {
 

@@ -47,6 +47,6 @@ namespace RMC {
             }
         }
 
-    } // namespace CircleAlgorithms
+    } // namespace CircleAlgorithm
 
 } // namespace RMC

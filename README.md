@@ -12,7 +12,7 @@ Once you're happy, run `scripts/Setup.bat` to generate Visual Studio 2022 soluti
 ## TODO
 
 ### Experiment Tasks
-see [Task](./RenderMyCanvas/src/Primitives/Task.md) for more details.
+see [Task](./Task.md) for more details.
 
 ### Project Tasks
 

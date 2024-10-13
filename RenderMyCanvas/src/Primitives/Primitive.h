@@ -1,7 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include "Algorithm/AlgorithmType.h"
+#include "Algorithms/AlgorithmType.h"
 
 namespace RMC
 {

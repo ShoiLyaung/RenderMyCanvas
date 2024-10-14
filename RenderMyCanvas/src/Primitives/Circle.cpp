@@ -7,10 +7,6 @@ namespace RMC {
         : Radius(radius) 
     {
 		Center = center;
-		MajorAxis = radius;
-		MinorAxis = radius;
-		StartAngle = 0;
-		EndAngle = 360;
     }
 
     void Circle::Draw(uint32_t* imageData, uint32_t width, uint32_t height) const {

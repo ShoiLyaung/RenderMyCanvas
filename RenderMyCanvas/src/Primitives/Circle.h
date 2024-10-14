@@ -11,10 +11,6 @@ namespace RMC {
         void Draw(uint32_t* imageData, uint32_t width, uint32_t height) const override;
     protected:
         float Radius;
-        float MajorAxis;
-        float MinorAxis;
-        float StartAngle;
-        float EndAngle;
         glm::vec3 Center;
     };
 } // namespace RMC

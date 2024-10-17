@@ -28,4 +28,15 @@ namespace RMC {
         EllipseAlgorithm::Midpoint(Center, MajorAxisLength, MinorAxisLength, RotationAngle, imageData, width, height);
     }
 
+    Ellipse_Bresenham::Ellipse_Bresenham(const glm::vec3& center, float majorAxisLength, float minorAxisLength, float rotationAngle)
+		: Ellipse(center, majorAxisLength, minorAxisLength, rotationAngle)
+	{
+	}
+    Ellipse_Bresenham::Ellipse_Bresenham(const glm::vec3& focus1, const glm::vec3& focus2, float majorAxisLength): Ellipse(focus1, focus2, majorAxisLength)
+    {}
+
+    void Ellipse_Bresenham::Draw(uint32_t* imageData, uint32_t width, uint32_t height) const {
+        EllipseAlgorithm::Bresenham(Center, MajorAxisLength, MinorAxisLength, RotationAngle, imageData, width, height);
+    }
+
 } // namespace RMC

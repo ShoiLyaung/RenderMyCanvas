@@ -61,14 +61,16 @@ std::shared_ptr<Primitive> DrawBoard::CreatePrimitiveFromPoints(const std::vecto
         return std::make_shared<Line>(glm::vec3(points[0], 0.0f), glm::vec3(points[1], 0.0f));
     case DrawingMode::Circle_CenterRadius:
         return std::make_shared<Circle>(glm::vec3(points[0], 0.0f), glm::distance(points[0], points[1]));
+    case DrawingMode::Circle_Diameter:
+        return std::make_shared<Circle>(glm::vec3(points[0], 0.0f),glm::vec3(points[1],0.0f));
     case DrawingMode::Ellipse_Foci: {
         glm::vec3 focus1(points[0], 0.0f);
         glm::vec3 focus2(points[1], 0.0f);
         glm::vec3 pointOnEllipse(points[2], 0.0f);
 
-        float distance1 = glm::distance(pointOnEllipse, focus1);
-        float distance2 = glm::distance(pointOnEllipse, focus2);
-        float majorAxisLength = (distance1 + distance2) * 0.5f;
+        double distance1 = glm::distance(pointOnEllipse, focus1);
+        double distance2 = glm::distance(pointOnEllipse, focus2);
+        double majorAxisLength = (distance1 + distance2) * 0.5f;
 
         return std::make_shared<Ellipse>(focus1, focus2, majorAxisLength);
     }
@@ -77,13 +79,82 @@ std::shared_ptr<Primitive> DrawBoard::CreatePrimitiveFromPoints(const std::vecto
         glm::vec3 pointOnMajorAxis(points[1], 0.0f);
         glm::vec3 pointOnMinorAxis(points[2], 0.0f);
 
-        float majorAxisLength = glm::distance(center, pointOnMajorAxis);
-        float minorAxisLength = glm::distance(center, pointOnMinorAxis);
-
-        float rotationAngle = std::atan2(pointOnMajorAxis.y - center.y, pointOnMajorAxis.x - center.x);
+        double majorAxisLength = glm::distance(center, pointOnMajorAxis);
+        double minorAxisLength = glm::distance(center, pointOnMinorAxis);
+        double rotationAngle = std::atan2(pointOnMajorAxis.y - center.y, pointOnMajorAxis.x - center.x);
 
         return std::make_shared<Ellipse>(center, majorAxisLength, minorAxisLength, rotationAngle);
     }
+    case DrawingMode::Ellipse_Foci_Bersenham:
+    {
+        glm::vec3 focus1(points[0], 0.0f);
+        glm::vec3 focus2(points[1], 0.0f);
+        glm::vec3 pointOnEllipse(points[2], 0.0f);
+
+        double distance1 = glm::distance(pointOnEllipse, focus1);
+        double distance2 = glm::distance(pointOnEllipse, focus2);
+        double majorAxisLength = (distance1 + distance2) * 0.5f;
+        
+        return std::make_shared<Ellipse_Bresenham>(focus1, focus2, majorAxisLength);
+    }
+    case DrawingMode::Ellipse_CenterAxes_Bersenham:
+    {
+        glm::vec3 center(points[0], 0.0f);
+        glm::vec3 pointOnMajorAxis(points[1], 0.0f);
+        glm::vec3 pointOnMinorAxis(points[2], 0.0f);
+
+        double majorAxisLength = glm::distance(center, pointOnMajorAxis);
+        double minorAxisLength = glm::distance(center, pointOnMinorAxis);
+
+        double rotationAngle = std::atan2(pointOnMajorAxis.y - center.y, pointOnMajorAxis.x - center.x);
+
+        return std::make_shared<Ellipse_Bresenham>(center, majorAxisLength, minorAxisLength, rotationAngle);
+    }
+    case DrawingMode::Arc_Circle: {
+        glm::vec3 center(points[0], 0.0f);
+        glm::vec3 startPoint(points[1], 0.0f);
+        glm::vec3 endPoint(points[2], 0.0f);
+
+        double radius = glm::distance(center, startPoint);
+
+        double startAngle = std::atan2(startPoint.y - center.y, startPoint.x - center.x);
+        double endAngle = std::atan2(endPoint.y - center.y, endPoint.x - center.x);
+
+        return std::make_shared<Arc>(center, radius, startAngle, endAngle);
+    }
+    case DrawingMode::Arc_Ellipse: {
+        glm::vec3 focus1(points[0], 0.0f);
+        glm::vec3 focus2(points[1], 0.0f);
+        glm::vec3 startPoint(points[2], 0.0f);
+        glm::vec3 endPoint(points[3], 0.0f);
+
+        double focalDistance = glm::distance(focus1, focus2);
+        double startToFocal1 = glm::distance(startPoint, focus1);
+        double startToFocal2 = glm::distance(startPoint, focus2);
+        double majorAxisLength = (startToFocal1 + startToFocal2) / 2.0f;
+        double minorAxisLength = std::sqrt(majorAxisLength * majorAxisLength - focalDistance * focalDistance / 4.0f);
+
+        glm::vec3 center = (focus1 + focus2) / 2.0f;
+
+        double rotationAngle = std::atan2(focus2.y - focus1.y, focus2.x - focus1.x);
+
+        double cosTheta = std::cos(-rotationAngle);
+        double sinTheta = std::sin(-rotationAngle);
+
+        glm::vec2 relativeStart = startPoint - center;
+        glm::vec2 relativeEnd = endPoint - center;
+
+        double xr = relativeStart.x * cosTheta - relativeStart.y * sinTheta;
+        double yr = relativeStart.x * sinTheta + relativeStart.y * cosTheta;
+        double startAngle = std::atan2(yr / majorAxisLength, xr / majorAxisLength);
+
+        xr = relativeEnd.x * cosTheta - relativeEnd.y * sinTheta;
+        yr = relativeEnd.x * sinTheta + relativeEnd.y * cosTheta;
+        double endAngle = std::atan2(yr / majorAxisLength, xr / majorAxisLength);
+
+        return std::make_shared<Arc>(center, majorAxisLength, minorAxisLength, rotationAngle, startAngle, endAngle);
+    }
+
     default:
         return nullptr;
     }
@@ -106,6 +177,14 @@ size_t DrawBoard::RequiredPointsForCurrentShape() const {
     return 3;
   case DrawingMode::Ellipse_CenterAxes:
     return 3;
+  case DrawingMode::Ellipse_CenterAxes_Bersenham:
+	  return 3;
+  case DrawingMode::Ellipse_Foci_Bersenham:
+    return 3;
+  case DrawingMode::Arc_Circle:
+    return 3;
+  case DrawingMode::Arc_Ellipse:
+    return 4;
   default:
     return 10000;
   }

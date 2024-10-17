@@ -22,5 +22,11 @@ namespace RMC {
         glm::vec3 Focus2;
         float RotationAngle;
     };
+    class Ellipse_Bresenham : public Ellipse {
+    public:
+		Ellipse_Bresenham(const glm::vec3& center, float majorAxisLength, float minorAxisLength, float rotationAngle = 0.0f);
+		Ellipse_Bresenham(const glm::vec3& focus1, const glm::vec3& focus2, float majorAxisLength);
+		void Draw(uint32_t* imageData, uint32_t width, uint32_t height) const override;
+	};
+    }
 
-} // namespace RMC

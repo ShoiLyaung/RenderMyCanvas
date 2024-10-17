@@ -10,6 +10,7 @@ namespace RMC {
             Line,
             Circle,
             Ellipse,
+            Arc,
             Fill,
             Clip,
             Transform

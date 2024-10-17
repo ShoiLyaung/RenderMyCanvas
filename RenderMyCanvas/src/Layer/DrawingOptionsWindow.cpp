@@ -56,6 +56,26 @@ namespace RMC {
 					currentTool = ToolManager::Tool::Ellipse;
 					drawBoard.SetDrawingMode(DrawingMode::Ellipse_CenterAxes);
 				}
+                if(ImGui::Button("Foci-Bersenham"))
+				{
+					currentTool = ToolManager::Tool::Ellipse;
+					drawBoard.SetDrawingMode(DrawingMode::Ellipse_Foci_Bersenham);
+				}
+                if (ImGui::Button("Center-Axes-Bersenham"))
+                {
+                    currentTool = ToolManager::Tool::Ellipse;
+					drawBoard.SetDrawingMode(DrawingMode::Ellipse_CenterAxes_Bersenham);
+				}
+            }
+            if (ImGui::CollapsingHeader("Arc")) {
+                if (ImGui::Button("Circle Arc")) {
+                    currentTool = ToolManager::Tool::Arc;
+                    drawBoard.SetDrawingMode(DrawingMode::Arc_Circle);
+                }
+                if (ImGui::Button("Ellipse Arc")) {
+                    currentTool = ToolManager::Tool::Arc;
+                    drawBoard.SetDrawingMode(DrawingMode::Arc_Ellipse);
+                }
             }
         }
 

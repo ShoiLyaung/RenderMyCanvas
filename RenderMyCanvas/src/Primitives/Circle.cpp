@@ -7,14 +7,15 @@ namespace RMC {
         : Radius(radius) 
     {
 		Center = center;
-		MajorAxis = radius;
-		MinorAxis = radius;
-		StartAngle = 0;
-		EndAngle = 360;
     }
 
+    Circle::Circle(const glm::vec3& point1, const glm::vec3& point2)
+	{
+		Center = (point1 + point2) * 0.5f;
+		Radius = glm::distance(point1, point2) * 0.5f;
+	}
+
     void Circle::Draw(uint32_t* imageData, uint32_t width, uint32_t height) const {
-        // Example: use Midpoint algorithm to draw the circle
         CircleAlgorithm::MidPoint(Center, Radius, imageData, width, height);
     }
 

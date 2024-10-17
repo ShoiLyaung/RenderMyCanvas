@@ -6,6 +6,7 @@
 #include "Primitives/Line.h"
 #include "Primitives/Circle.h"
 #include "Primitives/Ellipse.h"
+#include "Primitives/Arc.h"
 
 namespace RMC {
     enum class DrawingMode {
@@ -14,7 +15,11 @@ namespace RMC {
         Circle_CenterRadius,
         Circle_Diameter,
         Ellipse_Foci,
-        Ellipse_CenterAxes
+        Ellipse_CenterAxes, 
+        Ellipse_Foci_Bersenham,
+        Ellipse_CenterAxes_Bersenham,
+        Arc_Circle,
+        Arc_Ellipse,
     };
     class DrawBoard : public Renderer
     {

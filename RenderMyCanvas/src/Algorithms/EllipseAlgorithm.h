@@ -11,7 +11,8 @@ namespace EllipseAlgorithm
 {
 
 void Midpoint(const glm::vec3& center, double a, double b, double rotationAngle,
-              uint32_t* imageData, uint32_t width, uint32_t height)
+              uint32_t* imageData, uint32_t width, uint32_t height,
+              float lineWidth = 0.0f, uint32_t color = 0xFFFFFFFF)
 {
     // Precompute sine and cosine of rotation angle
     double cosTheta = std::cos(rotationAngle);
@@ -42,10 +43,16 @@ void Midpoint(const glm::vec3& center, double a, double b, double rotationAngle,
                 int xi = static_cast<int>(xr + center.x + 0.5f);
                 int yi = static_cast<int>(yr + center.y + 0.5f);
 
-                // Check bounds and plot
-                if (xi >= 0 && xi < static_cast<int>(width) && yi >= 0 &&
-                    yi < static_cast<int>(height)) {
-                    imageData[yi * width + xi] = 0xFFFFFFFF;  // White color
+                for (float dx = -lineWidth; dx <= lineWidth; dx += 0.1f) {
+                    for (float dy = -lineWidth; dy <= lineWidth; dy += 0.1f) {
+                        int px = static_cast<int>(xi + dx);
+                        int py = static_cast<int>(yi + dy);
+
+                        if (px >= 0 && px < static_cast<int>(width) &&
+                            py >= 0 && py < static_cast<int>(height)) {
+                            imageData[py * width + px] = color;
+                        }
+                    }
                 }
             }
         }
@@ -78,10 +85,16 @@ void Midpoint(const glm::vec3& center, double a, double b, double rotationAngle,
                 int xi = static_cast<int>(xr + center.x + 0.5f);
                 int yi = static_cast<int>(yr + center.y + 0.5f);
 
-                // Check bounds and plot
-                if (xi >= 0 && xi < static_cast<int>(width) && yi >= 0 &&
-                    yi < static_cast<int>(height)) {
-                    imageData[yi * width + xi] = 0xFFFFFFFF;  // White color
+                for (float dx = -lineWidth; dx <= lineWidth; dx += 0.1f) {
+                    for (float dy = -lineWidth; dy <= lineWidth; dy += 0.1f) {
+                        int px = static_cast<int>(xi + dx);
+                        int py = static_cast<int>(yi + dy);
+
+                        if (px >= 0 && px < static_cast<int>(width) &&
+                            py >= 0 && py < static_cast<int>(height)) {
+                            imageData[py * width + px] = color;
+                        }
+                    }
                 }
             }
         }
@@ -101,7 +114,8 @@ void Midpoint(const glm::vec3& center, double a, double b, double rotationAngle,
 }
 void Bresenham(const glm::vec3& center, double a, double b,
                double rotationAngle, uint32_t* imageData, uint32_t width,
-               uint32_t height)
+               uint32_t height, float lineWidth = 0.0f,
+               uint32_t color = 0xFFFFFFFF)
 {
     double cosTheta = std::cos(rotationAngle);
     double sinTheta = std::sin(rotationAngle);
@@ -125,9 +139,16 @@ void Bresenham(const glm::vec3& center, double a, double b,
                 int xi = static_cast<int>(xr + x0 + 0.5f);
                 int yi = static_cast<int>(yr + y0 + 0.5f);
 
-                if (xi >= 0 && xi < static_cast<int>(width) && yi >= 0 &&
-                    yi < static_cast<int>(height)) {
-                    imageData[yi * width + xi] = 0xFFFFFFFF;
+                for (float dx = -lineWidth; dx <= lineWidth; dx += 0.1f) {
+                    for (float dy = -lineWidth; dy <= lineWidth; dy += 0.1f) {
+                        int px = static_cast<int>(xi + dx);
+                        int py = static_cast<int>(yi + dy);
+
+                        if (px >= 0 && px < static_cast<int>(width) &&
+                            py >= 0 && py < static_cast<int>(height)) {
+                            imageData[py * width + px] = color;
+                        }
+                    }
                 }
             }
         }
@@ -151,9 +172,16 @@ void Bresenham(const glm::vec3& center, double a, double b,
                 int xi = static_cast<int>(xr + x0 + 0.5f);
                 int yi = static_cast<int>(yr + y0 + 0.5f);
 
-                if (xi >= 0 && xi < static_cast<int>(width) && yi >= 0 &&
-                    yi < static_cast<int>(height)) {
-                    imageData[yi * width + xi] = 0xFFFFFFFF;  // White color
+                for (float dx = -lineWidth; dx <= lineWidth; dx += 0.1f) {
+                    for (float dy = -lineWidth; dy <= lineWidth; dy += 0.1f) {
+                        int px = static_cast<int>(xi + dx);
+                        int py = static_cast<int>(yi + dy);
+
+                        if (px >= 0 && px < static_cast<int>(width) &&
+                            py >= 0 && py < static_cast<int>(height)) {
+                            imageData[py * width + px] = color;
+                        }
+                    }
                 }
             }
         }

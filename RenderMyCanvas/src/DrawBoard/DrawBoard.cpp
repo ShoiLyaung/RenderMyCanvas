@@ -40,7 +40,7 @@ void DrawBoard::Render(const Scene &scene, const Camera &camera) {
 
   if (m_TemporaryPrimitive)
     m_TemporaryPrimitive->Draw(m_ImageData, m_FinalImage->GetWidth(),
-                               m_FinalImage->GetHeight());
+                                 m_FinalImage->GetHeight());
 
   m_FinalImage->SetData(m_ImageData);
 }
@@ -58,11 +58,17 @@ void DrawBoard::ClearTemporaryPrimitive() { m_TemporaryPrimitive.reset(); }
 std::shared_ptr<Primitive> DrawBoard::CreatePrimitiveFromPoints(const std::vector<glm::vec2>& points) {
     switch (m_CurrentDrawingMode) {
     case DrawingMode::Line:
-        return std::make_shared<Line>(glm::vec3(points[0], 0.0f), glm::vec3(points[1], 0.0f));
+        return std::make_shared<Line>(glm::vec3(points[0], 0.0f),
+                                      glm::vec3(points[1], 0.0f), m_lineWidth,
+                                      m_lineColor);
     case DrawingMode::Circle_CenterRadius:
-        return std::make_shared<Circle>(glm::vec3(points[0], 0.0f), glm::distance(points[0], points[1]));
+        return std::make_shared<Circle>(glm::vec3(points[0], 0.0f),
+                                        glm::distance(points[0], points[1]),
+                                        m_lineWidth, m_lineColor);
     case DrawingMode::Circle_Diameter:
-        return std::make_shared<Circle>(glm::vec3(points[0], 0.0f),glm::vec3(points[1],0.0f));
+        return std::make_shared<Circle>(glm::vec3(points[0], 0.0f),
+                                        glm::vec3(points[1], 0.0f), m_lineWidth,
+                                        m_lineColor);
     case DrawingMode::Ellipse_Foci: {
         glm::vec3 focus1(points[0], 0.0f);
         glm::vec3 focus2(points[1], 0.0f);
@@ -72,7 +78,8 @@ std::shared_ptr<Primitive> DrawBoard::CreatePrimitiveFromPoints(const std::vecto
         double distance2 = glm::distance(pointOnEllipse, focus2);
         double majorAxisLength = (distance1 + distance2) * 0.5f;
 
-        return std::make_shared<Ellipse>(focus1, focus2, majorAxisLength);
+        return std::make_shared<Ellipse>(focus1, focus2, majorAxisLength,
+                                         m_lineWidth, m_lineColor);
     }
     case DrawingMode::Ellipse_CenterAxes: {
         glm::vec3 center(points[0], 0.0f);
@@ -83,7 +90,9 @@ std::shared_ptr<Primitive> DrawBoard::CreatePrimitiveFromPoints(const std::vecto
         double minorAxisLength = glm::distance(center, pointOnMinorAxis);
         double rotationAngle = std::atan2(pointOnMajorAxis.y - center.y, pointOnMajorAxis.x - center.x);
 
-        return std::make_shared<Ellipse>(center, majorAxisLength, minorAxisLength, rotationAngle);
+        return std::make_shared<Ellipse>(center, majorAxisLength,
+                                         minorAxisLength, rotationAngle,
+                                         m_lineWidth, m_lineColor);
     }
     case DrawingMode::Ellipse_Foci_Bersenham:
     {
@@ -95,7 +104,8 @@ std::shared_ptr<Primitive> DrawBoard::CreatePrimitiveFromPoints(const std::vecto
         double distance2 = glm::distance(pointOnEllipse, focus2);
         double majorAxisLength = (distance1 + distance2) * 0.5f;
         
-        return std::make_shared<Ellipse_Bresenham>(focus1, focus2, majorAxisLength);
+        return std::make_shared<Ellipse_Bresenham>(
+            focus1, focus2, majorAxisLength, m_lineWidth, m_lineColor);
     }
     case DrawingMode::Ellipse_CenterAxes_Bersenham:
     {
@@ -108,7 +118,9 @@ std::shared_ptr<Primitive> DrawBoard::CreatePrimitiveFromPoints(const std::vecto
 
         double rotationAngle = std::atan2(pointOnMajorAxis.y - center.y, pointOnMajorAxis.x - center.x);
 
-        return std::make_shared<Ellipse_Bresenham>(center, majorAxisLength, minorAxisLength, rotationAngle);
+        return std::make_shared<Ellipse_Bresenham>(
+            center, majorAxisLength, minorAxisLength, rotationAngle,
+            m_lineWidth, m_lineColor);
     }
     case DrawingMode::Arc_Circle: {
         glm::vec3 center(points[0], 0.0f);
@@ -120,7 +132,8 @@ std::shared_ptr<Primitive> DrawBoard::CreatePrimitiveFromPoints(const std::vecto
         double startAngle = std::atan2(startPoint.y - center.y, startPoint.x - center.x);
         double endAngle = std::atan2(endPoint.y - center.y, endPoint.x - center.x);
 
-        return std::make_shared<Arc>(center, radius, startAngle, endAngle);
+        return std::make_shared<Arc>(center, radius, startAngle, endAngle,
+                                     m_lineWidth, m_lineColor);
     }
     case DrawingMode::Arc_Ellipse: {
         glm::vec3 focus1(points[0], 0.0f);
@@ -152,7 +165,9 @@ std::shared_ptr<Primitive> DrawBoard::CreatePrimitiveFromPoints(const std::vecto
         yr = relativeEnd.x * sinTheta + relativeEnd.y * cosTheta;
         double endAngle = std::atan2(yr / majorAxisLength, xr / majorAxisLength);
 
-        return std::make_shared<Arc>(center, majorAxisLength, minorAxisLength, rotationAngle, startAngle, endAngle);
+        return std::make_shared<Arc>(center, majorAxisLength, minorAxisLength,
+                                     rotationAngle, startAngle, endAngle,
+                                     m_lineWidth, m_lineColor);
     }
 
     default:

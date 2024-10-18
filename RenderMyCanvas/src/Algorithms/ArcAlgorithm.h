@@ -17,8 +17,10 @@ namespace ArcAlgorithm
 
 void DrawArc(const glm::vec3& center, double a, double b, double rotationAngle,
              double startAngle, double endAngle, uint32_t* imageData,
-             uint32_t width, uint32_t height)
+             uint32_t width, uint32_t height, float lineWidth = 0.0f,
+             uint32_t color = 0xFFFFFFFF)
 {
+    // int lineWidth = 0;
     const int numSteps = 20000;
 
     while (startAngle < 0)
@@ -46,9 +48,16 @@ void DrawArc(const glm::vec3& center, double a, double b, double rotationAngle,
         int xi = static_cast<int>(xr + center.x);
         int yi = static_cast<int>(yr + center.y);
 
-        if (xi >= 0 && xi < static_cast<int>(width) && yi >= 0 &&
-            yi < static_cast<int>(height)) {
-            imageData[yi * width + xi] = 0xFFFFFFFF;  // White color
+        for (float dx = -lineWidth; dx <= lineWidth; dx += 0.1f) {
+            for (float dy = -lineWidth; dy <= lineWidth; dy += 0.1f) {
+                int px = static_cast<int>(xi + dx);
+                int py = static_cast<int>(yi + dy);
+
+                if (px >= 0 && px < static_cast<int>(width) && py >= 0 &&
+                    py < static_cast<int>(height)) {
+                    imageData[py * width + px] = color;
+                }
+            }
         }
     }
 }

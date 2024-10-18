@@ -34,7 +34,13 @@ namespace RMC {
         void SetTemporaryPrimitive(std::shared_ptr<Primitive> primitive);
         void ClearTemporaryPrimitive();
 
+        float GetLineWidth() const { return m_lineWidth; }
+        uint32_t GetLineColor() const { return m_lineColor; }
+
         void SetDrawingMode(DrawingMode mode) { m_CurrentDrawingMode = mode; }
+        void SetLineWidth(float width) { m_lineWidth = width; }
+        void SetLineColor(uint32_t color) { m_lineColor = color; }
+
     private:
         std::vector<std::shared_ptr<Primitive>> m_Primitives;
         std::shared_ptr<Primitive> m_TemporaryPrimitive;
@@ -44,6 +50,9 @@ namespace RMC {
         DrawingMode m_CurrentDrawingMode = DrawingMode::None;
         bool m_IsDrawing = false;
 		bool m_IsHold = false;
+
+        float m_lineWidth = 0.0f;
+        uint32_t m_lineColor = 0xFFFFFFFF;
 
         std::shared_ptr<Primitive> CreatePrimitiveFromPoints(const std::vector<glm::vec2>& points);
         std::shared_ptr<Primitive> CreateTemporaryPrimitive(const std::vector<glm::vec2>& points);

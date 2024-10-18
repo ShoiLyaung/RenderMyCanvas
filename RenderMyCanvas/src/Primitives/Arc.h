@@ -12,14 +12,14 @@ class Arc : public Primitive2D
 public:
     // Constructor for circular arc
     Arc(const glm::vec3& center, float radius, float startAngle,
-        float endAngle);
+        float endAngle,float lineWidth,uint32_t color);
 
     // Constructor for elliptical arc
     Arc(const glm::vec3& center, float majorAxisLength, float minorAxisLength,
-        float rotationAngle, float startAngle, float endAngle);
+        float rotationAngle, float startAngle, float endAngle, float lineWidth,
+        uint32_t color);
 
-    void Draw(uint32_t* imageData, uint32_t width,
-              uint32_t height) const override;
+    void Draw(uint32_t* imageData, uint32_t width, uint32_t height) const override;
 
 protected:
     glm::vec3 Center;
@@ -28,6 +28,8 @@ protected:
     float RotationAngle;    // Rotation angle in radians
     float StartAngle;       // Start angle in radians
     float EndAngle;         // End angle in radians
+    float LineWidth;
+    uint32_t Color;
 };
 
 }  // namespace RMC

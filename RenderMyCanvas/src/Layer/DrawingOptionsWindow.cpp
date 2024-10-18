@@ -19,6 +19,15 @@ namespace RMC {
 
         ImGui::Begin("Drawing Options");
         ImGui::Text("Render Time: %.3fms", lastRenderTime);
+        float lineWidth_t = drawBoard.GetLineWidth();
+        ImGui::DragFloat("Line Width", &lineWidth_t, 0.05f, 0, 5);
+        drawBoard.SetLineWidth(lineWidth_t);
+        uint32_t lineColor_t = drawBoard.GetLineColor();
+        ImVec4 color = ImGui::ColorConvertU32ToFloat4(lineColor_t);
+        if (ImGui::ColorEdit4("Line Color", (float*)&color)) {
+            lineColor_t = ImGui::ColorConvertFloat4ToU32(color);
+            drawBoard.SetLineColor(lineColor_t);
+        }
         if (ImGui::CollapsingHeader("Shapes"))
         {
             if (ImGui::Button("None"))

@@ -13,6 +13,9 @@ namespace RMC {
         {
             currentRenderer = &renderer;
         }
+        ImGui::Checkbox("Accumulate", &renderer.GetSettings().Accumulate);
+        if (ImGui::Button("Reset"))
+            renderer.ResetFrameIndex();
         ImGui::End();
     }
-}
+} // namespace RMC

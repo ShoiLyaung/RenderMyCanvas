@@ -10,4 +10,4 @@ namespace RMC {
     public:
         static void Render(float& lastRenderTime, Renderer*& currentRenderer, DrawBoard& drawBoard, Renderer& renderer, Scene& scene, Camera& camera);
     };
-}
+} // namespace RMC

@@ -9,12 +9,13 @@ namespace RMC {
 	{
 	}
 
-	entt::entity Scene::CreateEntity()
-	{
-		return m_Registry.create();
-	}
+	//entt::entity Scene::CreateEntity()
+	//{
+	//	return m_Registry.create();
+	//}
 
-	void Scene::OnUpdate(float ts)
+	bool Scene::OnUpdate(float ts)
 	{
+		return 0;
 	}
 } // namespace RMC

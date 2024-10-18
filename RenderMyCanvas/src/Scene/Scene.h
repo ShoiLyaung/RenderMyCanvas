@@ -1,9 +1,10 @@
 #pragma once
 
 #include <vector>
-#include "entt.hpp"
+//#include "entt.hpp"
 
 #include "Primitives/Sphere.h"
+#include "Material/Material.h"
 
 namespace RMC
 {
@@ -14,11 +15,12 @@ namespace RMC
 		~Scene();
 		//std::vector<Primitive> Primitives;
 		std::vector<Sphere> Spheres;
+		std::vector<Material> Materials;
 
-		entt::entity CreateEntity();
+		//entt::entity CreateEntity();
 
-		void OnUpdate(float ts);
+		bool OnUpdate(float ts);
 	private:
-		entt::registry m_Registry;
+		//entt::registry m_Registry;
 	};
 } // namespace RMC

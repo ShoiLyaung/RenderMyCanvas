@@ -27,7 +27,10 @@ namespace RMC
     void MainLayer::OnUpdate(float ts)
     {
 		m_Scene.OnUpdate(ts);
-		m_Camera.OnUpdate(ts);
+        if (m_Camera.OnUpdate(ts))
+        {
+			m_Renderer.ResetFrameIndex();
+        }
 
         // Handle mouse input for drawing in DrawBoard
         if (m_CurrentRenderer == &m_DrawBoard)

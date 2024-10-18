@@ -5,7 +5,6 @@
 
 #include <memory>
 #include <glm/glm.hpp>
-#include <entt.hpp>
 #include "Camera/Camera.h"
 #include "Camera/Ray.h"
 #include "Scene/Scene.h"
@@ -15,6 +14,10 @@ namespace RMC
 	class Renderer
 	{
 	public:
+		struct Settings
+		{
+			bool Accumulate = true;
+		};
 		Renderer() = default;
 		~Renderer() = default;
 		void OnResize(uint32_t width, uint32_t height);
@@ -22,6 +25,8 @@ namespace RMC
 		std::shared_ptr<Walnut::Image> GetFinalImage() const { return m_FinalImage; }
 		ImVec2 Get_uv0() const { return m_uv0; }
 		ImVec2 Get_uv1() const { return m_uv1; }
+		void ResetFrameIndex() { m_FrameIndex = 1; }
+		Settings& GetSettings() { return m_Settings; }
 	protected:
 		struct HitPayload
 		{
@@ -38,9 +43,14 @@ namespace RMC
 		HitPayload Miss(const Ray& ray);
 
 		std::shared_ptr<Walnut::Image> m_FinalImage;
+		Settings m_Settings;
+		std::vector<uint32_t> m_ImageHorizontalIter, m_ImageVerticalIter;
+
 		const Scene* m_ActiveScene = nullptr;
 		const Camera* m_ActiveCamera = nullptr;
 		uint32_t* m_ImageData = nullptr;
 		ImVec2 m_uv0 = { 0, 1 }, m_uv1 = { 1, 0 };
+		glm::vec4* m_AccumulationData = nullptr;
+		uint32_t m_FrameIndex = 1;
 	};
 } // namespace RMC

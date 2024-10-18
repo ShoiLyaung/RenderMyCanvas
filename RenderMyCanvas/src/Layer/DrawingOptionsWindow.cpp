@@ -8,11 +8,30 @@ namespace RMC {
         for (size_t i = 0; i < scene.Spheres.size(); i++)
         {
             ImGui::PushID((int)i);
+
             Sphere& sphere = scene.Spheres[i];
             ImGui::DragFloat3("Position", glm::value_ptr(sphere.Position), 0.1f);
             ImGui::DragFloat("Radius", &sphere.Radius, 0.1f);
-            ImGui::ColorEdit3("Albedo", glm::value_ptr(sphere.Albedo));
+            ImGui::DragInt("Material", &sphere.MaterialIndex, 1.0f, 0, (int)scene.Materials.size() - 1);
+
             ImGui::Separator();
+
+            ImGui::PopID();
+        }
+
+        for (size_t i = 0; i < scene.Materials.size(); i++)
+        {
+            ImGui::PushID((int)i);
+
+            Material& material = scene.Materials[i];
+            ImGui::ColorEdit3("Albedo", glm::value_ptr(material.Albedo));
+            ImGui::DragFloat("Roughness", &material.Roughness, 0.05f, 0.0f, 1.0f);
+            ImGui::DragFloat("Metallic", &material.Metallic, 0.05f, 0.0f, 1.0f);
+            ImGui::ColorEdit3("Emission Color", glm::value_ptr(material.EmissionColor));
+            ImGui::DragFloat("Emission Power", &material.EmissionPower, 0.05f, 0.0f, FLT_MAX);
+
+            ImGui::Separator();
+
             ImGui::PopID();
         }
         ImGui::End();

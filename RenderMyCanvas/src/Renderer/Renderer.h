@@ -23,9 +23,23 @@ namespace RMC
 		ImVec2 Get_uv0() const { return m_uv0; }
 		ImVec2 Get_uv1() const { return m_uv1; }
 	protected:
-		glm::vec4 TraceRay(const Scene& scene, const Ray& ray);
-		// virtual glm::vec4 PerPixel(glm::vec2 coord);
+		struct HitPayload
+		{
+			float HitDistance;
+			glm::vec3 WorldPosition;
+			glm::vec3 WorldNormal;
+
+			int ObjectIndex;
+		};
+
+		glm::vec4 PerPixel(uint32_t x, uint32_t y);
+		HitPayload TraceRay(const Ray& ray);
+		HitPayload ClosestHit(const Ray& ray, float hitDistance, int objectIndex);
+		HitPayload Miss(const Ray& ray);
+
 		std::shared_ptr<Walnut::Image> m_FinalImage;
+		const Scene* m_ActiveScene = nullptr;
+		const Camera* m_ActiveCamera = nullptr;
 		uint32_t* m_ImageData = nullptr;
 		ImVec2 m_uv0 = { 0, 1 }, m_uv1 = { 1, 0 };
 	};

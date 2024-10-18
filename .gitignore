@@ -1,5 +1,6 @@
 # Directories
 .vs/
+.vscode/
 bin/
 bin-int/
 
@@ -8,6 +9,7 @@ bin-int/
 *.vcxproj.user
 *.vcxproj.filters
 *.sln
+print.ipynb
 
 # Exclude
 !vendor/bin

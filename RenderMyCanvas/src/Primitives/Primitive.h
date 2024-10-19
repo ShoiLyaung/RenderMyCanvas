@@ -12,8 +12,11 @@ namespace RMC
         Primitive() = default;
         ~Primitive() = default;
 		virtual void Draw(uint32_t* imageData, uint32_t width, uint32_t height) const = 0;
+		bool IsRendered() const { return isRendered; }
+		void SetRendered(bool rendered) { isRendered = rendered; }
     protected:
         //AlgorithmType Algorithm;
+        bool isRendered;
     };
 
     class Primitive2D : public Primitive

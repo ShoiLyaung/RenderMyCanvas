@@ -9,13 +9,15 @@
 #include "Camera/Camera.h"
 #include "Camera/Ray.h"
 #include "Scene/Scene.h"
+#include "PostProcessing/PostProcessingPipeLine.h"
+#include "PostProcessing/DLSSProcess.h"
 
 namespace RMC
 {
 	class Renderer
 	{
 	public:
-		Renderer() = default;
+		Renderer();
 		~Renderer() = default;
 		void OnResize(uint32_t width, uint32_t height);
 		virtual void Render(const Scene& scene, const Camera& camera);
@@ -28,5 +30,6 @@ namespace RMC
 		std::shared_ptr<Walnut::Image> m_FinalImage;
 		uint32_t* m_ImageData = nullptr;
 		ImVec2 m_uv0 = { 0, 1 }, m_uv1 = { 1, 0 };
+		std::unique_ptr < PostProcessingPipeLine > m_PpPipeline;
 	};
 } // namespace RMC

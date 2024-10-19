@@ -1,3 +1,6 @@
+LibTorchDir = "G:\\libtorch" -- 替换为实际路径
+CUDA_SDK_DIR = "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.0" -- 替换为你的CUDA安装路径
+
 project "RenderMyCanvas"
    kind "ConsoleApp"
    language "C++"
@@ -5,7 +8,7 @@ project "RenderMyCanvas"
    targetdir "bin/%{cfg.buildcfg}"
    staticruntime "off"
 
-   files { "src/**.h", "src/**.cpp" }
+   files { "src/**.h", "src/**.cpp", "src/**.cuh", "src/**.cu" }
 
    includedirs
    {
@@ -18,12 +21,30 @@ project "RenderMyCanvas"
 
       "../Walnut/Walnut/src",
 
-      "%{IncludeDir.VulkanSDK}"
+      "%{IncludeDir.VulkanSDK}",
+      
+      "%{LibTorchDir}/include",
+      "%{LibTorchDir}/include/torch/csrc/api/include",
+      
+      "%{CUDA_SDK_DIR}/include" -- CUDA include path
    }
 
    links
    {
        "Walnut"
+   }
+
+   libdirs 
+   { 
+      "%{LibTorchDir}/lib",
+      "%{CUDA_SDK_DIR}/lib/x64" -- CUDA library path for 64-bit systems
+   }
+
+   links 
+   {
+      "cudart", -- CUDA runtime library
+      "cublas", -- CUDA Basic Linear Algebra Subroutines (if needed)
+      "cudnn" -- CUDA Deep Neural Network library (if needed, optional)
    }
 
    targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
@@ -32,7 +53,8 @@ project "RenderMyCanvas"
    filter "system:windows"
       systemversion "latest"
       defines { "WL_PLATFORM_WINDOWS" }
-
+      defines { "TORCH_USE_CUDA" }
+      
    filter "configurations:Debug"
       defines { "WL_DEBUG" }
       runtime "Debug"

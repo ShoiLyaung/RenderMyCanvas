@@ -1,5 +1,5 @@
 #include "Renderer.h"
-
+#include<iostream>
 namespace Utils {
 	static uint32_t ConvertToRGBA(const glm::vec4& color)
 	{
@@ -13,6 +13,12 @@ namespace Utils {
 }
 namespace RMC
 {
+	Renderer::Renderer()
+	{
+        m_ImageData = nullptr;
+		m_PpPipeline = std::make_unique<PostProcessingPipeLine>();
+        m_PpPipeline->addProcess(std::make_shared<DLSSProcess>());
+	}
 	void Renderer::OnResize(uint32_t width, uint32_t height)
 	{
 		//resize the image
@@ -56,6 +62,7 @@ namespace RMC
 			}
 		}
 		m_FinalImage->SetData(m_ImageData);
+        m_FinalImage = m_PpPipeline->process(m_FinalImage);
 	}
 
 	glm::vec4 Renderer::TraceRay(const Scene& scene, const Ray& ray)

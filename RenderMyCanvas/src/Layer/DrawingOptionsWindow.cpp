@@ -21,8 +21,8 @@ namespace RMC {
         ImGui::Begin("Drawing Options");
         ImGui::Text("Render Time: %.3fms", lastRenderTime);
         int lineWidth_t = drawBoard.GetLineWidth()*10;
-        ImGui::DragInt("Line Width", &lineWidth_t, 0.05f, 1, 100);
-        drawBoard.SetLineWidth(lineWidth_t/10.0f);
+        ImGui::DragInt("Line Width", &lineWidth_t, 0.05f, 0, 100);
+        drawBoard.SetLineWidth(static_cast<float>((lineWidth_t) / 10.0f));
         uint32_t lineColor_t = drawBoard.GetLineColor();
         uint32_t fillColor_t = drawBoard.GetFillColor();
         ImVec4 lineColor = ImGui::ColorConvertU32ToFloat4(lineColor_t);

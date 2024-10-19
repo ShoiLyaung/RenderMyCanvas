@@ -1,5 +1,7 @@
 #pragma once
 #include "Algorithms/SeedFill.h"
+#include "Algorithms/ContourExtraction.h"
+#include "Algorithms/PolygonScanlineFill.h"
 #include "Primitives/Arc.h"
 #include "Primitives/Circle.h"
 #include "Primitives/Ellipse.h"
@@ -8,6 +10,7 @@
 #include "Renderer/Renderer.h"
 #include <glm/glm.hpp>
 #include <vector>
+#include <iostream>
 
 namespace RMC
 {
@@ -44,11 +47,11 @@ public:
     float GetLineWidth() const { return m_lineWidth; }
     uint32_t GetLineColor() const { return m_lineColor; }
     uint32_t GetFillColor() const { return m_fillColor; }
-    uint32_t* GetRenderedImageData() const
+    uint32_t* DrawBoard::GetRenderedImageData() const
     {
-        uint32_t* m_ImageData_cp =
+        uint32_t* m_ImageData_cp(
             (uint32_t*) malloc(m_FinalImage->GetWidth() *
-                               m_FinalImage->GetHeight() * sizeof(uint32_t));
+                               m_FinalImage->GetHeight() * sizeof(uint32_t)));
         std::memcpy(m_ImageData_cp, m_ImageData,
                     m_FinalImage->GetWidth() * m_FinalImage->GetHeight() *
                         sizeof(uint32_t));
@@ -61,7 +64,6 @@ public:
     void SetLineWidth(float width) { m_lineWidth = width; }
     void SetLineColor(uint32_t color) { m_lineColor = color; }
     void SetFillColor(uint32_t color) { m_fillColor = color; }
-    void SetRenderedImageData(uint32_t* data) { m_ImageData = data; }
     void SetRenderedWidthAndHeight(uint32_t width, uint32_t height)
     {
         m_RenderedWidth = width;
@@ -77,12 +79,13 @@ private:
     DrawingMode m_CurrentDrawingMode = DrawingMode::None;
     bool m_IsDrawing = false;
     bool m_IsHold = false;
+    bool m_IsEmptyPrimitiveRendered = false;
 
     float m_lineWidth = 0.1f;
     uint32_t m_lineColor = 0xFFFFFFFF;
     uint32_t m_fillColor = 0xFFFFFFFF;
-    uint32_t m_RenderedWidth;
-    uint32_t m_RenderedHeight;
+    uint32_t m_RenderedWidth = 0;
+    uint32_t m_RenderedHeight = 0;
 
     std::shared_ptr<Primitive>
     CreatePrimitiveFromPoints(const std::vector<glm::vec2>& points);

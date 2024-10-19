@@ -15,12 +15,23 @@ void DrawBoard::OnMouseEvent(int action, float x, float y)
 
     if (m_CurrentDrawingMode == DrawingMode::Fill) {
         if (action == 1) {
-            auto m_ImageData_t = GetRenderedImageData();
-            RMC::SeedFill::FillArea(m_ImageData_t, m_FinalImage->GetWidth(),
-                                    m_FinalImage->GetHeight(), m_fillColor,
-                                    glm::vec3(x, y, 0.0f));
-            SetRenderedImageData(m_ImageData_t);
-            m_FinalImage->SetData(GetRenderedImageData());
+            std::vector<glm::vec2> vertices;
+            if (RMC::ContourExtraction::ExtractContour(
+                    m_ImageData, m_FinalImage->GetWidth(),
+                    m_FinalImage->GetHeight(), glm::vec3(x, y, 0.0f),
+                    vertices)) {
+                std::cout<<"PolygonScanlineFill\n";
+                RMC::PolygonScanlineFill::FillPolygon(
+                    vertices, m_ImageData, m_FinalImage->GetWidth(),
+                    m_FinalImage->GetHeight(), m_fillColor);
+            } else {
+                std::cout << "SeedFill\n";
+                RMC::SeedFill::FillArea(m_ImageData, m_FinalImage->GetWidth(),
+                                        m_FinalImage->GetHeight(), m_fillColor,
+                                        glm::vec3(x, y, 0.0f));
+            }
+
+            m_FinalImage->SetData(m_ImageData);
         }
     } else if (action == 1 && m_IsDrawing == false) {
         m_IsDrawing = true;
@@ -42,32 +53,39 @@ void DrawBoard::OnMouseEvent(int action, float x, float y)
 
 void DrawBoard::Render(const Scene& scene, const Camera& camera)
 {
-    if (m_Primitives.empty()) {
-        m_ImageData = (uint32_t*)malloc(m_FinalImage->GetWidth() *
-                                      m_FinalImage->GetHeight() * sizeof(uint32_t));
+    if (!m_IsEmptyPrimitiveRendered) {
+        if (m_ImageData != nullptr) {
+            free(m_ImageData);
+            m_ImageData = nullptr;
+        }
+        m_ImageData =
+            (uint32_t*) malloc(m_FinalImage->GetWidth() *
+                               m_FinalImage->GetHeight() * sizeof(uint32_t));
         std::memset(m_ImageData, 0,
                     m_FinalImage->GetWidth() * m_FinalImage->GetHeight() *
                         sizeof(uint32_t));
         SetRenderedWidthAndHeight(m_FinalImage->GetWidth(),
                                   m_FinalImage->GetHeight());
-        SetRenderedImageData(m_ImageData);
+        m_IsEmptyPrimitiveRendered = true;
     } else if (GetRenderedHeight() != m_FinalImage->GetHeight() ||
                GetRenderedWidth() != m_FinalImage->GetWidth()) {
         for (auto& primitive : m_Primitives) {
             if (primitive)
                 primitive->SetRendered(false);
         }
-        m_ImageData = (uint32_t*)malloc(m_FinalImage->GetWidth() *
-                                      m_FinalImage->GetHeight() * sizeof(uint32_t));
+        if (m_ImageData != nullptr) {
+			free(m_ImageData);
+			m_ImageData = nullptr;
+		}
+        m_ImageData =
+            (uint32_t*) malloc(m_FinalImage->GetWidth() *
+                               m_FinalImage->GetHeight() * sizeof(uint32_t));
         std::memset(m_ImageData, 0,
                     m_FinalImage->GetWidth() * m_FinalImage->GetHeight() *
                         sizeof(uint32_t));
         SetRenderedWidthAndHeight(m_FinalImage->GetWidth(),
                                   m_FinalImage->GetHeight());
-        SetRenderedImageData(m_ImageData);
     } else {
-        auto m_ImageData = GetRenderedImageData();
-
         for (auto primitive : m_Primitives) {
             if (primitive)
                 if (!primitive->IsRendered()) {
@@ -77,7 +95,6 @@ void DrawBoard::Render(const Scene& scene, const Camera& camera)
                                     m_FinalImage->GetHeight());
                     primitive->SetRendered(true);
                 }
-            SetRenderedImageData(m_ImageData);
         }
 
         auto m_ImageData_t = GetRenderedImageData();
@@ -87,6 +104,10 @@ void DrawBoard::Render(const Scene& scene, const Camera& camera)
                                        m_FinalImage->GetHeight());
         }
         m_FinalImage->SetData(m_ImageData_t);
+        if (m_ImageData_t != nullptr) {
+            free(m_ImageData_t);
+            m_ImageData_t = nullptr;
+        }
     }
 }
 

@@ -7,6 +7,7 @@ namespace RMC
 	{
 		glm::vec3 Position{ 0.0f };
 		float Radius = 0.5f;
-		glm::vec3 Albedo{ 1.0f };
+		
+		int MaterialIndex = 0;
 	};
 } // namespace RMC

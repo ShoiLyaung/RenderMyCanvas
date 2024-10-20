@@ -23,6 +23,7 @@ namespace RMC
 		void OnResize(uint32_t width, uint32_t height);
 		virtual void Render(const Scene& scene, const Camera& camera);
 		std::shared_ptr<Walnut::Image> GetFinalImage() const { return m_FinalImage; }
+		uint32_t GetImageScale() const { return m_ImageScale; }
 		ImVec2 Get_uv0() const { return m_uv0; }
 		ImVec2 Get_uv1() const { return m_uv1; }
 		void ResetFrameIndex() { m_FrameIndex = 1; }
@@ -48,6 +49,7 @@ namespace RMC
 
 		const Scene* m_ActiveScene = nullptr;
 		const Camera* m_ActiveCamera = nullptr;
+		uint32_t m_ImageScale = 4;
 		uint32_t* m_ImageData = nullptr;
 		ImVec2 m_uv0 = { 0, 1 }, m_uv1 = { 1, 0 };
 		glm::vec4* m_AccumulationData = nullptr;

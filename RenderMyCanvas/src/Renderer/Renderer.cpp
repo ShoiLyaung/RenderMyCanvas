@@ -62,7 +62,7 @@ namespace RMC
 			}
 		}
 		m_FinalImage->SetData(m_ImageData);
-        m_FinalImage = m_PpPipeline->process(m_FinalImage);
+        //m_FinalImage = m_PpPipeline->process(m_FinalImage);
 	}
 
 	glm::vec4 Renderer::TraceRay(const Scene& scene, const Ray& ray)

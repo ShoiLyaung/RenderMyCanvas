@@ -134,8 +134,8 @@ namespace RMC
 			Renderer::HitPayload payload = TraceRay(ray);
 			if (payload.HitDistance < 0.0f)
 			{
-				glm::vec3 skyColor = glm::vec3(0.6f, 0.7f, 0.9f);
-                // light += skyColor * contribution;
+				if (!m_ActiveScene->IsNight())
+					light += m_ActiveScene->GetSkyColor() * contribution;
 				break;
 			}
 
@@ -146,7 +146,16 @@ namespace RMC
             light += material.GetEmission();
 
 			ray.Origin = payload.WorldPosition + payload.WorldNormal * 0.0001f;
-			ray.Direction = glm::normalize(payload.WorldNormal + Utils::InUnitSphere(seed));
+
+			if (material.Metallic > 0.0f)
+			{
+				glm::vec3 reflected = glm::reflect(ray.Direction, payload.WorldNormal);
+				ray.Direction = glm::normalize(reflected + material.Roughness * Utils::InUnitSphere(seed));
+			}
+			else
+			{
+				ray.Direction = glm::normalize(payload.WorldNormal + Utils::InUnitSphere(seed));
+			}
 		}
 
 		return glm::vec4(light, 1.0f);

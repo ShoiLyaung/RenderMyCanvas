@@ -38,12 +38,7 @@ namespace RMC
 			Material& mirrorMaterial = m_Scene.Materials.emplace_back();
 			mirrorMaterial.Albedo = { 1.0f, 1.0f, 1.0f };
 			mirrorMaterial.Roughness = 0.0f;
-
-			Material& glowingMaterial = m_Scene.Materials.emplace_back();
-			glowingMaterial.Albedo = { 0.0f, 1.0f, 0.0f };
-			glowingMaterial.Roughness = 0.5f;
-			glowingMaterial.EmissionColor = { 0.0f, 1.0f, 0.0f };
-			glowingMaterial.EmissionPower = 5.0f;
+			mirrorMaterial.Metallic = 1.0f;
 
 			for (int i = 0; i < 5; i++) {
 				Material& randomMaterial = m_Scene.Materials.emplace_back();
@@ -53,6 +48,7 @@ namespace RMC
 					static_cast<float>(rand()) / RAND_MAX
 				};
 				randomMaterial.Roughness = static_cast<float>(rand()) / RAND_MAX;
+				randomMaterial.Metallic = static_cast<float>(rand()) / RAND_MAX;
 				if (rand() % 2 == 0) {
 					randomMaterial.EmissionColor = randomMaterial.Albedo;
 					randomMaterial.EmissionPower = static_cast<float>(rand()) / RAND_MAX * 10.0f;

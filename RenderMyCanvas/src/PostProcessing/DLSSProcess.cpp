@@ -1,5 +1,6 @@
 #include "DLSSProcess.h"
-#include<cuda_runtime.h>
+#include <chrono>
+#include <cuda_runtime.h>
 
 namespace Utils {
     static glm::vec4 ConvertFromRGBA(uint32_t color)
@@ -24,33 +25,6 @@ namespace Utils {
         return (a << 24) | (b << 16) | (g << 8) | r;
     }
 
-    //torch::Tensor WalnutImageToTensor(std::shared_ptr<Walnut::Image> img)
-    //{
-    //    std::cout<<"start convert"<<std::endl;
-    //    int width = img->GetWidth();
-    //    int height = img->GetHeight();
-    //    int channels = 4;
-
-    //    torch::Tensor tensor = torch::empty({ 1, 3, height, width }, torch::kFloat32);
-    //    const uint32_t* img_data = reinterpret_cast<const uint32_t*>(img->GetDescriptorSet());
-
-    //    for (int h = 0; h < height; ++h) {
-    //        for (int w = 0; w < width; ++w) {
-    //            // 计算在原始数据中的偏移量
-    //            int index = h * width + w;
-    //            uint32_t pixel = img_data[index]; // 获取 RGBA 像素值
-
-    //            // 使用 ConvertFromRGBA 将 RGBA 转换为 glm::vec4
-    //            glm::vec4 color = Utils::ConvertFromRGBA(pixel);
-
-    //            // 将颜色值存储到张量中
-    //            tensor[0][0][h][w] = color.r; // Red
-    //            tensor[0][1][h][w] = color.g; // Green
-    //            tensor[0][2][h][w] = color.b; // Blue
-    //        }
-    //    }
-    //    return tensor;
-    //}
 
     torch::Tensor WalnutImageToTensor(std::shared_ptr<Walnut::Image> img)
     {
@@ -58,15 +32,22 @@ namespace Utils {
         int height = img->GetHeight();
         int channels = 3;
 
-        torch::Tensor tensor = torch::empty({ 1, channels, height, width });
+        torch::Tensor tensor;
 
         // 从 Walnut::Image 获取原始数据
         const uint32_t* img_data = reinterpret_cast<const uint32_t*>(img->GetDescriptorSet());
 
         // 为张量的数据分配GPU内存
-        float* d_tensor_data = tensor.data_ptr<float>();
+        float* d_tensor_data;
+
+        cudaMalloc(&d_tensor_data, width*2  * height*2 * channels * sizeof(float));
 
         ImageToTensor(img_data, d_tensor_data, width, height);
+
+        torch::TensorOptions options = torch::TensorOptions().device(torch::kCUDA).dtype(torch::kFloat32);
+
+        tensor = torch::from_blob(d_tensor_data, { 1, channels, height*2, width*2 }, options);
+        //tensor = torch::CUDA(d_tensor_data);
 
         return tensor;
     }
@@ -117,18 +98,18 @@ RMC::DLSSProcess::DLSSProcess()
 
 std::shared_ptr<Walnut::Image> RMC::DLSSProcess::process(std::shared_ptr<Walnut::Image> img)
 {
-    //std::cout << "running DLSS" << std::endl;
-    // 获取输入图像的宽度和高度
-    int width = img->GetWidth();
-    int height = img->GetHeight();
-
-    torch::Tensor inputTensor = Utils::WalnutImageToTensor(img).toType(torch::kFloat32).to(torch::kCUDA);
-    //std::cout << "inputTensor size: " << inputTensor.sizes() << std::endl;
+    std::cout << "DLSSProcess" << std::endl;
+    std::cout << "img" << img->GetWidth() << img->GetHeight() << std::endl;
+    torch::Tensor inputTensor = Utils::WalnutImageToTensor(img).toType(torch::kFloat32);
+    std::cout<<"inputTensor"<<inputTensor.sizes()<<std::endl;
     std::vector<torch::jit::IValue> inputs;
     inputs.push_back(inputTensor);
     torch::Tensor outputTensor = model.forward(inputs).toTensor();
-    //std::cout << "outputTensor size: " << outputTensor.sizes() << std::endl;
-    std::shared_ptr<Walnut::Image> outputImage = Utils::tensorToWalnutImage(outputTensor.to(torch::kCPU));
-    //std::cout<< "outputImage size: " << outputImage->GetWidth() << " " << outputImage->GetHeight() << std::endl;
+    std::cout << "outputTensor" << outputTensor.sizes() << std::endl;
+    std::shared_ptr<Walnut::Image> outputImage = Utils::tensorToWalnutImage(outputTensor);
+    std::cout << "outputImage" << outputImage->GetWidth() << outputImage->GetHeight() << std::endl;
+
     return outputImage;
 }
+
+

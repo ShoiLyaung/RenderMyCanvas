@@ -2,6 +2,48 @@
 #include <glm/glm.hpp>
 #include<iostream>
  
+// CUDA 核函数，用于执行最近邻插值
+__global__ void NearestNeighborKernel(const uint32_t* d_img_data, int old_width, int old_height, uint32_t* d_scaled_img_data, int new_width, int new_height)
+{
+    // 获取线程的全局索引
+    int new_x = blockIdx.x * blockDim.x + threadIdx.x;
+    int new_y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    // 确保线程索引在新图像的范围内
+    if (new_x < new_width && new_y < new_height)
+    {
+        // 计算原图像中的坐标
+        int orig_x = new_x / 2;
+        int orig_y = new_y / 2;
+        int orig_index = orig_y * old_width + orig_x;
+
+        // 计算新图像中的索引
+        int new_index = new_y * new_width + new_x;
+
+        // 将原图像的像素值复制到新图像中
+        d_scaled_img_data[new_index] = d_img_data[orig_index];
+    }
+}
+
+
+// 调用 CUDA 核函数的主函数
+void NearestNeighborScaleCUDA(uint32_t* img_data, int old_width, int old_height, uint32_t* scaled_img_data)
+{
+    int new_width = old_width * 2;
+    int new_height = old_height * 2;
+
+
+    // 定义 CUDA 线程块和网格的大小
+    dim3 blockSize(16, 16); // 每个线程块 16x16 个线程
+    dim3 gridSize((new_width + blockSize.x - 1) / blockSize.x, (new_height + blockSize.y - 1) / blockSize.y);
+
+    // 调用 CUDA 核函数
+    NearestNeighborKernel << <gridSize, blockSize >> > (img_data, old_width, old_height, scaled_img_data, new_width, new_height);
+
+    cudaDeviceSynchronize();
+}
+
+
 void ImageToTensor(const uint32_t* img_data, float* tensor_data, int width, int height) 
 {
     uint32_t* d_img_data;
@@ -9,25 +51,28 @@ void ImageToTensor(const uint32_t* img_data, float* tensor_data, int width, int 
     //std::cout << "start convert" << std::endl;
     cudaMemcpy(d_img_data, img_data, width * height * sizeof(uint32_t), cudaMemcpyHostToDevice);
 
-    float *d_tensor_data;
-    cudaMalloc(&d_tensor_data, width * height * 3 * sizeof(float));
+    uint32_t* d_scaled_img_data;
+    cudaMalloc(&d_scaled_img_data, width*2 * height*2 * sizeof(uint32_t));
+
+    NearestNeighborScaleCUDA(d_img_data, width, height, d_scaled_img_data);
+
 
     // 设定CUDA网格和线程块大小
     dim3 block_size(16, 16);
-    dim3 grid_size((width + block_size.x - 1) / block_size.x, (height + block_size.y - 1) / block_size.y);
+    dim3 grid_size((width*2 + block_size.x - 1) / block_size.x, (height*2 + block_size.y - 1) / block_size.y);
 
     // 启动 CUDA 核函数
-    ImageToTensorKernel << <grid_size, block_size >> > (d_img_data, d_tensor_data, width, height);
+    ImageToTensorKernel << <grid_size, block_size >> > (d_scaled_img_data, tensor_data, width, height);
 
     // 等待CUDA完成
     cudaDeviceSynchronize();
 
     // 将结果从设备复制回主机
-    cudaMemcpy(tensor_data, d_tensor_data, width * height * 3 * sizeof(float), cudaMemcpyDeviceToHost);
+    //cudaMemcpy(tensor_data, d_tensor_data, width * height * 3 * sizeof(float), cudaMemcpyDeviceToHost);
 
     // 释放分配的内存
     cudaFree(d_img_data);
-    cudaFree(d_tensor_data);
+    //cudaFree(d_tensor_data);
     //std::cout << "end convert" << std::endl;    
 
 }
@@ -56,27 +101,27 @@ __global__ void ImageToTensorKernel(const uint32_t* img_data, float* tensor_data
 void convertTensorToImage(const float* data_ptr, uint32_t* img_data, int width, int height)
 {
     // 在设备上分配内存
-       float* d_tensor_data;
+       //float* d_tensor_data;
        uint32_t* d_img_data;
-       cudaMalloc(&d_tensor_data, sizeof(float)* (width* height * 3));
+       //cudaMalloc(&d_tensor_data, sizeof(float)* (width* height * 3));
        cudaMalloc(&d_img_data, sizeof(uint32_t)* (width* height));
 
        // 将数据从主机复制到设备
-       cudaMemcpy(d_tensor_data, data_ptr, sizeof(float)* (width* height * 3), cudaMemcpyHostToDevice);
+       //cudaMemcpy(d_tensor_data, data_ptr, sizeof(float)* (width* height * 3), cudaMemcpyHostToDevice);
 
        // 4. 配置 CUDA 网格和块的维度
        dim3 blockSize(16, 16); // 每个块中的线程数
        dim3 gridSize((width + blockSize.x - 1) / blockSize.x, (height + blockSize.y - 1) / blockSize.y); // 网格尺寸
 
        // 5. 调用 CUDA 内核
-       convertTensorToImageKernel << <gridSize, blockSize >> > (d_tensor_data, d_img_data, height, width);
+       convertTensorToImageKernel << <gridSize, blockSize >> > (data_ptr, d_img_data, height, width);
        cudaDeviceSynchronize(); // 确保内核执行完成
 
        // 6. 从设备复制数据回主机
        cudaMemcpy(img_data, d_img_data, sizeof(uint32_t)* (width* height), cudaMemcpyDeviceToHost);
 
        // 8. 释放设备内存
-       cudaFree(d_tensor_data);
+       //cudaFree(d_tensor_data);
        cudaFree(d_img_data);
 
 }

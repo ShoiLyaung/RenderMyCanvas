@@ -16,14 +16,17 @@ namespace Utils {
 }
 namespace RMC
 {
+	bool DLSSEnabled = true;
 	Renderer::Renderer()
 	{
-        m_ImageData = nullptr;
+		m_ImageData = nullptr;
 		m_PpPipeline = std::make_unique<PostProcessingPipeLine>();
-        m_PpPipeline->addProcess(std::make_shared<DLSSProcess>());
+		m_PpPipeline->addProcess(std::make_shared<DLSSProcess>());
 	}
 	void Renderer::OnResize(uint32_t width, uint32_t height)
 	{
+		_width = width;
+        _height = height;
 		//resize the image
 		if (m_FinalImage)
 		{
@@ -35,6 +38,12 @@ namespace RMC
 		else
 		{
 			m_FinalImage = std::make_shared<Walnut::Image>(width, height, Walnut::ImageFormat::RGBA);
+		}
+
+		if (DLSSEnabled)
+		{
+			width /= 2;
+            height /= 2;
 		}
 
 		delete[] m_ImageData;
@@ -53,6 +62,9 @@ namespace RMC
 
 	void Renderer::Render(const Scene& scene, const Camera& camera)
 	{
+
+		render_data = new uint32_t[_width*_height/4];
+
 		m_ActiveScene = &scene;
 		m_ActiveCamera = &camera;
 
@@ -72,7 +84,7 @@ namespace RMC
 						glm::vec4 accumulatedColor = m_AccumulationData[x + y * m_FinalImage->GetWidth()];
 						accumulatedColor /= (float)m_FrameIndex;
 						accumulatedColor = glm::clamp(accumulatedColor, glm::vec4(0.0f), glm::vec4(1.0f));
-						m_ImageData[x + y * m_FinalImage->GetWidth()] = Utils::ConvertToRGBA(accumulatedColor);
+						render_data[x + y * m_FinalImage->GetWidth()] = Utils::ConvertToRGBA(accumulatedColor);
 					});
 			});
 #else
@@ -90,8 +102,8 @@ namespace RMC
 		}
 #endif
 
-		m_FinalImage->SetData(m_ImageData);
-        m_FinalImage = m_PpPipeline->process(m_FinalImage);
+		std::shared_ptr<Walnut::Image> temp = std::make_shared<Walnut::Image>(_width/2, _height/2, Walnut::ImageFormat::RGBA);
+		m_FinalImage = m_PpPipeline->process(temp);
 		if (m_Settings.Accumulate)
 			m_FrameIndex++;
 		else

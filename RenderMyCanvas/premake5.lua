@@ -1,11 +1,11 @@
 project "RenderMyCanvas"
    kind "ConsoleApp"
    language "C++"
-   cppdialect "C++17"
+   cppdialect "C++20"
    targetdir "bin/%{cfg.buildcfg}"
    staticruntime "off"
 
-   files { "src/**.h", "src/**.cpp" }
+   files { "src/**.h", "src/**.hpp", "src/**.cpp" }
 
    includedirs
    {
@@ -15,6 +15,7 @@ project "RenderMyCanvas"
       "../Walnut/vendor/imgui",
       "../Walnut/vendor/glfw/include",
       "../Walnut/vendor/glm",
+      "vendor/spdlog/include",
 
       "../Walnut/Walnut/src",
 

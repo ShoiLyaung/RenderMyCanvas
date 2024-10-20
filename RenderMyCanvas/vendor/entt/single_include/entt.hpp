@@ -10271,7 +10271,7 @@ private:
 
 #endif
 
-// #include "entity/component.hpp"
+// #include "primitive/component.hpp"
 #ifndef ENTT_ENTITY_COMPONENT_HPP
 #define ENTT_ENTITY_COMPONENT_HPP
 
@@ -11474,8 +11474,8 @@ struct std::tuple_element<Index, entt::value_list<Value...>>: entt::value_list_e
 
 namespace entt {
 
-/*! @brief Default entity identifier. */
-enum class entity : id_type {};
+/*! @brief Default primitive identifier. */
+enum class primitive : id_type {};
 
 /*! @brief Storage deletion policy. */
 enum class deletion_policy : std::uint8_t {
@@ -11487,16 +11487,16 @@ enum class deletion_policy : std::uint8_t {
     swap_only = 2u
 };
 
-template<typename Entity = entity, typename = std::allocator<Entity>>
+template<typename Primitive = primitive, typename = std::allocator<Primitive>>
 class basic_sparse_set;
 
-template<typename Type, typename = entity, typename = std::allocator<Type>, typename = void>
+template<typename Type, typename = primitive, typename = std::allocator<Type>, typename = void>
 class basic_storage;
 
 template<typename, typename>
 class basic_sigh_mixin;
 
-template<typename Entity = entity, typename = std::allocator<Entity>>
+template<typename Primitive = primitive, typename = std::allocator<Primitive>>
 class basic_registry;
 
 template<typename, typename, typename = void>
@@ -11674,13 +11674,13 @@ struct type_list_transform<owned_t<Type...>, Op> {
 /**
  * @brief Provides a common way to define storage types.
  * @tparam Type Storage value type.
- * @tparam Entity A valid entity type.
+ * @tparam Primitive A valid primitive type.
  * @tparam Allocator Type of allocator used to manage memory and elements.
  */
-template<typename Type, typename Entity = entity, typename Allocator = std::allocator<Type>, typename = void>
+template<typename Type, typename Primitive = primitive, typename Allocator = std::allocator<Type>, typename = void>
 struct storage_type {
     /*! @brief Type-to-storage conversion result. */
-    using type = sigh_mixin<basic_storage<Type, Entity, Allocator>>;
+    using type = sigh_mixin<basic_storage<Type, Primitive, Allocator>>;
 };
 
 /**
@@ -11693,13 +11693,13 @@ using storage_type_t = typename storage_type<Args...>::type;
 /**
  * Type-to-storage conversion utility that preserves constness.
  * @tparam Type Storage value type, eventually const.
- * @tparam Entity A valid entity type.
+ * @tparam Primitive A valid primitive type.
  * @tparam Allocator Type of allocator used to manage memory and elements.
  */
-template<typename Type, typename Entity = entity, typename Allocator = std::allocator<std::remove_const_t<Type>>>
+template<typename Type, typename Primitive = primitive, typename Allocator = std::allocator<std::remove_const_t<Type>>>
 struct storage_for {
     /*! @brief Type-to-storage conversion result. */
-    using type = constness_as_t<storage_type_t<std::remove_const_t<Type>, Entity, Allocator>, Type>;
+    using type = constness_as_t<storage_type_t<std::remove_const_t<Type>, Primitive, Allocator>, Type>;
 };
 
 /**
@@ -11780,7 +11780,7 @@ struct component_traits {
 
 #endif
 
-// #include "entity/entity.hpp"
+// #include "primitive/primitive.hpp"
 #ifndef ENTT_ENTITY_ENTITY_HPP
 #define ENTT_ENTITY_ENTITY_HPP
 
@@ -11844,31 +11844,31 @@ struct entt_traits<std::uint64_t> {
 /*! @endcond */
 
 /**
- * @brief Common basic entity traits implementation.
- * @tparam Traits Actual entity traits to use.
+ * @brief Common basic primitive traits implementation.
+ * @tparam Traits Actual primitive traits to use.
  */
 template<typename Traits>
 class basic_entt_traits {
     static constexpr auto length = internal::popcount(Traits::entity_mask);
 
-    static_assert(Traits::entity_mask && ((typename Traits::entity_type{1} << length) == (Traits::entity_mask + 1)), "Invalid entity mask");
+    static_assert(Traits::entity_mask && ((typename Traits::entity_type{1} << length) == (Traits::entity_mask + 1)), "Invalid primitive mask");
     static_assert((typename Traits::entity_type{1} << internal::popcount(Traits::version_mask)) == (Traits::version_mask + 1), "Invalid version mask");
 
 public:
     /*! @brief Value type. */
     using value_type = typename Traits::value_type;
-    /*! @brief Underlying entity type. */
+    /*! @brief Underlying primitive type. */
     using entity_type = typename Traits::entity_type;
     /*! @brief Underlying version type. */
     using version_type = typename Traits::version_type;
 
-    /*! @brief Entity mask size. */
+    /*! @brief Primitive mask size. */
     static constexpr entity_type entity_mask = Traits::entity_mask;
     /*! @brief Version mask size */
     static constexpr entity_type version_mask = Traits::version_mask;
 
     /**
-     * @brief Converts an entity to its underlying type.
+     * @brief Converts an primitive to its underlying type.
      * @param value The value to convert.
      * @return The integral representation of the given value.
      */
@@ -11877,9 +11877,9 @@ public:
     }
 
     /**
-     * @brief Returns the entity part once converted to the underlying type.
+     * @brief Returns the primitive part once converted to the underlying type.
      * @param value The value to convert.
-     * @return The integral representation of the entity part.
+     * @return The integral representation of the primitive part.
      */
     [[nodiscard]] static constexpr entity_type to_entity(const value_type value) noexcept {
         return (to_integral(value) & entity_mask);
@@ -11908,14 +11908,14 @@ public:
      * @brief Constructs an identifier from its parts.
      *
      * If the version part is not provided, a tombstone is returned.<br/>
-     * If the entity part is not provided, a null identifier is returned.
+     * If the primitive part is not provided, a null identifier is returned.
      *
-     * @param entity The entity part of the identifier.
+     * @param primitive The primitive part of the identifier.
      * @param version The version part of the identifier.
      * @return A properly constructed identifier.
      */
-    [[nodiscard]] static constexpr value_type construct(const entity_type entity, const version_type version) noexcept {
-        return value_type{(entity & entity_mask) | (static_cast<entity_type>(version & version_mask) << length)};
+    [[nodiscard]] static constexpr value_type construct(const entity_type primitive, const version_type version) noexcept {
+        return value_type{(primitive & entity_mask) | (static_cast<entity_type>(version & version_mask) << length)};
     }
 
     /**
@@ -11924,7 +11924,7 @@ public:
      * The returned identifier is a copy of the first element except for its
      * version, which is taken from the second element.
      *
-     * @param lhs The identifier from which to take the entity part.
+     * @param lhs The identifier from which to take the primitive part.
      * @param rhs The identifier from which to take the version part.
      * @return A properly constructed identifier.
      */
@@ -11934,7 +11934,7 @@ public:
 };
 
 /**
- * @brief Entity traits.
+ * @brief Primitive traits.
  * @tparam Type Type of identifier.
  */
 template<typename Type>
@@ -11946,48 +11946,48 @@ struct entt_traits: basic_entt_traits<internal::entt_traits<Type>> {
 };
 
 /**
- * @brief Converts an entity to its underlying type.
- * @tparam Entity The value type.
+ * @brief Converts an primitive to its underlying type.
+ * @tparam Primitive The value type.
  * @param value The value to convert.
  * @return The integral representation of the given value.
  */
-template<typename Entity>
-[[nodiscard]] constexpr typename entt_traits<Entity>::entity_type to_integral(const Entity value) noexcept {
-    return entt_traits<Entity>::to_integral(value);
+template<typename Primitive>
+[[nodiscard]] constexpr typename entt_traits<Primitive>::entity_type to_integral(const Primitive value) noexcept {
+    return entt_traits<Primitive>::to_integral(value);
 }
 
 /**
- * @brief Returns the entity part once converted to the underlying type.
- * @tparam Entity The value type.
+ * @brief Returns the primitive part once converted to the underlying type.
+ * @tparam Primitive The value type.
  * @param value The value to convert.
- * @return The integral representation of the entity part.
+ * @return The integral representation of the primitive part.
  */
-template<typename Entity>
-[[nodiscard]] constexpr typename entt_traits<Entity>::entity_type to_entity(const Entity value) noexcept {
-    return entt_traits<Entity>::to_entity(value);
+template<typename Primitive>
+[[nodiscard]] constexpr typename entt_traits<Primitive>::entity_type to_entity(const Primitive value) noexcept {
+    return entt_traits<Primitive>::to_entity(value);
 }
 
 /**
  * @brief Returns the version part once converted to the underlying type.
- * @tparam Entity The value type.
+ * @tparam Primitive The value type.
  * @param value The value to convert.
  * @return The integral representation of the version part.
  */
-template<typename Entity>
-[[nodiscard]] constexpr typename entt_traits<Entity>::version_type to_version(const Entity value) noexcept {
-    return entt_traits<Entity>::to_version(value);
+template<typename Primitive>
+[[nodiscard]] constexpr typename entt_traits<Primitive>::version_type to_version(const Primitive value) noexcept {
+    return entt_traits<Primitive>::to_version(value);
 }
 
 /*! @brief Null object for all identifiers.  */
 struct null_t {
     /**
      * @brief Converts the null object to identifiers of any type.
-     * @tparam Entity Type of identifier.
+     * @tparam Primitive Type of identifier.
      * @return The null representation for the given type.
      */
-    template<typename Entity>
-    [[nodiscard]] constexpr operator Entity() const noexcept {
-        using traits_type = entt_traits<Entity>;
+    template<typename Primitive>
+    [[nodiscard]] constexpr operator Primitive() const noexcept {
+        using traits_type = entt_traits<Primitive>;
         constexpr auto value = traits_type::construct(traits_type::entity_mask, traits_type::version_mask);
         return value;
     }
@@ -12012,62 +12012,62 @@ struct null_t {
 
     /**
      * @brief Compares a null object and an identifier of any type.
-     * @tparam Entity Type of identifier.
-     * @param entity Identifier with which to compare.
+     * @tparam Primitive Type of identifier.
+     * @param primitive Identifier with which to compare.
      * @return False if the two elements differ, true otherwise.
      */
-    template<typename Entity>
-    [[nodiscard]] constexpr bool operator==(const Entity entity) const noexcept {
-        using traits_type = entt_traits<Entity>;
-        return traits_type::to_entity(entity) == traits_type::to_entity(*this);
+    template<typename Primitive>
+    [[nodiscard]] constexpr bool operator==(const Primitive primitive) const noexcept {
+        using traits_type = entt_traits<Primitive>;
+        return traits_type::to_entity(primitive) == traits_type::to_entity(*this);
     }
 
     /**
      * @brief Compares a null object and an identifier of any type.
-     * @tparam Entity Type of identifier.
-     * @param entity Identifier with which to compare.
+     * @tparam Primitive Type of identifier.
+     * @param primitive Identifier with which to compare.
      * @return True if the two elements differ, false otherwise.
      */
-    template<typename Entity>
-    [[nodiscard]] constexpr bool operator!=(const Entity entity) const noexcept {
-        return !(entity == *this);
+    template<typename Primitive>
+    [[nodiscard]] constexpr bool operator!=(const Primitive primitive) const noexcept {
+        return !(primitive == *this);
     }
 };
 
 /**
  * @brief Compares a null object and an identifier of any type.
- * @tparam Entity Type of identifier.
- * @param entity Identifier with which to compare.
+ * @tparam Primitive Type of identifier.
+ * @param primitive Identifier with which to compare.
  * @param other A null object yet to be converted.
  * @return False if the two elements differ, true otherwise.
  */
-template<typename Entity>
-[[nodiscard]] constexpr bool operator==(const Entity entity, const null_t other) noexcept {
-    return other.operator==(entity);
+template<typename Primitive>
+[[nodiscard]] constexpr bool operator==(const Primitive primitive, const null_t other) noexcept {
+    return other.operator==(primitive);
 }
 
 /**
  * @brief Compares a null object and an identifier of any type.
- * @tparam Entity Type of identifier.
- * @param entity Identifier with which to compare.
+ * @tparam Primitive Type of identifier.
+ * @param primitive Identifier with which to compare.
  * @param other A null object yet to be converted.
  * @return True if the two elements differ, false otherwise.
  */
-template<typename Entity>
-[[nodiscard]] constexpr bool operator!=(const Entity entity, const null_t other) noexcept {
-    return !(other == entity);
+template<typename Primitive>
+[[nodiscard]] constexpr bool operator!=(const Primitive primitive, const null_t other) noexcept {
+    return !(other == primitive);
 }
 
 /*! @brief Tombstone object for all identifiers.  */
 struct tombstone_t {
     /**
      * @brief Converts the tombstone object to identifiers of any type.
-     * @tparam Entity Type of identifier.
+     * @tparam Primitive Type of identifier.
      * @return The tombstone representation for the given type.
      */
-    template<typename Entity>
-    [[nodiscard]] constexpr operator Entity() const noexcept {
-        using traits_type = entt_traits<Entity>;
+    template<typename Primitive>
+    [[nodiscard]] constexpr operator Primitive() const noexcept {
+        using traits_type = entt_traits<Primitive>;
         constexpr auto value = traits_type::construct(traits_type::entity_mask, traits_type::version_mask);
         return value;
     }
@@ -12092,50 +12092,50 @@ struct tombstone_t {
 
     /**
      * @brief Compares a tombstone object and an identifier of any type.
-     * @tparam Entity Type of identifier.
-     * @param entity Identifier with which to compare.
+     * @tparam Primitive Type of identifier.
+     * @param primitive Identifier with which to compare.
      * @return False if the two elements differ, true otherwise.
      */
-    template<typename Entity>
-    [[nodiscard]] constexpr bool operator==(const Entity entity) const noexcept {
-        using traits_type = entt_traits<Entity>;
-        return traits_type::to_version(entity) == traits_type::to_version(*this);
+    template<typename Primitive>
+    [[nodiscard]] constexpr bool operator==(const Primitive primitive) const noexcept {
+        using traits_type = entt_traits<Primitive>;
+        return traits_type::to_version(primitive) == traits_type::to_version(*this);
     }
 
     /**
      * @brief Compares a tombstone object and an identifier of any type.
-     * @tparam Entity Type of identifier.
-     * @param entity Identifier with which to compare.
+     * @tparam Primitive Type of identifier.
+     * @param primitive Identifier with which to compare.
      * @return True if the two elements differ, false otherwise.
      */
-    template<typename Entity>
-    [[nodiscard]] constexpr bool operator!=(const Entity entity) const noexcept {
-        return !(entity == *this);
+    template<typename Primitive>
+    [[nodiscard]] constexpr bool operator!=(const Primitive primitive) const noexcept {
+        return !(primitive == *this);
     }
 };
 
 /**
  * @brief Compares a tombstone object and an identifier of any type.
- * @tparam Entity Type of identifier.
- * @param entity Identifier with which to compare.
+ * @tparam Primitive Type of identifier.
+ * @param primitive Identifier with which to compare.
  * @param other A tombstone object yet to be converted.
  * @return False if the two elements differ, true otherwise.
  */
-template<typename Entity>
-[[nodiscard]] constexpr bool operator==(const Entity entity, const tombstone_t other) noexcept {
-    return other.operator==(entity);
+template<typename Primitive>
+[[nodiscard]] constexpr bool operator==(const Primitive primitive, const tombstone_t other) noexcept {
+    return other.operator==(primitive);
 }
 
 /**
  * @brief Compares a tombstone object and an identifier of any type.
- * @tparam Entity Type of identifier.
- * @param entity Identifier with which to compare.
+ * @tparam Primitive Type of identifier.
+ * @param primitive Identifier with which to compare.
  * @param other A tombstone object yet to be converted.
  * @return True if the two elements differ, false otherwise.
  */
-template<typename Entity>
-[[nodiscard]] constexpr bool operator!=(const Entity entity, const tombstone_t other) noexcept {
-    return !(other == entity);
+template<typename Primitive>
+[[nodiscard]] constexpr bool operator!=(const Primitive primitive, const tombstone_t other) noexcept {
+    return !(other == primitive);
 }
 
 /**
@@ -12143,7 +12143,7 @@ template<typename Entity>
  *
  * There exist implicit conversions from this variable to identifiers of any
  * allowed type. Similarly, there exist comparison operators between the null
- * entity and any other identifier.
+ * primitive and any other identifier.
  */
 inline constexpr null_t null{};
 
@@ -12152,7 +12152,7 @@ inline constexpr null_t null{};
  *
  * There exist implicit conversions from this variable to identifiers of any
  * allowed type. Similarly, there exist comparison operators between the
- * tombstone entity and any other identifier.
+ * tombstone primitive and any other identifier.
  */
 inline constexpr tombstone_t tombstone{};
 
@@ -12160,7 +12160,7 @@ inline constexpr tombstone_t tombstone{};
 
 #endif
 
-// #include "entity/group.hpp"
+// #include "primitive/group.hpp"
 #ifndef ENTT_ENTITY_GROUP_HPP
 #define ENTT_ENTITY_GROUP_HPP
 
@@ -13001,7 +13001,7 @@ template<typename Type>
 
 // #include "../core/type_traits.hpp"
 
-// #include "entity.hpp"
+// #include "primitive.hpp"
 #ifndef ENTT_ENTITY_ENTITY_HPP
 #define ENTT_ENTITY_ENTITY_HPP
 
@@ -13065,31 +13065,31 @@ struct entt_traits<std::uint64_t> {
 /*! @endcond */
 
 /**
- * @brief Common basic entity traits implementation.
- * @tparam Traits Actual entity traits to use.
+ * @brief Common basic primitive traits implementation.
+ * @tparam Traits Actual primitive traits to use.
  */
 template<typename Traits>
 class basic_entt_traits {
     static constexpr auto length = internal::popcount(Traits::entity_mask);
 
-    static_assert(Traits::entity_mask && ((typename Traits::entity_type{1} << length) == (Traits::entity_mask + 1)), "Invalid entity mask");
+    static_assert(Traits::entity_mask && ((typename Traits::entity_type{1} << length) == (Traits::entity_mask + 1)), "Invalid primitive mask");
     static_assert((typename Traits::entity_type{1} << internal::popcount(Traits::version_mask)) == (Traits::version_mask + 1), "Invalid version mask");
 
 public:
     /*! @brief Value type. */
     using value_type = typename Traits::value_type;
-    /*! @brief Underlying entity type. */
+    /*! @brief Underlying primitive type. */
     using entity_type = typename Traits::entity_type;
     /*! @brief Underlying version type. */
     using version_type = typename Traits::version_type;
 
-    /*! @brief Entity mask size. */
+    /*! @brief Primitive mask size. */
     static constexpr entity_type entity_mask = Traits::entity_mask;
     /*! @brief Version mask size */
     static constexpr entity_type version_mask = Traits::version_mask;
 
     /**
-     * @brief Converts an entity to its underlying type.
+     * @brief Converts an primitive to its underlying type.
      * @param value The value to convert.
      * @return The integral representation of the given value.
      */
@@ -13098,9 +13098,9 @@ public:
     }
 
     /**
-     * @brief Returns the entity part once converted to the underlying type.
+     * @brief Returns the primitive part once converted to the underlying type.
      * @param value The value to convert.
-     * @return The integral representation of the entity part.
+     * @return The integral representation of the primitive part.
      */
     [[nodiscard]] static constexpr entity_type to_entity(const value_type value) noexcept {
         return (to_integral(value) & entity_mask);
@@ -13129,14 +13129,14 @@ public:
      * @brief Constructs an identifier from its parts.
      *
      * If the version part is not provided, a tombstone is returned.<br/>
-     * If the entity part is not provided, a null identifier is returned.
+     * If the primitive part is not provided, a null identifier is returned.
      *
-     * @param entity The entity part of the identifier.
+     * @param primitive The primitive part of the identifier.
      * @param version The version part of the identifier.
      * @return A properly constructed identifier.
      */
-    [[nodiscard]] static constexpr value_type construct(const entity_type entity, const version_type version) noexcept {
-        return value_type{(entity & entity_mask) | (static_cast<entity_type>(version & version_mask) << length)};
+    [[nodiscard]] static constexpr value_type construct(const entity_type primitive, const version_type version) noexcept {
+        return value_type{(primitive & entity_mask) | (static_cast<entity_type>(version & version_mask) << length)};
     }
 
     /**
@@ -13145,7 +13145,7 @@ public:
      * The returned identifier is a copy of the first element except for its
      * version, which is taken from the second element.
      *
-     * @param lhs The identifier from which to take the entity part.
+     * @param lhs The identifier from which to take the primitive part.
      * @param rhs The identifier from which to take the version part.
      * @return A properly constructed identifier.
      */
@@ -13155,7 +13155,7 @@ public:
 };
 
 /**
- * @brief Entity traits.
+ * @brief Primitive traits.
  * @tparam Type Type of identifier.
  */
 template<typename Type>
@@ -13167,48 +13167,48 @@ struct entt_traits: basic_entt_traits<internal::entt_traits<Type>> {
 };
 
 /**
- * @brief Converts an entity to its underlying type.
- * @tparam Entity The value type.
+ * @brief Converts an primitive to its underlying type.
+ * @tparam Primitive The value type.
  * @param value The value to convert.
  * @return The integral representation of the given value.
  */
-template<typename Entity>
-[[nodiscard]] constexpr typename entt_traits<Entity>::entity_type to_integral(const Entity value) noexcept {
-    return entt_traits<Entity>::to_integral(value);
+template<typename Primitive>
+[[nodiscard]] constexpr typename entt_traits<Primitive>::entity_type to_integral(const Primitive value) noexcept {
+    return entt_traits<Primitive>::to_integral(value);
 }
 
 /**
- * @brief Returns the entity part once converted to the underlying type.
- * @tparam Entity The value type.
+ * @brief Returns the primitive part once converted to the underlying type.
+ * @tparam Primitive The value type.
  * @param value The value to convert.
- * @return The integral representation of the entity part.
+ * @return The integral representation of the primitive part.
  */
-template<typename Entity>
-[[nodiscard]] constexpr typename entt_traits<Entity>::entity_type to_entity(const Entity value) noexcept {
-    return entt_traits<Entity>::to_entity(value);
+template<typename Primitive>
+[[nodiscard]] constexpr typename entt_traits<Primitive>::entity_type to_entity(const Primitive value) noexcept {
+    return entt_traits<Primitive>::to_entity(value);
 }
 
 /**
  * @brief Returns the version part once converted to the underlying type.
- * @tparam Entity The value type.
+ * @tparam Primitive The value type.
  * @param value The value to convert.
  * @return The integral representation of the version part.
  */
-template<typename Entity>
-[[nodiscard]] constexpr typename entt_traits<Entity>::version_type to_version(const Entity value) noexcept {
-    return entt_traits<Entity>::to_version(value);
+template<typename Primitive>
+[[nodiscard]] constexpr typename entt_traits<Primitive>::version_type to_version(const Primitive value) noexcept {
+    return entt_traits<Primitive>::to_version(value);
 }
 
 /*! @brief Null object for all identifiers.  */
 struct null_t {
     /**
      * @brief Converts the null object to identifiers of any type.
-     * @tparam Entity Type of identifier.
+     * @tparam Primitive Type of identifier.
      * @return The null representation for the given type.
      */
-    template<typename Entity>
-    [[nodiscard]] constexpr operator Entity() const noexcept {
-        using traits_type = entt_traits<Entity>;
+    template<typename Primitive>
+    [[nodiscard]] constexpr operator Primitive() const noexcept {
+        using traits_type = entt_traits<Primitive>;
         constexpr auto value = traits_type::construct(traits_type::entity_mask, traits_type::version_mask);
         return value;
     }
@@ -13233,62 +13233,62 @@ struct null_t {
 
     /**
      * @brief Compares a null object and an identifier of any type.
-     * @tparam Entity Type of identifier.
-     * @param entity Identifier with which to compare.
+     * @tparam Primitive Type of identifier.
+     * @param primitive Identifier with which to compare.
      * @return False if the two elements differ, true otherwise.
      */
-    template<typename Entity>
-    [[nodiscard]] constexpr bool operator==(const Entity entity) const noexcept {
-        using traits_type = entt_traits<Entity>;
-        return traits_type::to_entity(entity) == traits_type::to_entity(*this);
+    template<typename Primitive>
+    [[nodiscard]] constexpr bool operator==(const Primitive primitive) const noexcept {
+        using traits_type = entt_traits<Primitive>;
+        return traits_type::to_entity(primitive) == traits_type::to_entity(*this);
     }
 
     /**
      * @brief Compares a null object and an identifier of any type.
-     * @tparam Entity Type of identifier.
-     * @param entity Identifier with which to compare.
+     * @tparam Primitive Type of identifier.
+     * @param primitive Identifier with which to compare.
      * @return True if the two elements differ, false otherwise.
      */
-    template<typename Entity>
-    [[nodiscard]] constexpr bool operator!=(const Entity entity) const noexcept {
-        return !(entity == *this);
+    template<typename Primitive>
+    [[nodiscard]] constexpr bool operator!=(const Primitive primitive) const noexcept {
+        return !(primitive == *this);
     }
 };
 
 /**
  * @brief Compares a null object and an identifier of any type.
- * @tparam Entity Type of identifier.
- * @param entity Identifier with which to compare.
+ * @tparam Primitive Type of identifier.
+ * @param primitive Identifier with which to compare.
  * @param other A null object yet to be converted.
  * @return False if the two elements differ, true otherwise.
  */
-template<typename Entity>
-[[nodiscard]] constexpr bool operator==(const Entity entity, const null_t other) noexcept {
-    return other.operator==(entity);
+template<typename Primitive>
+[[nodiscard]] constexpr bool operator==(const Primitive primitive, const null_t other) noexcept {
+    return other.operator==(primitive);
 }
 
 /**
  * @brief Compares a null object and an identifier of any type.
- * @tparam Entity Type of identifier.
- * @param entity Identifier with which to compare.
+ * @tparam Primitive Type of identifier.
+ * @param primitive Identifier with which to compare.
  * @param other A null object yet to be converted.
  * @return True if the two elements differ, false otherwise.
  */
-template<typename Entity>
-[[nodiscard]] constexpr bool operator!=(const Entity entity, const null_t other) noexcept {
-    return !(other == entity);
+template<typename Primitive>
+[[nodiscard]] constexpr bool operator!=(const Primitive primitive, const null_t other) noexcept {
+    return !(other == primitive);
 }
 
 /*! @brief Tombstone object for all identifiers.  */
 struct tombstone_t {
     /**
      * @brief Converts the tombstone object to identifiers of any type.
-     * @tparam Entity Type of identifier.
+     * @tparam Primitive Type of identifier.
      * @return The tombstone representation for the given type.
      */
-    template<typename Entity>
-    [[nodiscard]] constexpr operator Entity() const noexcept {
-        using traits_type = entt_traits<Entity>;
+    template<typename Primitive>
+    [[nodiscard]] constexpr operator Primitive() const noexcept {
+        using traits_type = entt_traits<Primitive>;
         constexpr auto value = traits_type::construct(traits_type::entity_mask, traits_type::version_mask);
         return value;
     }
@@ -13313,50 +13313,50 @@ struct tombstone_t {
 
     /**
      * @brief Compares a tombstone object and an identifier of any type.
-     * @tparam Entity Type of identifier.
-     * @param entity Identifier with which to compare.
+     * @tparam Primitive Type of identifier.
+     * @param primitive Identifier with which to compare.
      * @return False if the two elements differ, true otherwise.
      */
-    template<typename Entity>
-    [[nodiscard]] constexpr bool operator==(const Entity entity) const noexcept {
-        using traits_type = entt_traits<Entity>;
-        return traits_type::to_version(entity) == traits_type::to_version(*this);
+    template<typename Primitive>
+    [[nodiscard]] constexpr bool operator==(const Primitive primitive) const noexcept {
+        using traits_type = entt_traits<Primitive>;
+        return traits_type::to_version(primitive) == traits_type::to_version(*this);
     }
 
     /**
      * @brief Compares a tombstone object and an identifier of any type.
-     * @tparam Entity Type of identifier.
-     * @param entity Identifier with which to compare.
+     * @tparam Primitive Type of identifier.
+     * @param primitive Identifier with which to compare.
      * @return True if the two elements differ, false otherwise.
      */
-    template<typename Entity>
-    [[nodiscard]] constexpr bool operator!=(const Entity entity) const noexcept {
-        return !(entity == *this);
+    template<typename Primitive>
+    [[nodiscard]] constexpr bool operator!=(const Primitive primitive) const noexcept {
+        return !(primitive == *this);
     }
 };
 
 /**
  * @brief Compares a tombstone object and an identifier of any type.
- * @tparam Entity Type of identifier.
- * @param entity Identifier with which to compare.
+ * @tparam Primitive Type of identifier.
+ * @param primitive Identifier with which to compare.
  * @param other A tombstone object yet to be converted.
  * @return False if the two elements differ, true otherwise.
  */
-template<typename Entity>
-[[nodiscard]] constexpr bool operator==(const Entity entity, const tombstone_t other) noexcept {
-    return other.operator==(entity);
+template<typename Primitive>
+[[nodiscard]] constexpr bool operator==(const Primitive primitive, const tombstone_t other) noexcept {
+    return other.operator==(primitive);
 }
 
 /**
  * @brief Compares a tombstone object and an identifier of any type.
- * @tparam Entity Type of identifier.
- * @param entity Identifier with which to compare.
+ * @tparam Primitive Type of identifier.
+ * @param primitive Identifier with which to compare.
  * @param other A tombstone object yet to be converted.
  * @return True if the two elements differ, false otherwise.
  */
-template<typename Entity>
-[[nodiscard]] constexpr bool operator!=(const Entity entity, const tombstone_t other) noexcept {
-    return !(other == entity);
+template<typename Primitive>
+[[nodiscard]] constexpr bool operator!=(const Primitive primitive, const tombstone_t other) noexcept {
+    return !(other == primitive);
 }
 
 /**
@@ -13364,7 +13364,7 @@ template<typename Entity>
  *
  * There exist implicit conversions from this variable to identifiers of any
  * allowed type. Similarly, there exist comparison operators between the null
- * entity and any other identifier.
+ * primitive and any other identifier.
  */
 inline constexpr null_t null{};
 
@@ -13373,7 +13373,7 @@ inline constexpr null_t null{};
  *
  * There exist implicit conversions from this variable to identifiers of any
  * allowed type. Similarly, there exist comparison operators between the
- * tombstone entity and any other identifier.
+ * tombstone primitive and any other identifier.
  */
 inline constexpr tombstone_t tombstone{};
 
@@ -15739,7 +15739,7 @@ constexpr Type *uninitialized_construct_using_allocator(Type *value, const Alloc
 
 // #include "../core/type_info.hpp"
 
-// #include "entity.hpp"
+// #include "primitive.hpp"
 
 // #include "fwd.hpp"
 
@@ -15880,34 +15880,34 @@ template<typename Container>
  * no guarantees that entities are returned in the insertion order when iterate
  * a sparse set. Do not make assumption on the order in any case.
  *
- * @tparam Entity A valid entity type.
+ * @tparam Primitive A valid primitive type.
  * @tparam Allocator Type of allocator used to manage memory and elements.
  */
-template<typename Entity, typename Allocator>
+template<typename Primitive, typename Allocator>
 class basic_sparse_set {
     using alloc_traits = std::allocator_traits<Allocator>;
-    static_assert(std::is_same_v<typename alloc_traits::value_type, Entity>, "Invalid value type");
+    static_assert(std::is_same_v<typename alloc_traits::value_type, Primitive>, "Invalid value type");
     using sparse_container_type = std::vector<typename alloc_traits::pointer, typename alloc_traits::template rebind_alloc<typename alloc_traits::pointer>>;
-    using packed_container_type = std::vector<Entity, Allocator>;
-    using underlying_type = typename entt_traits<Entity>::entity_type;
+    using packed_container_type = std::vector<Primitive, Allocator>;
+    using underlying_type = typename entt_traits<Primitive>::entity_type;
 
-    [[nodiscard]] auto sparse_ptr(const Entity entt) const {
+    [[nodiscard]] auto sparse_ptr(const Primitive entt) const {
         const auto pos = static_cast<size_type>(traits_type::to_entity(entt));
         const auto page = pos / traits_type::page_size;
         return (page < sparse.size() && sparse[page]) ? (sparse[page] + fast_mod(pos, traits_type::page_size)) : nullptr;
     }
 
-    [[nodiscard]] auto &sparse_ref(const Entity entt) const {
+    [[nodiscard]] auto &sparse_ref(const Primitive entt) const {
         ENTT_ASSERT(sparse_ptr(entt), "Invalid element");
         const auto pos = static_cast<size_type>(traits_type::to_entity(entt));
         return sparse[pos / traits_type::page_size][fast_mod(pos, traits_type::page_size)];
     }
 
-    [[nodiscard]] auto to_iterator(const Entity entt) const {
+    [[nodiscard]] auto to_iterator(const Primitive entt) const {
         return --(end() - index(entt));
     }
 
-    [[nodiscard]] auto &assure_at_least(const Entity entt) {
+    [[nodiscard]] auto &assure_at_least(const Primitive entt) {
         const auto pos = static_cast<size_type>(traits_type::to_entity(entt));
         const auto page = pos / traits_type::page_size;
 
@@ -15965,7 +15965,7 @@ protected:
     using basic_iterator = internal::sparse_set_iterator<packed_container_type>;
 
     /**
-     * @brief Erases an entity from a sparse set.
+     * @brief Erases an primitive from a sparse set.
      * @param it An iterator to the element to pop.
      */
     void swap_only(const basic_iterator it) {
@@ -15976,7 +15976,7 @@ protected:
     }
 
     /**
-     * @brief Erases an entity from a sparse set.
+     * @brief Erases an primitive from a sparse set.
      * @param it An iterator to the element to pop.
      */
     void swap_and_pop(const basic_iterator it) {
@@ -15993,7 +15993,7 @@ protected:
     }
 
     /**
-     * @brief Erases an entity from a sparse set.
+     * @brief Erases an primitive from a sparse set.
      * @param it An iterator to the element to pop.
      */
     void in_place_pop(const basic_iterator it) {
@@ -16054,12 +16054,12 @@ protected:
     }
 
     /**
-     * @brief Assigns an entity to a sparse set.
+     * @brief Assigns an primitive to a sparse set.
      * @param entt A valid identifier.
      * @param force_back Force back insertion.
      * @return Iterator pointing to the emplaced element.
      */
-    virtual basic_iterator try_emplace(const Entity entt, const bool force_back, const void * = nullptr) {
+    virtual basic_iterator try_emplace(const Primitive entt, const bool force_back, const void * = nullptr) {
         auto &elem = assure_at_least(entt);
         auto pos = size();
 
@@ -16099,9 +16099,9 @@ protected:
     }
 
 public:
-    /*! @brief Entity traits. */
-    using traits_type = entt_traits<Entity>;
-    /*! @brief Underlying entity identifier. */
+    /*! @brief Primitive traits. */
+    using traits_type = entt_traits<Primitive>;
+    /*! @brief Underlying primitive identifier. */
     using entity_type = typename traits_type::value_type;
     /*! @brief Underlying version type. */
     using version_type = typename traits_type::version_type;
@@ -16330,7 +16330,7 @@ public:
      * If the sparse set is empty, the returned iterator will be equal to
      * `end()`.
      *
-     * @return An iterator to the first entity of the sparse set.
+     * @return An iterator to the first primitive of the sparse set.
      */
     [[nodiscard]] iterator begin() const noexcept {
         const auto pos = static_cast<typename iterator::difference_type>(packed.size());
@@ -16344,7 +16344,7 @@ public:
 
     /**
      * @brief Returns an iterator to the end.
-     * @return An iterator to the element following the last entity of a sparse
+     * @return An iterator to the element following the last primitive of a sparse
      * set.
      */
     [[nodiscard]] iterator end() const noexcept {
@@ -16362,7 +16362,7 @@ public:
      * If the sparse set is empty, the returned iterator will be equal to
      * `rend()`.
      *
-     * @return An iterator to the first entity of the reversed internal packed
+     * @return An iterator to the first primitive of the reversed internal packed
      * array.
      */
     [[nodiscard]] reverse_iterator rbegin() const noexcept {
@@ -16376,7 +16376,7 @@ public:
 
     /**
      * @brief Returns a reverse iterator to the end.
-     * @return An iterator to the element following the last entity of the
+     * @return An iterator to the element following the last primitive of the
      * reversed sparse set.
      */
     [[nodiscard]] reverse_iterator rend() const noexcept {
@@ -16429,9 +16429,9 @@ public:
     }
 
     /**
-     * @brief Finds an entity.
+     * @brief Finds an primitive.
      * @param entt A valid identifier.
-     * @return An iterator to the given entity if it's found, past the end
+     * @return An iterator to the given primitive if it's found, past the end
      * iterator otherwise.
      */
     [[nodiscard]] const_iterator find(const entity_type entt) const noexcept {
@@ -16439,9 +16439,9 @@ public:
     }
 
     /**
-     * @brief Checks if a sparse set contains an entity.
+     * @brief Checks if a sparse set contains an primitive.
      * @param entt A valid identifier.
-     * @return True if the sparse set contains the entity, false otherwise.
+     * @return True if the sparse set contains the primitive, false otherwise.
      */
     [[nodiscard]] bool contains(const entity_type entt) const noexcept {
         const auto elem = sparse_ptr(entt);
@@ -16464,33 +16464,33 @@ public:
     }
 
     /**
-     * @brief Returns the position of an entity in a sparse set.
+     * @brief Returns the position of an primitive in a sparse set.
      *
      * @warning
-     * Attempting to get the position of an entity that doesn't belong to the
+     * Attempting to get the position of an primitive that doesn't belong to the
      * sparse set results in undefined behavior.
      *
      * @param entt A valid identifier.
-     * @return The position of the entity in the sparse set.
+     * @return The position of the primitive in the sparse set.
      */
     [[nodiscard]] size_type index(const entity_type entt) const noexcept {
-        ENTT_ASSERT(contains(entt), "Set does not contain entity");
+        ENTT_ASSERT(contains(entt), "Set does not contain primitive");
         return static_cast<size_type>(traits_type::to_entity(sparse_ref(entt)));
     }
 
     /**
-     * @brief Returns the entity at specified location, with bounds checking.
-     * @param pos The position for which to return the entity.
-     * @return The entity at specified location if any, a null entity otherwise.
+     * @brief Returns the primitive at specified location, with bounds checking.
+     * @param pos The position for which to return the primitive.
+     * @return The primitive at specified location if any, a null primitive otherwise.
      */
     [[deprecated("use .begin()[pos] instead")]] [[nodiscard]] entity_type at(const size_type pos) const noexcept {
         return pos < packed.size() ? packed[pos] : null;
     }
 
     /**
-     * @brief Returns the entity at specified location, without bounds checking.
-     * @param pos The position for which to return the entity.
-     * @return The entity at specified location.
+     * @brief Returns the primitive at specified location, without bounds checking.
+     * @param pos The position for which to return the primitive.
+     * @return The primitive at specified location.
      */
     [[nodiscard]] entity_type operator[](const size_type pos) const noexcept {
         ENTT_ASSERT(pos < packed.size(), "Position is out of bounds");
@@ -16498,14 +16498,14 @@ public:
     }
 
     /**
-     * @brief Returns the element assigned to an entity, if any.
+     * @brief Returns the element assigned to an primitive, if any.
      *
      * @warning
-     * Attempting to use an entity that doesn't belong to the sparse set results
+     * Attempting to use an primitive that doesn't belong to the sparse set results
      * in undefined behavior.
      *
      * @param entt A valid identifier.
-     * @return An opaque pointer to the element assigned to the entity, if any.
+     * @return An opaque pointer to the element assigned to the primitive, if any.
      */
     [[nodiscard]] const void *value(const entity_type entt) const noexcept {
         return get_at(index(entt));
@@ -16517,10 +16517,10 @@ public:
     }
 
     /**
-     * @brief Assigns an entity to a sparse set.
+     * @brief Assigns an primitive to a sparse set.
      *
      * @warning
-     * Attempting to assign an entity that already belongs to the sparse set
+     * Attempting to assign an primitive that already belongs to the sparse set
      * results in undefined behavior.
      *
      * @param entt A valid identifier.
@@ -16536,7 +16536,7 @@ public:
      * @brief Assigns one or more entities to a sparse set.
      *
      * @warning
-     * Attempting to assign an entity that already belongs to the sparse set
+     * Attempting to assign an primitive that already belongs to the sparse set
      * results in undefined behavior.
      *
      * @tparam It Type of input iterator.
@@ -16555,28 +16555,28 @@ public:
     }
 
     /**
-     * @brief Bump the version number of an entity.
+     * @brief Bump the version number of an primitive.
      *
      * @warning
-     * Attempting to bump the version of an entity that doesn't belong to the
+     * Attempting to bump the version of an primitive that doesn't belong to the
      * sparse set results in undefined behavior.
      *
      * @param entt A valid identifier.
      * @return The version of the given identifier.
      */
     version_type bump(const entity_type entt) {
-        auto &entity = sparse_ref(entt);
-        ENTT_ASSERT(entt != tombstone && entity != null, "Cannot set the required version");
-        entity = traits_type::combine(traits_type::to_integral(entity), traits_type::to_integral(entt));
-        packed[static_cast<size_type>(traits_type::to_entity(entity))] = entt;
+        auto &primitive = sparse_ref(entt);
+        ENTT_ASSERT(entt != tombstone && primitive != null, "Cannot set the required version");
+        primitive = traits_type::combine(traits_type::to_integral(primitive), traits_type::to_integral(entt));
+        packed[static_cast<size_type>(traits_type::to_entity(primitive))] = entt;
         return traits_type::to_version(entt);
     }
 
     /**
-     * @brief Erases an entity from a sparse set.
+     * @brief Erases an primitive from a sparse set.
      *
      * @warning
-     * Attempting to erase an entity that doesn't belong to the sparse set
+     * Attempting to erase an primitive that doesn't belong to the sparse set
      * results in undefined behavior.
      *
      * @param entt A valid identifier.
@@ -16607,9 +16607,9 @@ public:
     }
 
     /**
-     * @brief Removes an entity from a sparse set if it exists.
+     * @brief Removes an primitive from a sparse set if it exists.
      * @param entt A valid identifier.
-     * @return True if the entity is actually removed, false otherwise.
+     * @return True if the primitive is actually removed, false otherwise.
      */
     bool remove(const entity_type entt) {
         return contains(entt) && (erase(entt), true);
@@ -16663,8 +16663,8 @@ public:
                     swap_or_move(from, to);
 
                     packed[to] = packed[from];
-                    const auto entity = static_cast<typename traits_type::entity_type>(to);
-                    sparse_ref(packed[to]) = traits_type::combine(entity, traits_type::to_integral(packed[to]));
+                    const auto primitive = static_cast<typename traits_type::entity_type>(to);
+                    sparse_ref(packed[to]) = traits_type::combine(primitive, traits_type::to_integral(packed[to]));
 
                     for(; from && packed[from - 1u] == tombstone; --from) {}
                 }
@@ -16705,7 +16705,7 @@ public:
      * comparison function should be equivalent to the following:
      *
      * @code{.cpp}
-     * bool(const Entity, const Entity);
+     * bool(const Primitive, const Primitive);
      * @endcode
      *
      * Moreover, the comparison function object shall induce a
@@ -16742,8 +16742,8 @@ public:
                 const auto entt = packed[curr];
 
                 swap_or_move(next, idx);
-                const auto entity = static_cast<typename traits_type::entity_type>(curr);
-                sparse_ref(entt) = traits_type::combine(entity, traits_type::to_integral(packed[curr]));
+                const auto primitive = static_cast<typename traits_type::entity_type>(curr);
+                sparse_ref(entt) = traits_type::combine(primitive, traits_type::to_integral(packed[curr]));
                 curr = std::exchange(next, idx);
             }
         }
@@ -16913,7 +16913,7 @@ struct component_traits {
 
 #endif
 
-// #include "entity.hpp"
+// #include "primitive.hpp"
 
 // #include "fwd.hpp"
 
@@ -17125,15 +17125,15 @@ template<typename... Lhs, typename... Rhs>
  * normally available for non-empty types will not be available for empty ones.
  *
  * @tparam Type Type of objects assigned to the entities.
- * @tparam Entity A valid entity type.
+ * @tparam Primitive A valid primitive type.
  * @tparam Allocator Type of allocator used to manage memory and elements.
  */
-template<typename Type, typename Entity, typename Allocator, typename>
-class basic_storage: public basic_sparse_set<Entity, typename std::allocator_traits<Allocator>::template rebind_alloc<Entity>> {
+template<typename Type, typename Primitive, typename Allocator, typename>
+class basic_storage: public basic_sparse_set<Primitive, typename std::allocator_traits<Allocator>::template rebind_alloc<Primitive>> {
     using alloc_traits = std::allocator_traits<Allocator>;
     static_assert(std::is_same_v<typename alloc_traits::value_type, Type>, "Invalid value type");
     using container_type = std::vector<typename alloc_traits::pointer, typename alloc_traits::template rebind_alloc<typename alloc_traits::pointer>>;
-    using underlying_type = basic_sparse_set<Entity, typename alloc_traits::template rebind_alloc<Entity>>;
+    using underlying_type = basic_sparse_set<Primitive, typename alloc_traits::template rebind_alloc<Primitive>>;
     using underlying_iterator = typename underlying_type::basic_iterator;
 
     [[nodiscard]] auto &element_at(const std::size_t pos) const {
@@ -17163,7 +17163,7 @@ class basic_storage: public basic_sparse_set<Entity, typename std::allocator_tra
     }
 
     template<typename... Args>
-    auto emplace_element(const Entity entt, const bool force_back, Args &&...args) {
+    auto emplace_element(const Primitive entt, const bool force_back, Args &&...args) {
         const auto it = base_type::try_emplace(entt, force_back);
 
         ENTT_TRY {
@@ -17268,13 +17268,13 @@ protected:
     }
 
     /**
-     * @brief Assigns an entity to a storage.
+     * @brief Assigns an primitive to a storage.
      * @param entt A valid identifier.
      * @param value Optional opaque value.
      * @param force_back Force back insertion.
      * @return Iterator pointing to the emplaced element.
      */
-    underlying_iterator try_emplace([[maybe_unused]] const Entity entt, [[maybe_unused]] const bool force_back, const void *value) override {
+    underlying_iterator try_emplace([[maybe_unused]] const Primitive entt, [[maybe_unused]] const bool force_back, const void *value) override {
         if(value) {
             if constexpr(std::is_copy_constructible_v<value_type>) {
                 return emplace_element(entt, force_back, *static_cast<const value_type *>(value));
@@ -17297,8 +17297,8 @@ public:
     using value_type = Type;
     /*! @brief Component traits. */
     using traits_type = component_traits<value_type>;
-    /*! @brief Underlying entity identifier. */
-    using entity_type = Entity;
+    /*! @brief Underlying primitive identifier. */
+    using entity_type = Primitive;
     /*! @brief Unsigned integer type. */
     using size_type = std::size_t;
     /*! @brief Allocator type. */
@@ -17518,14 +17518,14 @@ public:
     }
 
     /**
-     * @brief Returns the object assigned to an entity.
+     * @brief Returns the object assigned to an primitive.
      *
      * @warning
-     * Attempting to use an entity that doesn't belong to the storage results in
+     * Attempting to use an primitive that doesn't belong to the storage results in
      * undefined behavior.
      *
      * @param entt A valid identifier.
-     * @return The object assigned to the entity.
+     * @return The object assigned to the primitive.
      */
     [[nodiscard]] const value_type &get(const entity_type entt) const noexcept {
         return element_at(base_type::index(entt));
@@ -17537,9 +17537,9 @@ public:
     }
 
     /**
-     * @brief Returns the object assigned to an entity as a tuple.
+     * @brief Returns the object assigned to an primitive as a tuple.
      * @param entt A valid identifier.
-     * @return The object assigned to the entity as a tuple.
+     * @return The object assigned to the primitive as a tuple.
      */
     [[nodiscard]] std::tuple<const value_type &> get_as_tuple(const entity_type entt) const noexcept {
         return std::forward_as_tuple(get(entt));
@@ -17551,15 +17551,15 @@ public:
     }
 
     /**
-     * @brief Assigns an entity to a storage and constructs its object.
+     * @brief Assigns an primitive to a storage and constructs its object.
      *
      * @warning
-     * Attempting to use an entity that already belongs to the storage results
+     * Attempting to use an primitive that already belongs to the storage results
      * in undefined behavior.
      *
      * @tparam Args Types of arguments to use to construct the object.
      * @param entt A valid identifier.
-     * @param args Parameters to use to construct an object for the entity.
+     * @param args Parameters to use to construct an object for the primitive.
      * @return A reference to the newly created object.
      */
     template<typename... Args>
@@ -17574,7 +17574,7 @@ public:
     }
 
     /**
-     * @brief Updates the instance assigned to a given entity in-place.
+     * @brief Updates the instance assigned to a given primitive in-place.
      * @tparam Func Types of the function objects to invoke.
      * @param entt A valid identifier.
      * @param func Valid function objects.
@@ -17593,7 +17593,7 @@ public:
      * objects from a given instance.
      *
      * @warning
-     * Attempting to assign an entity that already belongs to the storage
+     * Attempting to assign an primitive that already belongs to the storage
      * results in undefined behavior.
      *
      * @tparam It Type of input iterator.
@@ -17636,7 +17636,7 @@ public:
     /**
      * @brief Returns an iterable object to use to _visit_ a storage.
      *
-     * The iterable object returns a tuple that contains the current entity and
+     * The iterable object returns a tuple that contains the current primitive and
      * a reference to its component.
      *
      * @return An iterable object to use to _visit_ the storage.
@@ -17671,21 +17671,21 @@ private:
 };
 
 /*! @copydoc basic_storage */
-template<typename Type, typename Entity, typename Allocator>
-class basic_storage<Type, Entity, Allocator, std::enable_if_t<component_traits<Type>::page_size == 0u>>
-    : public basic_sparse_set<Entity, typename std::allocator_traits<Allocator>::template rebind_alloc<Entity>> {
+template<typename Type, typename Primitive, typename Allocator>
+class basic_storage<Type, Primitive, Allocator, std::enable_if_t<component_traits<Type>::page_size == 0u>>
+    : public basic_sparse_set<Primitive, typename std::allocator_traits<Allocator>::template rebind_alloc<Primitive>> {
     using alloc_traits = std::allocator_traits<Allocator>;
     static_assert(std::is_same_v<typename alloc_traits::value_type, Type>, "Invalid value type");
 
 public:
     /*! @brief Base type. */
-    using base_type = basic_sparse_set<Entity, typename alloc_traits::template rebind_alloc<Entity>>;
+    using base_type = basic_sparse_set<Primitive, typename alloc_traits::template rebind_alloc<Primitive>>;
     /*! @brief Type of the objects assigned to entities. */
     using value_type = Type;
     /*! @brief Component traits. */
     using traits_type = component_traits<value_type>;
-    /*! @brief Underlying entity identifier. */
-    using entity_type = Entity;
+    /*! @brief Underlying primitive identifier. */
+    using entity_type = Primitive;
     /*! @brief Unsigned integer type. */
     using size_type = std::size_t;
     /*! @brief Allocator type. */
@@ -17745,38 +17745,38 @@ public:
     }
 
     /**
-     * @brief Returns the object assigned to an entity, that is `void`.
+     * @brief Returns the object assigned to an primitive, that is `void`.
      *
      * @warning
-     * Attempting to use an entity that doesn't belong to the storage results in
+     * Attempting to use an primitive that doesn't belong to the storage results in
      * undefined behavior.
      *
      * @param entt A valid identifier.
      */
     void get([[maybe_unused]] const entity_type entt) const noexcept {
-        ENTT_ASSERT(base_type::contains(entt), "Storage does not contain entity");
+        ENTT_ASSERT(base_type::contains(entt), "Storage does not contain primitive");
     }
 
     /**
      * @brief Returns an empty tuple.
      *
      * @warning
-     * Attempting to use an entity that doesn't belong to the storage results in
+     * Attempting to use an primitive that doesn't belong to the storage results in
      * undefined behavior.
      *
      * @param entt A valid identifier.
      * @return Returns an empty tuple.
      */
     [[nodiscard]] std::tuple<> get_as_tuple([[maybe_unused]] const entity_type entt) const noexcept {
-        ENTT_ASSERT(base_type::contains(entt), "Storage does not contain entity");
+        ENTT_ASSERT(base_type::contains(entt), "Storage does not contain primitive");
         return std::tuple{};
     }
 
     /**
-     * @brief Assigns an entity to a storage and constructs its object.
+     * @brief Assigns an primitive to a storage and constructs its object.
      *
      * @warning
-     * Attempting to use an entity that already belongs to the storage results
+     * Attempting to use an primitive that already belongs to the storage results
      * in undefined behavior.
      *
      * @tparam Args Types of arguments to use to construct the object.
@@ -17788,14 +17788,14 @@ public:
     }
 
     /**
-     * @brief Updates the instance assigned to a given entity in-place.
+     * @brief Updates the instance assigned to a given primitive in-place.
      * @tparam Func Types of the function objects to invoke.
      * @param entt A valid identifier.
      * @param func Valid function objects.
      */
     template<typename... Func>
     void patch([[maybe_unused]] const entity_type entt, Func &&...func) {
-        ENTT_ASSERT(base_type::contains(entt), "Storage does not contain entity");
+        ENTT_ASSERT(base_type::contains(entt), "Storage does not contain primitive");
         (std::forward<Func>(func)(), ...);
     }
 
@@ -17816,7 +17816,7 @@ public:
     /**
      * @brief Returns an iterable object to use to _visit_ a storage.
      *
-     * The iterable object returns a tuple that contains the current entity.
+     * The iterable object returns a tuple that contains the current primitive.
      *
      * @return An iterable object to use to _visit_ the storage.
      */
@@ -17847,16 +17847,16 @@ public:
 };
 
 /**
- * @brief Swap-only entity storage specialization.
- * @tparam Entity A valid entity type.
+ * @brief Swap-only primitive storage specialization.
+ * @tparam Primitive A valid primitive type.
  * @tparam Allocator Type of allocator used to manage memory and elements.
  */
-template<typename Entity, typename Allocator>
-class basic_storage<Entity, Entity, Allocator>
-    : public basic_sparse_set<Entity, Allocator> {
+template<typename Primitive, typename Allocator>
+class basic_storage<Primitive, Primitive, Allocator>
+    : public basic_sparse_set<Primitive, Allocator> {
     using alloc_traits = std::allocator_traits<Allocator>;
-    static_assert(std::is_same_v<typename alloc_traits::value_type, Entity>, "Invalid value type");
-    using underlying_type = basic_sparse_set<Entity, typename alloc_traits::template rebind_alloc<Entity>>;
+    static_assert(std::is_same_v<typename alloc_traits::value_type, Primitive>, "Invalid value type");
+    using underlying_type = basic_sparse_set<Primitive, typename alloc_traits::template rebind_alloc<Primitive>>;
     using underlying_iterator = typename underlying_type::basic_iterator;
 
     auto entity_at(const std::size_t pos) const noexcept {
@@ -17866,21 +17866,21 @@ class basic_storage<Entity, Entity, Allocator>
 
 protected:
     /**
-     * @brief Assigns an entity to a storage.
+     * @brief Assigns an primitive to a storage.
      * @param hint A valid identifier.
      * @return Iterator pointing to the emplaced element.
      */
-    underlying_iterator try_emplace(const Entity hint, const bool, const void *) override {
+    underlying_iterator try_emplace(const Primitive hint, const bool, const void *) override {
         return base_type::find(emplace(hint));
     }
 
 public:
     /*! @brief Base type. */
-    using base_type = basic_sparse_set<Entity, Allocator>;
+    using base_type = basic_sparse_set<Primitive, Allocator>;
     /*! @brief Type of the objects assigned to entities. */
-    using value_type = Entity;
-    /*! @brief Underlying entity identifier. */
-    using entity_type = Entity;
+    using value_type = Primitive;
+    /*! @brief Underlying primitive identifier. */
+    using entity_type = Primitive;
     /*! @brief Unsigned integer type. */
     using size_type = std::size_t;
     /*! @brief Allocator type. */
@@ -17932,30 +17932,30 @@ public:
     }
 
     /**
-     * @brief Returns the object assigned to an entity, that is `void`.
+     * @brief Returns the object assigned to an primitive, that is `void`.
      *
      * @warning
-     * Attempting to use an entity that doesn't belong to the storage results in
+     * Attempting to use an primitive that doesn't belong to the storage results in
      * undefined behavior.
      *
      * @param entt A valid identifier.
      */
     void get([[maybe_unused]] const entity_type entt) const noexcept {
-        ENTT_ASSERT(base_type::index(entt) < base_type::free_list(), "The requested entity is not a live one");
+        ENTT_ASSERT(base_type::index(entt) < base_type::free_list(), "The requested primitive is not a live one");
     }
 
     /**
      * @brief Returns an empty tuple.
      *
      * @warning
-     * Attempting to use an entity that doesn't belong to the storage results in
+     * Attempting to use an primitive that doesn't belong to the storage results in
      * undefined behavior.
      *
      * @param entt A valid identifier.
      * @return Returns an empty tuple.
      */
     [[nodiscard]] std::tuple<> get_as_tuple([[maybe_unused]] const entity_type entt) const noexcept {
-        ENTT_ASSERT(base_type::index(entt) < base_type::free_list(), "The requested entity is not a live one");
+        ENTT_ASSERT(base_type::index(entt) < base_type::free_list(), "The requested primitive is not a live one");
         return std::tuple{};
     }
 
@@ -18005,7 +18005,7 @@ public:
      */
     template<typename... Func>
     void patch([[maybe_unused]] const entity_type entt, Func &&...func) {
-        ENTT_ASSERT(base_type::index(entt) < base_type::free_list(), "The requested entity is not a live one");
+        ENTT_ASSERT(base_type::index(entt) < base_type::free_list(), "The requested primitive is not a live one");
         (std::forward<Func>(func)(), ...);
     }
 
@@ -18058,7 +18058,7 @@ public:
     /**
      * @brief Returns an iterable object to use to _visit_ a storage.
      *
-     * The iterable object returns a tuple that contains the current entity.
+     * The iterable object returns a tuple that contains the current primitive.
      *
      * @return An iterable object to use to _visit_ the storage.
      */
@@ -18296,8 +18296,8 @@ public:
         std::apply([this](auto *...cpool) { ((cpool->on_construct().template connect<&group_handler::push_on_construct>(*this), cpool->on_destroy().template connect<&group_handler::remove_if>(*this)), ...); }, pools);
         std::apply([this](auto *...cpool) { ((cpool->on_construct().template connect<&group_handler::remove_if>(*this), cpool->on_destroy().template connect<&group_handler::push_on_destroy>(*this)), ...); }, filter);
 
-        for(const auto entity: static_cast<base_type &>(*std::get<0>(pools))) {
-            push_on_construct(entity);
+        for(const auto primitive: static_cast<base_type &>(*std::get<0>(pools))) {
+            push_on_construct(primitive);
         }
     }
 
@@ -18339,7 +18339,7 @@ class basic_group;
  * @brief Non-owning group.
  *
  * A non-owning group returns all entities and only the entities that are at
- * least in the given storage. Moreover, it's guaranteed that the entity list is
+ * least in the given storage. Moreover, it's guaranteed that the primitive list is
  * tightly packed in memory for fast iterations.
  *
  * @b Important
@@ -18347,9 +18347,9 @@ class basic_group;
  * Iterators aren't invalidated if:
  *
  * * New elements are added to the storage.
- * * The entity currently pointed is modified (for example, components are added
+ * * The primitive currently pointed is modified (for example, components are added
  *   or removed from it).
- * * The entity currently pointed is destroyed.
+ * * The primitive currently pointed is destroyed.
  *
  * In all other cases, modifying the pools iterated by the group in any way
  * invalidates all the iterators.
@@ -18376,7 +18376,7 @@ class basic_group<owned_t<>, get_t<Get...>, exclude_t<Exclude...>> {
     }
 
 public:
-    /*! @brief Underlying entity identifier. */
+    /*! @brief Underlying primitive identifier. */
     using entity_type = underlying_type;
     /*! @brief Unsigned integer type. */
     using size_type = std::size_t;
@@ -18469,19 +18469,19 @@ public:
     }
 
     /**
-     * @brief Returns an iterator to the first entity of the group.
+     * @brief Returns an iterator to the first primitive of the group.
      *
      * If the group is empty, the returned iterator will be equal to `end()`.
      *
-     * @return An iterator to the first entity of the group.
+     * @return An iterator to the first primitive of the group.
      */
     [[nodiscard]] iterator begin() const noexcept {
         return *this ? handle().begin() : iterator{};
     }
 
     /**
-     * @brief Returns an iterator that is past the last entity of the group.
-     * @return An iterator to the entity following the last entity of the
+     * @brief Returns an iterator that is past the last primitive of the group.
+     * @return An iterator to the primitive following the last primitive of the
      * group.
      */
     [[nodiscard]] iterator end() const noexcept {
@@ -18489,20 +18489,20 @@ public:
     }
 
     /**
-     * @brief Returns an iterator to the first entity of the reversed group.
+     * @brief Returns an iterator to the first primitive of the reversed group.
      *
      * If the group is empty, the returned iterator will be equal to `rend()`.
      *
-     * @return An iterator to the first entity of the reversed group.
+     * @return An iterator to the first primitive of the reversed group.
      */
     [[nodiscard]] reverse_iterator rbegin() const noexcept {
         return *this ? handle().rbegin() : reverse_iterator{};
     }
 
     /**
-     * @brief Returns an iterator that is past the last entity of the reversed
+     * @brief Returns an iterator that is past the last primitive of the reversed
      * group.
-     * @return An iterator to the entity following the last entity of the
+     * @return An iterator to the primitive following the last primitive of the
      * reversed group.
      */
     [[nodiscard]] reverse_iterator rend() const noexcept {
@@ -18510,8 +18510,8 @@ public:
     }
 
     /**
-     * @brief Returns the first entity of the group, if any.
-     * @return The first entity of the group if one exists, the null entity
+     * @brief Returns the first primitive of the group, if any.
+     * @return The first primitive of the group if one exists, the null primitive
      * otherwise.
      */
     [[nodiscard]] entity_type front() const noexcept {
@@ -18520,8 +18520,8 @@ public:
     }
 
     /**
-     * @brief Returns the last entity of the group, if any.
-     * @return The last entity of the group if one exists, the null entity
+     * @brief Returns the last primitive of the group, if any.
+     * @return The last primitive of the group if one exists, the null primitive
      * otherwise.
      */
     [[nodiscard]] entity_type back() const noexcept {
@@ -18530,9 +18530,9 @@ public:
     }
 
     /**
-     * @brief Finds an entity.
+     * @brief Finds an primitive.
      * @param entt A valid identifier.
-     * @return An iterator to the given entity if it's found, past the end
+     * @return An iterator to the given primitive if it's found, past the end
      * iterator otherwise.
      */
     [[nodiscard]] iterator find(const entity_type entt) const noexcept {
@@ -18557,20 +18557,20 @@ public:
     }
 
     /**
-     * @brief Checks if a group contains an entity.
+     * @brief Checks if a group contains an primitive.
      * @param entt A valid identifier.
-     * @return True if the group contains the given entity, false otherwise.
+     * @return True if the group contains the given primitive, false otherwise.
      */
     [[nodiscard]] bool contains(const entity_type entt) const noexcept {
         return *this && handle().contains(entt);
     }
 
     /**
-     * @brief Returns the components assigned to the given entity.
+     * @brief Returns the components assigned to the given primitive.
      * @tparam Type Type of the component to get.
      * @tparam Other Other types of components to get.
      * @param entt A valid identifier.
-     * @return The components assigned to the entity.
+     * @return The components assigned to the primitive.
      */
     template<typename Type, typename... Other>
     [[nodiscard]] decltype(auto) get(const entity_type entt) const {
@@ -18578,10 +18578,10 @@ public:
     }
 
     /**
-     * @brief Returns the components assigned to the given entity.
+     * @brief Returns the components assigned to the given primitive.
      * @tparam Index Indexes of the components to get.
      * @param entt A valid identifier.
-     * @return The components assigned to the entity.
+     * @return The components assigned to the primitive.
      */
     template<std::size_t... Index>
     [[nodiscard]] decltype(auto) get(const entity_type entt) const {
@@ -18600,8 +18600,8 @@ public:
      * @brief Iterates entities and components and applies the given function
      * object to them.
      *
-     * The function object is invoked for each entity. It is provided with the
-     * entity itself and a set of references to non-empty components. The
+     * The function object is invoked for each primitive. It is provided with the
+     * primitive itself and a set of references to non-empty components. The
      * _constness_ of the components is as requested.<br/>
      * The signature of the function must be equivalent to one of the following
      * forms:
@@ -18632,7 +18632,7 @@ public:
     /**
      * @brief Returns an iterable object to use to _visit_ a group.
      *
-     * The iterable object returns tuples that contain the current entity and a
+     * The iterable object returns tuples that contain the current primitive and a
      * set of references to its non-empty components. The _constness_ of the
      * components is as requested.
      *
@@ -18657,7 +18657,7 @@ public:
      * @code{.cpp}
      * bool(std::tuple<Type &...>, std::tuple<Type &...>);
      * bool(const Type &..., const Type &...);
-     * bool(const Entity, const Entity);
+     * bool(const Primitive, const Primitive);
      * @endcode
      *
      * Where `Type` are such that they are iterated by the group.<br/>
@@ -18753,7 +18753,7 @@ private:
  * Owning groups returns all entities and only the entities that are at
  * least in the given storage. Moreover:
  *
- * * It's guaranteed that the entity list is tightly packed in memory for fast
+ * * It's guaranteed that the primitive list is tightly packed in memory for fast
  *   iterations.
  * * It's guaranteed that all components in the owned storage are tightly packed
  *   in memory for even faster iterations and to allow direct access.
@@ -18767,9 +18767,9 @@ private:
  * Iterators aren't invalidated if:
  *
  * * New elements are added to the storage.
- * * The entity currently pointed is modified (for example, components are added
+ * * The primitive currently pointed is modified (for example, components are added
  *   or removed from it).
- * * The entity currently pointed is destroyed.
+ * * The primitive currently pointed is destroyed.
  *
  * In all other cases, modifying the pools iterated by the group in any way
  * invalidates all the iterators.
@@ -18797,7 +18797,7 @@ class basic_group<owned_t<Owned...>, get_t<Get...>, exclude_t<Exclude...>> {
     }
 
 public:
-    /*! @brief Underlying entity identifier. */
+    /*! @brief Underlying primitive identifier. */
     using entity_type = underlying_type;
     /*! @brief Unsigned integer type. */
     using size_type = std::size_t;
@@ -18874,19 +18874,19 @@ public:
     }
 
     /**
-     * @brief Returns an iterator to the first entity of the group.
+     * @brief Returns an iterator to the first primitive of the group.
      *
      * If the group is empty, the returned iterator will be equal to `end()`.
      *
-     * @return An iterator to the first entity of the group.
+     * @return An iterator to the first primitive of the group.
      */
     [[nodiscard]] iterator begin() const noexcept {
         return *this ? (handle().end() - descriptor->length()) : iterator{};
     }
 
     /**
-     * @brief Returns an iterator that is past the last entity of the group.
-     * @return An iterator to the entity following the last entity of the
+     * @brief Returns an iterator that is past the last primitive of the group.
+     * @return An iterator to the primitive following the last primitive of the
      * group.
      */
     [[nodiscard]] iterator end() const noexcept {
@@ -18894,20 +18894,20 @@ public:
     }
 
     /**
-     * @brief Returns an iterator to the first entity of the reversed group.
+     * @brief Returns an iterator to the first primitive of the reversed group.
      *
      * If the group is empty, the returned iterator will be equal to `rend()`.
      *
-     * @return An iterator to the first entity of the reversed group.
+     * @return An iterator to the first primitive of the reversed group.
      */
     [[nodiscard]] reverse_iterator rbegin() const noexcept {
         return *this ? handle().rbegin() : reverse_iterator{};
     }
 
     /**
-     * @brief Returns an iterator that is past the last entity of the reversed
+     * @brief Returns an iterator that is past the last primitive of the reversed
      * group.
-     * @return An iterator to the entity following the last entity of the
+     * @return An iterator to the primitive following the last primitive of the
      * reversed group.
      */
     [[nodiscard]] reverse_iterator rend() const noexcept {
@@ -18915,8 +18915,8 @@ public:
     }
 
     /**
-     * @brief Returns the first entity of the group, if any.
-     * @return The first entity of the group if one exists, the null entity
+     * @brief Returns the first primitive of the group, if any.
+     * @return The first primitive of the group if one exists, the null primitive
      * otherwise.
      */
     [[nodiscard]] entity_type front() const noexcept {
@@ -18925,8 +18925,8 @@ public:
     }
 
     /**
-     * @brief Returns the last entity of the group, if any.
-     * @return The last entity of the group if one exists, the null entity
+     * @brief Returns the last primitive of the group, if any.
+     * @return The last primitive of the group if one exists, the null primitive
      * otherwise.
      */
     [[nodiscard]] entity_type back() const noexcept {
@@ -18935,9 +18935,9 @@ public:
     }
 
     /**
-     * @brief Finds an entity.
+     * @brief Finds an primitive.
      * @param entt A valid identifier.
-     * @return An iterator to the given entity if it's found, past the end
+     * @return An iterator to the given primitive if it's found, past the end
      * iterator otherwise.
      */
     [[nodiscard]] iterator find(const entity_type entt) const noexcept {
@@ -18963,20 +18963,20 @@ public:
     }
 
     /**
-     * @brief Checks if a group contains an entity.
+     * @brief Checks if a group contains an primitive.
      * @param entt A valid identifier.
-     * @return True if the group contains the given entity, false otherwise.
+     * @return True if the group contains the given primitive, false otherwise.
      */
     [[nodiscard]] bool contains(const entity_type entt) const noexcept {
         return *this && handle().contains(entt) && (handle().index(entt) < (descriptor->length()));
     }
 
     /**
-     * @brief Returns the components assigned to the given entity.
+     * @brief Returns the components assigned to the given primitive.
      * @tparam Type Type of the component to get.
      * @tparam Other Other types of components to get.
      * @param entt A valid identifier.
-     * @return The components assigned to the entity.
+     * @return The components assigned to the primitive.
      */
     template<typename Type, typename... Other>
     [[nodiscard]] decltype(auto) get(const entity_type entt) const {
@@ -18984,10 +18984,10 @@ public:
     }
 
     /**
-     * @brief Returns the components assigned to the given entity.
+     * @brief Returns the components assigned to the given primitive.
      * @tparam Index Indexes of the components to get.
      * @param entt A valid identifier.
-     * @return The components assigned to the entity.
+     * @return The components assigned to the primitive.
      */
     template<std::size_t... Index>
     [[nodiscard]] decltype(auto) get(const entity_type entt) const {
@@ -19006,8 +19006,8 @@ public:
      * @brief Iterates entities and components and applies the given function
      * object to them.
      *
-     * The function object is invoked for each entity. It is provided with the
-     * entity itself and a set of references to non-empty components. The
+     * The function object is invoked for each primitive. It is provided with the
+     * primitive itself and a set of references to non-empty components. The
      * _constness_ of the components is as requested.<br/>
      * The signature of the function must be equivalent to one of the following
      * forms:
@@ -19038,7 +19038,7 @@ public:
     /**
      * @brief Returns an iterable object to use to _visit_ a group.
      *
-     * The iterable object returns tuples that contain the current entity and a
+     * The iterable object returns tuples that contain the current primitive and a
      * set of references to its non-empty components. The _constness_ of the
      * components is as requested.
      *
@@ -19063,7 +19063,7 @@ public:
      * @code{.cpp}
      * bool(std::tuple<Type &...>, std::tuple<Type &...>);
      * bool(const Type &, const Type &);
-     * bool(const Entity, const Entity);
+     * bool(const Primitive, const Primitive);
      * @endcode
      *
      * Where `Type` are either owned types or not but still such that they are
@@ -19143,7 +19143,7 @@ private:
 
 #endif
 
-// #include "entity/handle.hpp"
+// #include "primitive/handle.hpp"
 #ifndef ENTT_ENTITY_HANDLE_HPP
 #define ENTT_ENTITY_HANDLE_HPP
 
@@ -19155,7 +19155,7 @@ private:
 
 // #include "../core/type_traits.hpp"
 
-// #include "entity.hpp"
+// #include "primitive.hpp"
 
 // #include "fwd.hpp"
 
@@ -19236,9 +19236,9 @@ template<typename ILhs, typename IRhs>
 /*! @endcond */
 
 /**
- * @brief Non-owning handle to an entity.
+ * @brief Non-owning handle to an primitive.
  *
- * Tiny wrapper around a registry and an entity.
+ * Tiny wrapper around a registry and an primitive.
  *
  * @tparam Registry Basic registry type.
  * @tparam Scope Types to which to restrict the scope of a handle.
@@ -19247,7 +19247,7 @@ template<typename Registry, typename... Scope>
 struct basic_handle {
     /*! @brief Type of registry accepted by the handle. */
     using registry_type = Registry;
-    /*! @brief Underlying entity identifier. */
+    /*! @brief Underlying primitive identifier. */
     using entity_type = typename registry_type::entity_type;
     /*! @brief Underlying version type. */
     using version_type = typename registry_type::version_type;
@@ -19260,7 +19260,7 @@ struct basic_handle {
           entt{null} {}
 
     /**
-     * @brief Constructs a handle from a given registry and entity.
+     * @brief Constructs a handle from a given registry and primitive.
      * @param ref An instance of the registry class.
      * @param value A valid identifier.
      */
@@ -19273,7 +19273,7 @@ struct basic_handle {
      *
      * The iterable object returns a pair that contains the name and a reference
      * to the current storage.<br/>
-     * Returned storage are those that contain the entity associated with the
+     * Returned storage are those that contain the primitive associated with the
      * handle.
      *
      * @return An iterable object to use to _visit_ the handle.
@@ -19286,10 +19286,10 @@ struct basic_handle {
 
     /**
      * @brief Constructs a const handle from a non-const one.
-     * @tparam Other A valid entity type.
+     * @tparam Other A valid primitive type.
      * @tparam Args Scope of the handle to construct.
      * @return A const handle referring to the same registry and the same
-     * entity.
+     * primitive.
      */
     template<typename Other, typename... Args>
     operator basic_handle<Other, Args...>() const noexcept {
@@ -19300,24 +19300,24 @@ struct basic_handle {
     }
 
     /**
-     * @brief Converts a handle to its underlying entity.
+     * @brief Converts a handle to its underlying primitive.
      * @return The contained identifier.
      */
     [[nodiscard]] operator entity_type() const noexcept {
-        return entity();
+        return primitive();
     }
 
     /**
-     * @brief Checks if a handle refers to non-null registry pointer and entity.
-     * @return True if the handle refers to non-null registry and entity, false otherwise.
+     * @brief Checks if a handle refers to non-null registry pointer and primitive.
+     * @return True if the handle refers to non-null registry and primitive, false otherwise.
      */
     [[nodiscard]] explicit operator bool() const noexcept {
         return reg && reg->valid(entt);
     }
 
     /**
-     * @brief Checks if a handle refers to a valid entity or not.
-     * @return True if the handle refers to a valid entity, false otherwise.
+     * @brief Checks if a handle refers to a valid primitive or not.
+     * @return True if the handle refers to a valid primitive, false otherwise.
      */
     [[nodiscard]] bool valid() const {
         return reg->valid(entt);
@@ -19332,20 +19332,20 @@ struct basic_handle {
     }
 
     /**
-     * @brief Returns the entity associated with a handle.
-     * @return The entity associated with the handle.
+     * @brief Returns the primitive associated with a handle.
+     * @return The primitive associated with the handle.
      */
-    [[nodiscard]] entity_type entity() const noexcept {
+    [[nodiscard]] entity_type primitive() const noexcept {
         return entt;
     }
 
-    /*! @brief Destroys the entity associated with a handle. */
+    /*! @brief Destroys the primitive associated with a handle. */
     void destroy() {
         reg->destroy(std::exchange(entt, null));
     }
 
     /**
-     * @brief Destroys the entity associated with a handle.
+     * @brief Destroys the primitive associated with a handle.
      * @param version A desired version upon destruction.
      */
     void destroy(const version_type version) {
@@ -19501,11 +19501,11 @@ private:
  * @param lhs A valid handle.
  * @param rhs A valid handle.
  * @return True if both handles refer to the same registry and the same
- * entity, false otherwise.
+ * primitive, false otherwise.
  */
 template<typename... Args, typename... Other>
 [[nodiscard]] bool operator==(const basic_handle<Args...> &lhs, const basic_handle<Other...> &rhs) noexcept {
-    return lhs.registry() == rhs.registry() && lhs.entity() == rhs.entity();
+    return lhs.registry() == rhs.registry() && lhs.primitive() == rhs.primitive();
 }
 
 /**
@@ -19515,7 +19515,7 @@ template<typename... Args, typename... Other>
  * @param lhs A valid handle.
  * @param rhs A valid handle.
  * @return False if both handles refer to the same registry and the same
- * entity, true otherwise.
+ * primitive, true otherwise.
  */
 template<typename... Args, typename... Other>
 [[nodiscard]] bool operator!=(const basic_handle<Args...> &lhs, const basic_handle<Other...> &rhs) noexcept {
@@ -19526,7 +19526,7 @@ template<typename... Args, typename... Other>
 
 #endif
 
-// #include "entity/helper.hpp"
+// #include "primitive/helper.hpp"
 #ifndef ENTT_ENTITY_HELPER_HPP
 #define ENTT_ENTITY_HELPER_HPP
 
@@ -21107,7 +21107,7 @@ delegate(Ret (*)(const void *, Args...), const void * = nullptr) -> delegate<Ret
 
 // #include "../core/type_traits.hpp"
 
-// #include "entity.hpp"
+// #include "primitive.hpp"
 
 // #include "fwd.hpp"
 
@@ -21319,8 +21319,8 @@ public:
         std::apply([this](auto *...cpool) { ((cpool->on_construct().template connect<&group_handler::push_on_construct>(*this), cpool->on_destroy().template connect<&group_handler::remove_if>(*this)), ...); }, pools);
         std::apply([this](auto *...cpool) { ((cpool->on_construct().template connect<&group_handler::remove_if>(*this), cpool->on_destroy().template connect<&group_handler::push_on_destroy>(*this)), ...); }, filter);
 
-        for(const auto entity: static_cast<base_type &>(*std::get<0>(pools))) {
-            push_on_construct(entity);
+        for(const auto primitive: static_cast<base_type &>(*std::get<0>(pools))) {
+            push_on_construct(primitive);
         }
     }
 
@@ -21362,7 +21362,7 @@ class basic_group;
  * @brief Non-owning group.
  *
  * A non-owning group returns all entities and only the entities that are at
- * least in the given storage. Moreover, it's guaranteed that the entity list is
+ * least in the given storage. Moreover, it's guaranteed that the primitive list is
  * tightly packed in memory for fast iterations.
  *
  * @b Important
@@ -21370,9 +21370,9 @@ class basic_group;
  * Iterators aren't invalidated if:
  *
  * * New elements are added to the storage.
- * * The entity currently pointed is modified (for example, components are added
+ * * The primitive currently pointed is modified (for example, components are added
  *   or removed from it).
- * * The entity currently pointed is destroyed.
+ * * The primitive currently pointed is destroyed.
  *
  * In all other cases, modifying the pools iterated by the group in any way
  * invalidates all the iterators.
@@ -21399,7 +21399,7 @@ class basic_group<owned_t<>, get_t<Get...>, exclude_t<Exclude...>> {
     }
 
 public:
-    /*! @brief Underlying entity identifier. */
+    /*! @brief Underlying primitive identifier. */
     using entity_type = underlying_type;
     /*! @brief Unsigned integer type. */
     using size_type = std::size_t;
@@ -21492,19 +21492,19 @@ public:
     }
 
     /**
-     * @brief Returns an iterator to the first entity of the group.
+     * @brief Returns an iterator to the first primitive of the group.
      *
      * If the group is empty, the returned iterator will be equal to `end()`.
      *
-     * @return An iterator to the first entity of the group.
+     * @return An iterator to the first primitive of the group.
      */
     [[nodiscard]] iterator begin() const noexcept {
         return *this ? handle().begin() : iterator{};
     }
 
     /**
-     * @brief Returns an iterator that is past the last entity of the group.
-     * @return An iterator to the entity following the last entity of the
+     * @brief Returns an iterator that is past the last primitive of the group.
+     * @return An iterator to the primitive following the last primitive of the
      * group.
      */
     [[nodiscard]] iterator end() const noexcept {
@@ -21512,20 +21512,20 @@ public:
     }
 
     /**
-     * @brief Returns an iterator to the first entity of the reversed group.
+     * @brief Returns an iterator to the first primitive of the reversed group.
      *
      * If the group is empty, the returned iterator will be equal to `rend()`.
      *
-     * @return An iterator to the first entity of the reversed group.
+     * @return An iterator to the first primitive of the reversed group.
      */
     [[nodiscard]] reverse_iterator rbegin() const noexcept {
         return *this ? handle().rbegin() : reverse_iterator{};
     }
 
     /**
-     * @brief Returns an iterator that is past the last entity of the reversed
+     * @brief Returns an iterator that is past the last primitive of the reversed
      * group.
-     * @return An iterator to the entity following the last entity of the
+     * @return An iterator to the primitive following the last primitive of the
      * reversed group.
      */
     [[nodiscard]] reverse_iterator rend() const noexcept {
@@ -21533,8 +21533,8 @@ public:
     }
 
     /**
-     * @brief Returns the first entity of the group, if any.
-     * @return The first entity of the group if one exists, the null entity
+     * @brief Returns the first primitive of the group, if any.
+     * @return The first primitive of the group if one exists, the null primitive
      * otherwise.
      */
     [[nodiscard]] entity_type front() const noexcept {
@@ -21543,8 +21543,8 @@ public:
     }
 
     /**
-     * @brief Returns the last entity of the group, if any.
-     * @return The last entity of the group if one exists, the null entity
+     * @brief Returns the last primitive of the group, if any.
+     * @return The last primitive of the group if one exists, the null primitive
      * otherwise.
      */
     [[nodiscard]] entity_type back() const noexcept {
@@ -21553,9 +21553,9 @@ public:
     }
 
     /**
-     * @brief Finds an entity.
+     * @brief Finds an primitive.
      * @param entt A valid identifier.
-     * @return An iterator to the given entity if it's found, past the end
+     * @return An iterator to the given primitive if it's found, past the end
      * iterator otherwise.
      */
     [[nodiscard]] iterator find(const entity_type entt) const noexcept {
@@ -21580,20 +21580,20 @@ public:
     }
 
     /**
-     * @brief Checks if a group contains an entity.
+     * @brief Checks if a group contains an primitive.
      * @param entt A valid identifier.
-     * @return True if the group contains the given entity, false otherwise.
+     * @return True if the group contains the given primitive, false otherwise.
      */
     [[nodiscard]] bool contains(const entity_type entt) const noexcept {
         return *this && handle().contains(entt);
     }
 
     /**
-     * @brief Returns the components assigned to the given entity.
+     * @brief Returns the components assigned to the given primitive.
      * @tparam Type Type of the component to get.
      * @tparam Other Other types of components to get.
      * @param entt A valid identifier.
-     * @return The components assigned to the entity.
+     * @return The components assigned to the primitive.
      */
     template<typename Type, typename... Other>
     [[nodiscard]] decltype(auto) get(const entity_type entt) const {
@@ -21601,10 +21601,10 @@ public:
     }
 
     /**
-     * @brief Returns the components assigned to the given entity.
+     * @brief Returns the components assigned to the given primitive.
      * @tparam Index Indexes of the components to get.
      * @param entt A valid identifier.
-     * @return The components assigned to the entity.
+     * @return The components assigned to the primitive.
      */
     template<std::size_t... Index>
     [[nodiscard]] decltype(auto) get(const entity_type entt) const {
@@ -21623,8 +21623,8 @@ public:
      * @brief Iterates entities and components and applies the given function
      * object to them.
      *
-     * The function object is invoked for each entity. It is provided with the
-     * entity itself and a set of references to non-empty components. The
+     * The function object is invoked for each primitive. It is provided with the
+     * primitive itself and a set of references to non-empty components. The
      * _constness_ of the components is as requested.<br/>
      * The signature of the function must be equivalent to one of the following
      * forms:
@@ -21655,7 +21655,7 @@ public:
     /**
      * @brief Returns an iterable object to use to _visit_ a group.
      *
-     * The iterable object returns tuples that contain the current entity and a
+     * The iterable object returns tuples that contain the current primitive and a
      * set of references to its non-empty components. The _constness_ of the
      * components is as requested.
      *
@@ -21680,7 +21680,7 @@ public:
      * @code{.cpp}
      * bool(std::tuple<Type &...>, std::tuple<Type &...>);
      * bool(const Type &..., const Type &...);
-     * bool(const Entity, const Entity);
+     * bool(const Primitive, const Primitive);
      * @endcode
      *
      * Where `Type` are such that they are iterated by the group.<br/>
@@ -21776,7 +21776,7 @@ private:
  * Owning groups returns all entities and only the entities that are at
  * least in the given storage. Moreover:
  *
- * * It's guaranteed that the entity list is tightly packed in memory for fast
+ * * It's guaranteed that the primitive list is tightly packed in memory for fast
  *   iterations.
  * * It's guaranteed that all components in the owned storage are tightly packed
  *   in memory for even faster iterations and to allow direct access.
@@ -21790,9 +21790,9 @@ private:
  * Iterators aren't invalidated if:
  *
  * * New elements are added to the storage.
- * * The entity currently pointed is modified (for example, components are added
+ * * The primitive currently pointed is modified (for example, components are added
  *   or removed from it).
- * * The entity currently pointed is destroyed.
+ * * The primitive currently pointed is destroyed.
  *
  * In all other cases, modifying the pools iterated by the group in any way
  * invalidates all the iterators.
@@ -21820,7 +21820,7 @@ class basic_group<owned_t<Owned...>, get_t<Get...>, exclude_t<Exclude...>> {
     }
 
 public:
-    /*! @brief Underlying entity identifier. */
+    /*! @brief Underlying primitive identifier. */
     using entity_type = underlying_type;
     /*! @brief Unsigned integer type. */
     using size_type = std::size_t;
@@ -21897,19 +21897,19 @@ public:
     }
 
     /**
-     * @brief Returns an iterator to the first entity of the group.
+     * @brief Returns an iterator to the first primitive of the group.
      *
      * If the group is empty, the returned iterator will be equal to `end()`.
      *
-     * @return An iterator to the first entity of the group.
+     * @return An iterator to the first primitive of the group.
      */
     [[nodiscard]] iterator begin() const noexcept {
         return *this ? (handle().end() - descriptor->length()) : iterator{};
     }
 
     /**
-     * @brief Returns an iterator that is past the last entity of the group.
-     * @return An iterator to the entity following the last entity of the
+     * @brief Returns an iterator that is past the last primitive of the group.
+     * @return An iterator to the primitive following the last primitive of the
      * group.
      */
     [[nodiscard]] iterator end() const noexcept {
@@ -21917,20 +21917,20 @@ public:
     }
 
     /**
-     * @brief Returns an iterator to the first entity of the reversed group.
+     * @brief Returns an iterator to the first primitive of the reversed group.
      *
      * If the group is empty, the returned iterator will be equal to `rend()`.
      *
-     * @return An iterator to the first entity of the reversed group.
+     * @return An iterator to the first primitive of the reversed group.
      */
     [[nodiscard]] reverse_iterator rbegin() const noexcept {
         return *this ? handle().rbegin() : reverse_iterator{};
     }
 
     /**
-     * @brief Returns an iterator that is past the last entity of the reversed
+     * @brief Returns an iterator that is past the last primitive of the reversed
      * group.
-     * @return An iterator to the entity following the last entity of the
+     * @return An iterator to the primitive following the last primitive of the
      * reversed group.
      */
     [[nodiscard]] reverse_iterator rend() const noexcept {
@@ -21938,8 +21938,8 @@ public:
     }
 
     /**
-     * @brief Returns the first entity of the group, if any.
-     * @return The first entity of the group if one exists, the null entity
+     * @brief Returns the first primitive of the group, if any.
+     * @return The first primitive of the group if one exists, the null primitive
      * otherwise.
      */
     [[nodiscard]] entity_type front() const noexcept {
@@ -21948,8 +21948,8 @@ public:
     }
 
     /**
-     * @brief Returns the last entity of the group, if any.
-     * @return The last entity of the group if one exists, the null entity
+     * @brief Returns the last primitive of the group, if any.
+     * @return The last primitive of the group if one exists, the null primitive
      * otherwise.
      */
     [[nodiscard]] entity_type back() const noexcept {
@@ -21958,9 +21958,9 @@ public:
     }
 
     /**
-     * @brief Finds an entity.
+     * @brief Finds an primitive.
      * @param entt A valid identifier.
-     * @return An iterator to the given entity if it's found, past the end
+     * @return An iterator to the given primitive if it's found, past the end
      * iterator otherwise.
      */
     [[nodiscard]] iterator find(const entity_type entt) const noexcept {
@@ -21986,20 +21986,20 @@ public:
     }
 
     /**
-     * @brief Checks if a group contains an entity.
+     * @brief Checks if a group contains an primitive.
      * @param entt A valid identifier.
-     * @return True if the group contains the given entity, false otherwise.
+     * @return True if the group contains the given primitive, false otherwise.
      */
     [[nodiscard]] bool contains(const entity_type entt) const noexcept {
         return *this && handle().contains(entt) && (handle().index(entt) < (descriptor->length()));
     }
 
     /**
-     * @brief Returns the components assigned to the given entity.
+     * @brief Returns the components assigned to the given primitive.
      * @tparam Type Type of the component to get.
      * @tparam Other Other types of components to get.
      * @param entt A valid identifier.
-     * @return The components assigned to the entity.
+     * @return The components assigned to the primitive.
      */
     template<typename Type, typename... Other>
     [[nodiscard]] decltype(auto) get(const entity_type entt) const {
@@ -22007,10 +22007,10 @@ public:
     }
 
     /**
-     * @brief Returns the components assigned to the given entity.
+     * @brief Returns the components assigned to the given primitive.
      * @tparam Index Indexes of the components to get.
      * @param entt A valid identifier.
-     * @return The components assigned to the entity.
+     * @return The components assigned to the primitive.
      */
     template<std::size_t... Index>
     [[nodiscard]] decltype(auto) get(const entity_type entt) const {
@@ -22029,8 +22029,8 @@ public:
      * @brief Iterates entities and components and applies the given function
      * object to them.
      *
-     * The function object is invoked for each entity. It is provided with the
-     * entity itself and a set of references to non-empty components. The
+     * The function object is invoked for each primitive. It is provided with the
+     * primitive itself and a set of references to non-empty components. The
      * _constness_ of the components is as requested.<br/>
      * The signature of the function must be equivalent to one of the following
      * forms:
@@ -22061,7 +22061,7 @@ public:
     /**
      * @brief Returns an iterable object to use to _visit_ a group.
      *
-     * The iterable object returns tuples that contain the current entity and a
+     * The iterable object returns tuples that contain the current primitive and a
      * set of references to its non-empty components. The _constness_ of the
      * components is as requested.
      *
@@ -22086,7 +22086,7 @@ public:
      * @code{.cpp}
      * bool(std::tuple<Type &...>, std::tuple<Type &...>);
      * bool(const Type &, const Type &);
-     * bool(const Entity, const Entity);
+     * bool(const Primitive, const Primitive);
      * @endcode
      *
      * Where `Type` are either owned types or not but still such that they are
@@ -22183,7 +22183,7 @@ private:
 
 // #include "../core/type_traits.hpp"
 
-// #include "entity.hpp"
+// #include "primitive.hpp"
 
 // #include "fwd.hpp"
 
@@ -22193,8 +22193,8 @@ namespace entt {
 /*! @cond TURN_OFF_DOXYGEN */
 namespace internal {
 
-template<typename Type, typename Entity>
-[[nodiscard]] bool all_of_but(const std::size_t index, const Type *const *it, const std::size_t len, const Entity entt) noexcept {
+template<typename Type, typename Primitive>
+[[nodiscard]] bool all_of_but(const std::size_t index, const Type *const *it, const std::size_t len, const Primitive entt) noexcept {
     std::size_t pos{};
     for(; (pos != index) && it[pos]->contains(entt); ++pos) {}
 
@@ -22205,8 +22205,8 @@ template<typename Type, typename Entity>
     return pos == len;
 }
 
-template<typename Type, typename Entity>
-[[nodiscard]] bool none_of(const Type *const *it, const std::size_t len, const Entity entt) noexcept {
+template<typename Type, typename Primitive>
+[[nodiscard]] bool none_of(const Type *const *it, const std::size_t len, const Primitive entt) noexcept {
     std::size_t pos{};
     for(; (pos != len) && !(it[pos] && it[pos]->contains(entt)); ++pos) {}
     return pos == len;
@@ -22372,9 +22372,9 @@ template<typename... Lhs, typename... Rhs>
  * View iterators aren't invalidated if:
  *
  * * New elements are added to the storage iterated by the view.
- * * The entity currently returned is modified (for example, components are
+ * * The primitive currently returned is modified (for example, components are
  *   added or removed from it).
- * * The entity currently returned is destroyed.
+ * * The primitive currently returned is destroyed.
  *
  * In all other cases, modifying the storage iterated by a view in any way can
  * invalidate all iterators.
@@ -22429,7 +22429,7 @@ protected:
 public:
     /*! @brief Common type among all storage types. */
     using common_type = Type;
-    /*! @brief Underlying entity identifier. */
+    /*! @brief Underlying primitive identifier. */
     using entity_type = typename Type::entity_type;
     /*! @brief Unsigned integer type. */
     using size_type = std::size_t;
@@ -22463,27 +22463,27 @@ public:
     }
 
     /**
-     * @brief Returns an iterator to the first entity of the view.
+     * @brief Returns an iterator to the first primitive of the view.
      *
      * If the view is empty, the returned iterator will be equal to `end()`.
      *
-     * @return An iterator to the first entity of the view.
+     * @return An iterator to the first primitive of the view.
      */
     [[nodiscard]] iterator begin() const noexcept {
         return leading ? iterator{leading->begin(0), leading->end(0), pools, filter, index} : iterator{};
     }
 
     /**
-     * @brief Returns an iterator that is past the last entity of the view.
-     * @return An iterator to the entity following the last entity of the view.
+     * @brief Returns an iterator that is past the last primitive of the view.
+     * @return An iterator to the primitive following the last primitive of the view.
      */
     [[nodiscard]] iterator end() const noexcept {
         return leading ? iterator{leading->end(0), leading->end(0), pools, filter, index} : iterator{};
     }
 
     /**
-     * @brief Returns the first entity of the view, if any.
-     * @return The first entity of the view if one exists, the null entity
+     * @brief Returns the first primitive of the view, if any.
+     * @return The first primitive of the view if one exists, the null primitive
      * otherwise.
      */
     [[nodiscard]] entity_type front() const noexcept {
@@ -22492,8 +22492,8 @@ public:
     }
 
     /**
-     * @brief Returns the last entity of the view, if any.
-     * @return The last entity of the view if one exists, the null entity
+     * @brief Returns the last primitive of the view, if any.
+     * @return The last primitive of the view if one exists, the null primitive
      * otherwise.
      */
     [[nodiscard]] entity_type back() const noexcept {
@@ -22508,9 +22508,9 @@ public:
     }
 
     /**
-     * @brief Finds an entity.
+     * @brief Finds an primitive.
      * @param entt A valid identifier.
-     * @return An iterator to the given entity if it's found, past the end
+     * @return An iterator to the given primitive if it's found, past the end
      * iterator otherwise.
      */
     [[nodiscard]] iterator find(const entity_type entt) const noexcept {
@@ -22526,9 +22526,9 @@ public:
     }
 
     /**
-     * @brief Checks if a view contains an entity.
+     * @brief Checks if a view contains an primitive.
      * @param entt A valid identifier.
-     * @return True if the view contains the given entity, false otherwise.
+     * @return True if the view contains the given primitive, false otherwise.
      */
     [[nodiscard]] bool contains(const entity_type entt) const noexcept {
         if(leading) {
@@ -22602,7 +22602,7 @@ class basic_view<get_t<Get...>, exclude_t<Exclude...>>: public basic_common_view
 public:
     /*! @brief Common type among all storage types. */
     using common_type = typename base_type::common_type;
-    /*! @brief Underlying entity identifier. */
+    /*! @brief Underlying primitive identifier. */
     using entity_type = typename base_type::entity_type;
     /*! @brief Unsigned integer type. */
     using size_type = typename base_type::size_type;
@@ -22705,20 +22705,20 @@ public:
     }
 
     /**
-     * @brief Returns the components assigned to the given entity.
+     * @brief Returns the components assigned to the given primitive.
      * @param entt A valid identifier.
-     * @return The components assigned to the given entity.
+     * @return The components assigned to the given primitive.
      */
     [[nodiscard]] decltype(auto) operator[](const entity_type entt) const {
         return get(entt);
     }
 
     /**
-     * @brief Returns the components assigned to the given entity.
+     * @brief Returns the components assigned to the given primitive.
      * @tparam Type Type of the component to get.
      * @tparam Other Other types of components to get.
      * @param entt A valid identifier.
-     * @return The components assigned to the entity.
+     * @return The components assigned to the primitive.
      */
     template<typename Type, typename... Other>
     [[nodiscard]] decltype(auto) get(const entity_type entt) const {
@@ -22726,10 +22726,10 @@ public:
     }
 
     /**
-     * @brief Returns the components assigned to the given entity.
+     * @brief Returns the components assigned to the given primitive.
      * @tparam Index Indexes of the components to get.
      * @param entt A valid identifier.
-     * @return The components assigned to the entity.
+     * @return The components assigned to the primitive.
      */
     template<std::size_t... Index>
     [[nodiscard]] decltype(auto) get(const entity_type entt) const {
@@ -22767,7 +22767,7 @@ public:
     /**
      * @brief Returns an iterable object to use to _visit_ a view.
      *
-     * The iterable object returns a tuple that contains the current entity and
+     * The iterable object returns a tuple that contains the current primitive and
      * a set of references to its non-empty components. The _constness_ of the
      * components is as requested.
      *
@@ -22810,7 +22810,7 @@ protected:
 public:
     /*! @brief Common type among all storage types. */
     using common_type = Type;
-    /*! @brief Underlying entity identifier. */
+    /*! @brief Underlying primitive identifier. */
     using entity_type = typename common_type::entity_type;
     /*! @brief Unsigned integer type. */
     using size_type = std::size_t;
@@ -22844,39 +22844,39 @@ public:
     }
 
     /**
-     * @brief Returns an iterator to the first entity of the view.
+     * @brief Returns an iterator to the first primitive of the view.
      *
      * If the view is empty, the returned iterator will be equal to `end()`.
      *
-     * @return An iterator to the first entity of the view.
+     * @return An iterator to the first primitive of the view.
      */
     [[nodiscard]] iterator begin() const noexcept {
         return leading ? leading->begin() : iterator{};
     }
 
     /**
-     * @brief Returns an iterator that is past the last entity of the view.
-     * @return An iterator to the entity following the last entity of the view.
+     * @brief Returns an iterator that is past the last primitive of the view.
+     * @return An iterator to the primitive following the last primitive of the view.
      */
     [[nodiscard]] iterator end() const noexcept {
         return leading ? leading->end() : iterator{};
     }
 
     /**
-     * @brief Returns an iterator to the first entity of the reversed view.
+     * @brief Returns an iterator to the first primitive of the reversed view.
      *
      * If the view is empty, the returned iterator will be equal to `rend()`.
      *
-     * @return An iterator to the first entity of the reversed view.
+     * @return An iterator to the first primitive of the reversed view.
      */
     [[nodiscard]] reverse_iterator rbegin() const noexcept {
         return leading ? leading->rbegin() : reverse_iterator{};
     }
 
     /**
-     * @brief Returns an iterator that is past the last entity of the reversed
+     * @brief Returns an iterator that is past the last primitive of the reversed
      * view.
-     * @return An iterator to the entity following the last entity of the
+     * @return An iterator to the primitive following the last primitive of the
      * reversed view.
      */
     [[nodiscard]] reverse_iterator rend() const noexcept {
@@ -22884,8 +22884,8 @@ public:
     }
 
     /**
-     * @brief Returns the first entity of the view, if any.
-     * @return The first entity of the view if one exists, the null entity
+     * @brief Returns the first primitive of the view, if any.
+     * @return The first primitive of the view if one exists, the null primitive
      * otherwise.
      */
     [[nodiscard]] entity_type front() const noexcept {
@@ -22893,8 +22893,8 @@ public:
     }
 
     /**
-     * @brief Returns the last entity of the view, if any.
-     * @return The last entity of the view if one exists, the null entity
+     * @brief Returns the last primitive of the view, if any.
+     * @return The last primitive of the view if one exists, the null primitive
      * otherwise.
      */
     [[nodiscard]] entity_type back() const noexcept {
@@ -22902,9 +22902,9 @@ public:
     }
 
     /**
-     * @brief Finds an entity.
+     * @brief Finds an primitive.
      * @param entt A valid identifier.
-     * @return An iterator to the given entity if it's found, past the end
+     * @return An iterator to the given primitive if it's found, past the end
      * iterator otherwise.
      */
     [[nodiscard]] iterator find(const entity_type entt) const noexcept {
@@ -22920,9 +22920,9 @@ public:
     }
 
     /**
-     * @brief Checks if a view contains an entity.
+     * @brief Checks if a view contains an primitive.
      * @param entt A valid identifier.
-     * @return True if the view contains the given entity, false otherwise.
+     * @return True if the view contains the given primitive, false otherwise.
      */
     [[nodiscard]] bool contains(const entity_type entt) const noexcept {
         return leading && leading->contains(entt);
@@ -22951,7 +22951,7 @@ class basic_view<get_t<Get>, exclude_t<>, std::void_t<std::enable_if_t<!Get::tra
 public:
     /*! @brief Common type among all storage types. */
     using common_type = typename base_type::common_type;
-    /*! @brief Underlying entity identifier. */
+    /*! @brief Underlying primitive identifier. */
     using entity_type = typename base_type::entity_type;
     /*! @brief Unsigned integer type. */
     using size_type = typename base_type::size_type;
@@ -23023,9 +23023,9 @@ public:
     }
 
     /**
-     * @brief Returns the component assigned to the given entity.
+     * @brief Returns the component assigned to the given primitive.
      * @param entt A valid identifier.
-     * @return The component assigned to the given entity.
+     * @return The component assigned to the given primitive.
      */
     [[nodiscard]] decltype(auto) operator[](const entity_type entt) const {
         return storage()->get(entt);
@@ -23041,10 +23041,10 @@ public:
     }
 
     /**
-     * @brief Returns the component assigned to the given entity.
+     * @brief Returns the component assigned to the given primitive.
      * @tparam Elem Type of the component to get.
      * @param entt A valid identifier.
-     * @return The component assigned to the entity.
+     * @return The component assigned to the primitive.
      */
     template<typename Elem>
     [[nodiscard]] decltype(auto) get(const entity_type entt) const {
@@ -23053,10 +23053,10 @@ public:
     }
 
     /**
-     * @brief Returns the component assigned to the given entity.
+     * @brief Returns the component assigned to the given primitive.
      * @tparam Index Index of the component to get.
      * @param entt A valid identifier.
-     * @return The component assigned to the entity.
+     * @return The component assigned to the primitive.
      */
     template<std::size_t... Index>
     [[nodiscard]] decltype(auto) get(const entity_type entt) const {
@@ -23104,7 +23104,7 @@ public:
     /**
      * @brief Returns an iterable object to use to _visit_ a view.
      *
-     * The iterable object returns a tuple that contains the current entity and
+     * The iterable object returns a tuple that contains the current primitive and
      * a reference to its component if it's a non-empty one. The _constness_ of
      * the component is as requested.
      *
@@ -23166,7 +23166,7 @@ class as_view {
 public:
     /*! @brief Type of registry to convert. */
     using registry_type = Registry;
-    /*! @brief Underlying entity identifier. */
+    /*! @brief Underlying primitive identifier. */
     using entity_type = typename registry_type::entity_type;
 
     /**
@@ -23209,7 +23209,7 @@ class as_group {
 public:
     /*! @brief Type of registry to convert. */
     using registry_type = Registry;
-    /*! @brief Underlying entity identifier. */
+    /*! @brief Underlying primitive identifier. */
     using entity_type = typename registry_type::entity_type;
 
     /**
@@ -23239,8 +23239,8 @@ private:
  * @brief Helper to create a listener that directly invokes a member function.
  * @tparam Member Member function to invoke on a component of the given type.
  * @tparam Registry Basic registry type.
- * @param reg A registry that contains the given entity and its components.
- * @param entt Entity from which to get the component.
+ * @param reg A registry that contains the given primitive and its components.
+ * @param entt Primitive from which to get the component.
  */
 template<auto Member, typename Registry = std::decay_t<nth_argument_t<0u, decltype(Member)>>>
 void invoke(Registry &reg, const typename Registry::entity_type entt) {
@@ -23251,7 +23251,7 @@ void invoke(Registry &reg, const typename Registry::entity_type entt) {
 }
 
 /**
- * @brief Returns the entity associated with a given component.
+ * @brief Returns the primitive associated with a given component.
  *
  * @warning
  * Currently, this function only works correctly with the default storage as it
@@ -23260,7 +23260,7 @@ void invoke(Registry &reg, const typename Registry::entity_type entt) {
  * @tparam Args Storage type template parameters.
  * @param storage A storage that contains the given component.
  * @param instance A valid component instance.
- * @return The entity associated with the given component.
+ * @return The primitive associated with the given component.
  */
 template<typename... Args>
 auto to_entity(const basic_storage<Args...> &storage, const typename basic_storage<Args...>::value_type &instance) -> typename basic_storage<Args...>::entity_type {
@@ -23281,9 +23281,9 @@ auto to_entity(const basic_storage<Args...> &storage, const typename basic_stora
  * @copybrief to_entity
  * @tparam Args Registry type template parameters.
  * @tparam Component Type of component.
- * @param reg A registry that contains the given entity and its components.
+ * @param reg A registry that contains the given primitive and its components.
  * @param instance A valid component instance.
- * @return The entity associated with the given component.
+ * @return The primitive associated with the given component.
  */
 template<typename... Args, typename Component>
 [[deprecated("use storage based to_entity instead")]] typename basic_registry<Args...>::entity_type to_entity(const basic_registry<Args...> &reg, const Component &instance) {
@@ -23410,7 +23410,7 @@ sigh_helper(Registry &) -> sigh_helper<Registry>;
 
 #endif
 
-// #include "entity/mixin.hpp"
+// #include "primitive/mixin.hpp"
 #ifndef ENTT_ENTITY_MIXIN_HPP
 #define ENTT_ENTITY_MIXIN_HPP
 
@@ -24236,7 +24236,7 @@ sink(sigh<Ret(Args...), Allocator> &) -> sink<sigh<Ret(Args...), Allocator>>;
 
 #endif
 
-// #include "entity.hpp"
+// #include "primitive.hpp"
 
 // #include "fwd.hpp"
 
@@ -24319,7 +24319,7 @@ class basic_sigh_mixin final: public Type {
 public:
     /*! @brief Allocator type. */
     using allocator_type = typename underlying_type::allocator_type;
-    /*! @brief Underlying entity identifier. */
+    /*! @brief Underlying primitive identifier. */
     using entity_type = typename underlying_type::entity_type;
     /*! @brief Expected registry type. */
     using registry_type = owner_type;
@@ -24393,8 +24393,8 @@ public:
      * @brief Returns a sink object.
      *
      * The sink returned by this function can be used to receive notifications
-     * whenever a new instance is created and assigned to an entity.<br/>
-     * Listeners are invoked after the object has been assigned to the entity.
+     * whenever a new instance is created and assigned to an primitive.<br/>
+     * Listeners are invoked after the object has been assigned to the primitive.
      *
      * @sa sink
      *
@@ -24423,8 +24423,8 @@ public:
      * @brief Returns a sink object.
      *
      * The sink returned by this function can be used to receive notifications
-     * whenever an instance is removed from an entity and thus destroyed.<br/>
-     * Listeners are invoked before the object has been removed from the entity.
+     * whenever an instance is removed from an primitive and thus destroyed.<br/>
+     * Listeners are invoked before the object has been removed from the primitive.
      *
      * @sa sink
      *
@@ -24475,7 +24475,7 @@ public:
     }
 
     /**
-     * @brief Patches the given instance for an entity.
+     * @brief Patches the given instance for an primitive.
      * @tparam Func Types of the function objects to invoke.
      * @param entt A valid identifier.
      * @param func Valid function objects.
@@ -24534,7 +24534,7 @@ private:
 
 #endif
 
-// #include "entity/observer.hpp"
+// #include "primitive/observer.hpp"
 #ifndef ENTT_ENTITY_OBSERVER_HPP
 #define ENTT_ENTITY_OBSERVER_HPP
 
@@ -24654,7 +24654,7 @@ inline constexpr basic_collector<> collector{};
  *
  * An observer returns all the entities and only the entities that fit the
  * requirements of at least one matcher. Moreover, it's guaranteed that the
- * entity list is tightly packed in memory for fast iterations.<br/>
+ * primitive list is tightly packed in memory for fast iterations.<br/>
  * In general, observers don't stay true to the order of any set of components.
  *
  * Observers work mainly with two types of matchers, provided through a
@@ -24667,14 +24667,14 @@ inline constexpr basic_collector<> collector{};
  *   that would have entered the given group if it existed and that would have
  *   not yet left it.
  *
- * If an entity respects the requirements of multiple matchers, it will be
+ * If an primitive respects the requirements of multiple matchers, it will be
  * returned once and only once by the observer in any case.
  *
  * Matchers support also filtering by means of a _where_ clause that accepts
  * both a list of types and an exclusion list.<br/>
- * Whenever a matcher finds that an entity matches its requirements, the
- * condition of the filter is verified before to register the entity itself.
- * Moreover, a registered entity isn't returned by the observer if the condition
+ * Whenever a matcher finds that an primitive matches its requirements, the
+ * condition of the filter is verified before to register the primitive itself.
+ * Moreover, a registered primitive isn't returned by the observer if the condition
  * set by the filter is broken in the meantime.
  *
  * @b Important
@@ -24682,9 +24682,9 @@ inline constexpr basic_collector<> collector{};
  * Iterators aren't invalidated if:
  *
  * * New instances of the given components are created and assigned to entities.
- * * The entity currently pointed is modified (as an example, if one of the
- *   given components is removed from the entity to which the iterator points).
- * * The entity currently pointed is destroyed.
+ * * The primitive currently pointed is modified (as an example, if one of the
+ *   given components is removed from the primitive to which the iterator points).
+ * * The primitive currently pointed is destroyed.
  *
  * In all the other cases, modifying the pools of the given components in any
  * way invalidates all the iterators.
@@ -24805,7 +24805,7 @@ class basic_observer: private basic_storage<Mask, typename Registry::entity_type
 public:
     /*! Basic registry type. */
     using registry_type = Registry;
-    /*! @brief Underlying entity identifier. */
+    /*! @brief Underlying primitive identifier. */
     using entity_type = typename registry_type::entity_type;
     /*! @brief Unsigned integer type. */
     using size_type = std::size_t;
@@ -24909,19 +24909,19 @@ public:
     }
 
     /**
-     * @brief Returns an iterator to the first entity of the observer.
+     * @brief Returns an iterator to the first primitive of the observer.
      *
      * If the observer is empty, the returned iterator will be equal to `end()`.
      *
-     * @return An iterator to the first entity of the observer.
+     * @return An iterator to the first primitive of the observer.
      */
     [[nodiscard]] iterator begin() const noexcept {
         return base_type::base_type::begin();
     }
 
     /**
-     * @brief Returns an iterator that is past the last entity of the observer.
-     * @return An iterator to the entity following the last entity of the
+     * @brief Returns an iterator that is past the last primitive of the observer.
+     * @return An iterator to the primitive following the last primitive of the
      * observer.
      */
     [[nodiscard]] iterator end() const noexcept {
@@ -24936,7 +24936,7 @@ public:
     /**
      * @brief Iterates entities and applies the given function object to them.
      *
-     * The function object is invoked for each entity.<br/>
+     * The function object is invoked for each primitive.<br/>
      * The signature of the function must be equivalent to the following form:
      *
      * @code{.cpp}
@@ -24948,8 +24948,8 @@ public:
      */
     template<typename Func>
     void each(Func func) const {
-        for(const auto entity: *this) {
-            func(entity);
+        for(const auto primitive: *this) {
+            func(primitive);
         }
     }
 
@@ -24976,7 +24976,7 @@ private:
 
 #endif
 
-// #include "entity/organizer.hpp"
+// #include "primitive/organizer.hpp"
 #ifndef ENTT_ENTITY_ORGANIZER_HPP
 #define ENTT_ENTITY_ORGANIZER_HPP
 
@@ -32791,7 +32791,7 @@ class as_view {
 public:
     /*! @brief Type of registry to convert. */
     using registry_type = Registry;
-    /*! @brief Underlying entity identifier. */
+    /*! @brief Underlying primitive identifier. */
     using entity_type = typename registry_type::entity_type;
 
     /**
@@ -32834,7 +32834,7 @@ class as_group {
 public:
     /*! @brief Type of registry to convert. */
     using registry_type = Registry;
-    /*! @brief Underlying entity identifier. */
+    /*! @brief Underlying primitive identifier. */
     using entity_type = typename registry_type::entity_type;
 
     /**
@@ -32864,8 +32864,8 @@ private:
  * @brief Helper to create a listener that directly invokes a member function.
  * @tparam Member Member function to invoke on a component of the given type.
  * @tparam Registry Basic registry type.
- * @param reg A registry that contains the given entity and its components.
- * @param entt Entity from which to get the component.
+ * @param reg A registry that contains the given primitive and its components.
+ * @param entt Primitive from which to get the component.
  */
 template<auto Member, typename Registry = std::decay_t<nth_argument_t<0u, decltype(Member)>>>
 void invoke(Registry &reg, const typename Registry::entity_type entt) {
@@ -32876,7 +32876,7 @@ void invoke(Registry &reg, const typename Registry::entity_type entt) {
 }
 
 /**
- * @brief Returns the entity associated with a given component.
+ * @brief Returns the primitive associated with a given component.
  *
  * @warning
  * Currently, this function only works correctly with the default storage as it
@@ -32885,7 +32885,7 @@ void invoke(Registry &reg, const typename Registry::entity_type entt) {
  * @tparam Args Storage type template parameters.
  * @param storage A storage that contains the given component.
  * @param instance A valid component instance.
- * @return The entity associated with the given component.
+ * @return The primitive associated with the given component.
  */
 template<typename... Args>
 auto to_entity(const basic_storage<Args...> &storage, const typename basic_storage<Args...>::value_type &instance) -> typename basic_storage<Args...>::entity_type {
@@ -32906,9 +32906,9 @@ auto to_entity(const basic_storage<Args...> &storage, const typename basic_stora
  * @copybrief to_entity
  * @tparam Args Registry type template parameters.
  * @tparam Component Type of component.
- * @param reg A registry that contains the given entity and its components.
+ * @param reg A registry that contains the given primitive and its components.
  * @param instance A valid component instance.
- * @return The entity associated with the given component.
+ * @return The primitive associated with the given component.
  */
 template<typename... Args, typename Component>
 [[deprecated("use storage based to_entity instead")]] typename basic_registry<Args...>::entity_type to_entity(const basic_registry<Args...> &reg, const Component &instance) {
@@ -33179,7 +33179,7 @@ class basic_organizer final {
 public:
     /*! Basic registry type. */
     using registry_type = Registry;
-    /*! @brief Underlying entity identifier. */
+    /*! @brief Underlying primitive identifier. */
     using entity_type = typename registry_type::entity_type;
     /*! @brief Unsigned integer type. */
     using size_type = std::size_t;
@@ -33426,7 +33426,7 @@ private:
 
 #endif
 
-// #include "entity/registry.hpp"
+// #include "primitive/registry.hpp"
 #ifndef ENTT_ENTITY_REGISTRY_HPP
 #define ENTT_ENTITY_REGISTRY_HPP
 
@@ -37368,7 +37368,7 @@ struct uses_allocator<entt::internal::dense_map_node<Key, Value>, Allocator>
 
 // #include "../core/utility.hpp"
 
-// #include "entity.hpp"
+// #include "primitive.hpp"
 
 // #include "fwd.hpp"
 
@@ -37386,7 +37386,7 @@ struct uses_allocator<entt::internal::dense_map_node<Key, Value>, Allocator>
 
 // #include "../signal/sigh.hpp"
 
-// #include "entity.hpp"
+// #include "primitive.hpp"
 
 // #include "fwd.hpp"
 
@@ -37469,7 +37469,7 @@ class basic_sigh_mixin final: public Type {
 public:
     /*! @brief Allocator type. */
     using allocator_type = typename underlying_type::allocator_type;
-    /*! @brief Underlying entity identifier. */
+    /*! @brief Underlying primitive identifier. */
     using entity_type = typename underlying_type::entity_type;
     /*! @brief Expected registry type. */
     using registry_type = owner_type;
@@ -37543,8 +37543,8 @@ public:
      * @brief Returns a sink object.
      *
      * The sink returned by this function can be used to receive notifications
-     * whenever a new instance is created and assigned to an entity.<br/>
-     * Listeners are invoked after the object has been assigned to the entity.
+     * whenever a new instance is created and assigned to an primitive.<br/>
+     * Listeners are invoked after the object has been assigned to the primitive.
      *
      * @sa sink
      *
@@ -37573,8 +37573,8 @@ public:
      * @brief Returns a sink object.
      *
      * The sink returned by this function can be used to receive notifications
-     * whenever an instance is removed from an entity and thus destroyed.<br/>
-     * Listeners are invoked before the object has been removed from the entity.
+     * whenever an instance is removed from an primitive and thus destroyed.<br/>
+     * Listeners are invoked before the object has been removed from the primitive.
      *
      * @sa sink
      *
@@ -37625,7 +37625,7 @@ public:
     }
 
     /**
-     * @brief Patches the given instance for an entity.
+     * @brief Patches the given instance for an primitive.
      * @tparam Func Types of the function objects to invoke.
      * @param entt A valid identifier.
      * @param func Valid function objects.
@@ -37888,16 +37888,16 @@ private:
 /*! @endcond */
 
 /**
- * @brief Fast and reliable entity-component system.
- * @tparam Entity A valid entity type.
+ * @brief Fast and reliable primitive-component system.
+ * @tparam Primitive A valid primitive type.
  * @tparam Allocator Type of allocator used to manage memory and elements.
  */
-template<typename Entity, typename Allocator>
+template<typename Primitive, typename Allocator>
 class basic_registry {
-    using base_type = basic_sparse_set<Entity, Allocator>;
+    using base_type = basic_sparse_set<Primitive, Allocator>;
 
     using alloc_traits = std::allocator_traits<Allocator>;
-    static_assert(std::is_same_v<typename alloc_traits::value_type, Entity>, "Invalid value type");
+    static_assert(std::is_same_v<typename alloc_traits::value_type, Primitive>, "Invalid value type");
 
     // std::shared_ptr because of its type erased allocator which is useful here
     using pool_container_type = dense_map<id_type, std::shared_ptr<base_type>, identity, std::equal_to<id_type>, typename alloc_traits::template rebind_alloc<std::pair<const id_type, std::shared_ptr<base_type>>>>;
@@ -37956,11 +37956,11 @@ class basic_registry {
     }
 
 public:
-    /*! @brief Entity traits. */
+    /*! @brief Primitive traits. */
     using traits_type = typename base_type::traits_type;
     /*! @brief Allocator type. */
     using allocator_type = Allocator;
-    /*! @brief Underlying entity identifier. */
+    /*! @brief Underlying primitive identifier. */
     using entity_type = typename traits_type::value_type;
     /*! @brief Underlying version type. */
     using version_type = typename traits_type::version_type;
@@ -37980,7 +37980,7 @@ public:
      * @tparam Type Storage value type, eventually const.
      */
     template<typename Type>
-    using storage_for_type = typename storage_for<Type, Entity, typename alloc_traits::template rebind_alloc<std::remove_const_t<Type>>>::type;
+    using storage_for_type = typename storage_for<Type, Primitive, typename alloc_traits::template rebind_alloc<std::remove_const_t<Type>>>::type;
 
     /*! @brief Default constructor. */
     basic_registry()
@@ -38118,7 +38118,7 @@ public:
     }
 
     /**
-     * @brief Checks if an identifier refers to a valid entity.
+     * @brief Checks if an identifier refers to a valid primitive.
      * @param entt An identifier, either valid or not.
      * @return True if the identifier is valid, false otherwise.
      */
@@ -38137,7 +38137,7 @@ public:
     }
 
     /**
-     * @brief Creates a new entity or recycles a destroyed one.
+     * @brief Creates a new primitive or recycles a destroyed one.
      * @return A valid identifier.
      */
     [[nodiscard]] entity_type create() {
@@ -38147,7 +38147,7 @@ public:
     /**
      * @copybrief create
      *
-     * If the requested entity isn't in use, the suggested identifier is used.
+     * If the requested primitive isn't in use, the suggested identifier is used.
      * Otherwise, a new identifier is generated.
      *
      * @param hint Required identifier.
@@ -38172,14 +38172,14 @@ public:
     }
 
     /**
-     * @brief Destroys an entity and releases its identifier.
+     * @brief Destroys an primitive and releases its identifier.
      *
      * @warning
-     * Adding or removing components to an entity that is being destroyed can
+     * Adding or removing components to an primitive that is being destroyed can
      * result in undefined behavior.
      *
      * @param entt A valid identifier.
-     * @return The version of the recycled entity.
+     * @return The version of the recycled primitive.
      */
     version_type destroy(const entity_type entt) {
         for(size_type pos = pools.size(); pos; --pos) {
@@ -38191,7 +38191,7 @@ public:
     }
 
     /**
-     * @brief Destroys an entity and releases its identifier.
+     * @brief Destroys an primitive and releases its identifier.
      *
      * The suggested version or the valid version closest to the suggested one
      * is used instead of the implicitly generated version.
@@ -38200,7 +38200,7 @@ public:
      *
      * @param entt A valid identifier.
      * @param version A desired version upon destruction.
-     * @return The version actually assigned to the entity.
+     * @return The version actually assigned to the primitive.
      */
     version_type destroy(const entity_type entt, const version_type version) {
         destroy(entt);
@@ -38232,12 +38232,12 @@ public:
     }
 
     /**
-     * @brief Assigns the given component to an entity.
+     * @brief Assigns the given component to an primitive.
      *
      * The component must have a proper constructor or be of aggregate type.
      *
      * @warning
-     * Attempting to assign a component to an entity that already owns it
+     * Attempting to assign a component to an primitive that already owns it
      * results in undefined behavior.
      *
      * @tparam Type Type of component to create.
@@ -38252,7 +38252,7 @@ public:
     }
 
     /**
-     * @brief Assigns each entity in a range the given component.
+     * @brief Assigns each primitive in a range the given component.
      *
      * @sa emplace
      *
@@ -38268,7 +38268,7 @@ public:
     }
 
     /**
-     * @brief Assigns each entity in a range the given components.
+     * @brief Assigns each primitive in a range the given components.
      *
      * @sa emplace
      *
@@ -38285,7 +38285,7 @@ public:
     }
 
     /**
-     * @brief Assigns or replaces the given component for an entity.
+     * @brief Assigns or replaces the given component for an primitive.
      *
      * @sa emplace
      * @sa replace
@@ -38306,7 +38306,7 @@ public:
     }
 
     /**
-     * @brief Patches the given component for an entity.
+     * @brief Patches the given component for an primitive.
      *
      * The signature of the function should be equivalent to the following:
      *
@@ -38315,7 +38315,7 @@ public:
      * @endcode
      *
      * @warning
-     * Attempting to patch a component of an entity that doesn't own it
+     * Attempting to patch a component of an primitive that doesn't own it
      * results in undefined behavior.
      *
      * @tparam Type Type of component to patch.
@@ -38330,12 +38330,12 @@ public:
     }
 
     /**
-     * @brief Replaces the given component for an entity.
+     * @brief Replaces the given component for an primitive.
      *
      * The component must have a proper constructor or be of aggregate type.
      *
      * @warning
-     * Attempting to replace a component of an entity that doesn't own it
+     * Attempting to replace a component of an primitive that doesn't own it
      * results in undefined behavior.
      *
      * @tparam Type Type of component to replace.
@@ -38350,7 +38350,7 @@ public:
     }
 
     /**
-     * @brief Removes the given components from an entity.
+     * @brief Removes the given components from an primitive.
      * @tparam Type Type of component to remove.
      * @tparam Other Other types of components to remove.
      * @param entt A valid identifier.
@@ -38399,10 +38399,10 @@ public:
     }
 
     /**
-     * @brief Erases the given components from an entity.
+     * @brief Erases the given components from an primitive.
      *
      * @warning
-     * Attempting to erase a component from an entity that doesn't own it
+     * Attempting to erase a component from an primitive that doesn't own it
      * results in undefined behavior.
      *
      * @tparam Type Types of components to erase.
@@ -38447,15 +38447,15 @@ public:
     }
 
     /**
-     * @brief Erases components satisfying specific criteria from an entity.
+     * @brief Erases components satisfying specific criteria from an primitive.
      *
      * The function type is equivalent to:
      *
      * @code{.cpp}
-     * void(const id_type, typename basic_registry<Entity>::base_type &);
+     * void(const id_type, typename basic_registry<Primitive>::base_type &);
      * @endcode
      *
-     * Only storage where the entity exists are passed to the function.
+     * Only storage where the primitive exists are passed to the function.
      *
      * @tparam Func Type of the function object to invoke.
      * @param entt A valid identifier.
@@ -38487,10 +38487,10 @@ public:
     }
 
     /**
-     * @brief Check if an entity is part of all the given storage.
+     * @brief Check if an primitive is part of all the given storage.
      * @tparam Type Type of storage to check for.
      * @param entt A valid identifier.
-     * @return True if the entity is part of all the storage, false otherwise.
+     * @return True if the primitive is part of all the storage, false otherwise.
      */
     template<typename... Type>
     [[nodiscard]] bool all_of([[maybe_unused]] const entity_type entt) const {
@@ -38503,10 +38503,10 @@ public:
     }
 
     /**
-     * @brief Check if an entity is part of at least one given storage.
+     * @brief Check if an primitive is part of at least one given storage.
      * @tparam Type Type of storage to check for.
      * @param entt A valid identifier.
-     * @return True if the entity is part of at least one storage, false
+     * @return True if the primitive is part of at least one storage, false
      * otherwise.
      */
     template<typename... Type>
@@ -38515,15 +38515,15 @@ public:
     }
 
     /**
-     * @brief Returns references to the given components for an entity.
+     * @brief Returns references to the given components for an primitive.
      *
      * @warning
-     * Attempting to get a component from an entity that doesn't own it results
+     * Attempting to get a component from an primitive that doesn't own it results
      * in undefined behavior.
      *
      * @tparam Type Types of components to get.
      * @param entt A valid identifier.
-     * @return References to the components owned by the entity.
+     * @return References to the components owned by the primitive.
      */
     template<typename... Type>
     [[nodiscard]] decltype(auto) get([[maybe_unused]] const entity_type entt) const {
@@ -38545,9 +38545,9 @@ public:
     }
 
     /**
-     * @brief Returns a reference to the given component for an entity.
+     * @brief Returns a reference to the given component for an primitive.
      *
-     * In case the entity doesn't own the component, the parameters provided are
+     * In case the primitive doesn't own the component, the parameters provided are
      * used to construct it.
      *
      * @sa get
@@ -38557,7 +38557,7 @@ public:
      * @tparam Args Types of arguments to use to construct the component.
      * @param entt A valid identifier.
      * @param args Parameters to use to initialize the component.
-     * @return Reference to the component owned by the entity.
+     * @return Reference to the component owned by the primitive.
      */
     template<typename Type, typename... Args>
     [[nodiscard]] decltype(auto) get_or_emplace(const entity_type entt, Args &&...args) {
@@ -38569,14 +38569,14 @@ public:
     }
 
     /**
-     * @brief Returns pointers to the given components for an entity.
+     * @brief Returns pointers to the given components for an primitive.
      *
      * @note
      * The registry retains ownership of the pointed-to components.
      *
      * @tparam Type Types of components to get.
      * @param entt A valid identifier.
-     * @return Pointers to the components owned by the entity.
+     * @return Pointers to the components owned by the primitive.
      */
     template<typename... Type>
     [[nodiscard]] auto try_get([[maybe_unused]] const entity_type entt) const {
@@ -38617,9 +38617,9 @@ public:
     }
 
     /**
-     * @brief Checks if an entity has components assigned.
+     * @brief Checks if an primitive has components assigned.
      * @param entt A valid identifier.
-     * @return True if the entity has no components assigned, false otherwise.
+     * @return True if the primitive has no components assigned, false otherwise.
      */
     [[nodiscard]] bool orphan(const entity_type entt) const {
         return std::none_of(pools.cbegin(), pools.cend(), [entt](auto &&curr) { return curr.second->contains(entt); });
@@ -38629,14 +38629,14 @@ public:
      * @brief Returns a sink object for the given component.
      *
      * Use this function to receive notifications whenever a new instance of the
-     * given component is created and assigned to an entity.<br/>
+     * given component is created and assigned to an primitive.<br/>
      * The function type for a listener is equivalent to:
      *
      * @code{.cpp}
-     * void(basic_registry<Entity> &, Entity);
+     * void(basic_registry<Primitive> &, Primitive);
      * @endcode
      *
-     * Listeners are invoked **after** assigning the component to the entity.
+     * Listeners are invoked **after** assigning the component to the primitive.
      *
      * @sa sink
      *
@@ -38657,7 +38657,7 @@ public:
      * The function type for a listener is equivalent to:
      *
      * @code{.cpp}
-     * void(basic_registry<Entity> &, Entity);
+     * void(basic_registry<Primitive> &, Primitive);
      * @endcode
      *
      * Listeners are invoked **after** updating the component.
@@ -38677,14 +38677,14 @@ public:
      * @brief Returns a sink object for the given component.
      *
      * Use this function to receive notifications whenever an instance of the
-     * given component is removed from an entity and thus destroyed.<br/>
+     * given component is removed from an primitive and thus destroyed.<br/>
      * The function type for a listener is equivalent to:
      *
      * @code{.cpp}
-     * void(basic_registry<Entity> &, Entity);
+     * void(basic_registry<Primitive> &, Primitive);
      * @endcode
      *
-     * Listeners are invoked **before** removing the component from the entity.
+     * Listeners are invoked **before** removing the component from the primitive.
      *
      * @sa sink
      *
@@ -38784,7 +38784,7 @@ public:
      * equivalent to one of the following:
      *
      * @code{.cpp}
-     * bool(const Entity, const Entity);
+     * bool(const Primitive, const Primitive);
      * bool(const Type &, const Type &);
      * @endcode
      *
@@ -38866,7 +38866,7 @@ private:
 
 #endif
 
-// #include "entity/runtime_view.hpp"
+// #include "primitive/runtime_view.hpp"
 #ifndef ENTT_ENTITY_RUNTIME_VIEW_HPP
 #define ENTT_ENTITY_RUNTIME_VIEW_HPP
 
@@ -38875,7 +38875,7 @@ private:
 #include <iterator>
 #include <utility>
 #include <vector>
-// #include "entity.hpp"
+// #include "primitive.hpp"
 
 // #include "fwd.hpp"
 
@@ -38977,9 +38977,9 @@ private:
  * Iterators aren't invalidated if:
  *
  * * New elements are added to the storage.
- * * The entity currently pointed is modified (for example, components are added
+ * * The primitive currently pointed is modified (for example, components are added
  *   or removed from it).
- * * The entity currently pointed is destroyed.
+ * * The primitive currently pointed is destroyed.
  *
  * In all other cases, modifying the storage iterated by the view in any way
  * invalidates all the iterators.
@@ -38996,7 +38996,7 @@ class basic_runtime_view {
 public:
     /*! @brief Allocator type. */
     using allocator_type = Allocator;
-    /*! @brief Underlying entity identifier. */
+    /*! @brief Underlying primitive identifier. */
     using entity_type = typename Type::entity_type;
     /*! @brief Unsigned integer type. */
     using size_type = std::size_t;
@@ -39111,21 +39111,21 @@ public:
     }
 
     /**
-     * @brief Returns an iterator to the first entity that has the given
+     * @brief Returns an iterator to the first primitive that has the given
      * components.
      *
      * If the view is empty, the returned iterator will be equal to `end()`.
      *
-     * @return An iterator to the first entity that has the given components.
+     * @return An iterator to the first primitive that has the given components.
      */
     [[nodiscard]] iterator begin() const {
         return pools.empty() ? iterator{} : iterator{pools, filter, pools[0]->begin()};
     }
 
     /**
-     * @brief Returns an iterator that is past the last entity that has the
+     * @brief Returns an iterator that is past the last primitive that has the
      * given components.
-     * @return An iterator to the entity following the last entity that has the
+     * @return An iterator to the primitive following the last primitive that has the
      * given components.
      */
     [[nodiscard]] iterator end() const {
@@ -39133,9 +39133,9 @@ public:
     }
 
     /**
-     * @brief Checks if a view contains an entity.
+     * @brief Checks if a view contains an primitive.
      * @param entt A valid identifier.
-     * @return True if the view contains the given entity, false otherwise.
+     * @return True if the view contains the given primitive, false otherwise.
      */
     [[nodiscard]] bool contains(const entity_type entt) const {
         return !pools.empty()
@@ -39146,8 +39146,8 @@ public:
     /**
      * @brief Iterates entities and applies the given function object to them.
      *
-     * The function object is invoked for each entity. It is provided only with
-     * the entity itself.<br/>
+     * The function object is invoked for each primitive. It is provided only with
+     * the primitive itself.<br/>
      * The signature of the function should be equivalent to the following:
      *
      * @code{.cpp}
@@ -39159,8 +39159,8 @@ public:
      */
     template<typename Func>
     void each(Func func) const {
-        for(const auto entity: *this) {
-            func(entity);
+        for(const auto primitive: *this) {
+            func(primitive);
         }
     }
 
@@ -39173,7 +39173,7 @@ private:
 
 #endif
 
-// #include "entity/snapshot.hpp"
+// #include "primitive/snapshot.hpp"
 #ifndef ENTT_ENTITY_SNAPSHOT_HPP
 #define ENTT_ENTITY_SNAPSHOT_HPP
 
@@ -39189,7 +39189,7 @@ private:
 
 // #include "../core/type_traits.hpp"
 
-// #include "entity.hpp"
+// #include "primitive.hpp"
 
 // #include "fwd.hpp"
 
@@ -39233,7 +39233,7 @@ class basic_snapshot {
 public:
     /*! Basic registry type. */
     using registry_type = Registry;
-    /*! @brief Underlying entity identifier. */
+    /*! @brief Underlying primitive identifier. */
     using entity_type = typename registry_type::entity_type;
 
     /**
@@ -39305,7 +39305,7 @@ public:
      */
     template<typename Type, typename Archive, typename It>
     const basic_snapshot &get(Archive &archive, It first, It last, const id_type id = type_hash<Type>::value()) const {
-        static_assert(!std::is_same_v<Type, entity_type>, "Entity types not supported");
+        static_assert(!std::is_same_v<Type, entity_type>, "Primitive types not supported");
 
         if(const auto *storage = reg->template storage<Type>(id); storage && !storage->empty()) {
             archive(static_cast<typename traits_type::entity_type>(std::distance(first, last)));
@@ -39347,7 +39347,7 @@ class basic_snapshot_loader {
 public:
     /*! Basic registry type. */
     using registry_type = Registry;
-    /*! @brief Underlying entity identifier. */
+    /*! @brief Underlying primitive identifier. */
     using entity_type = typename registry_type::entity_type;
 
     /**
@@ -39387,9 +39387,9 @@ public:
             storage.reserve(length);
             archive(count);
 
-            for(entity_type entity = null; length; --length) {
-                archive(entity);
-                storage.emplace(entity);
+            for(entity_type primitive = null; length; --length) {
+                archive(primitive);
+                storage.emplace(primitive);
             }
 
             storage.free_list(count);
@@ -39399,15 +39399,15 @@ public:
 
             while(length--) {
                 if(archive(entt); entt != null) {
-                    const auto entity = other.contains(entt) ? entt : other.emplace(entt);
-                    ENTT_ASSERT(entity == entt, "Entity not available for use");
+                    const auto primitive = other.contains(entt) ? entt : other.emplace(entt);
+                    ENTT_ASSERT(primitive == entt, "Primitive not available for use");
 
                     if constexpr(std::tuple_size_v<decltype(storage.get_as_tuple({}))> == 0u) {
-                        storage.emplace(entity);
+                        storage.emplace(primitive);
                     } else {
                         Type elem{};
                         archive(elem);
-                        storage.emplace(entity, std::move(elem));
+                        storage.emplace(primitive, std::move(elem));
                     }
                 }
             }
@@ -39457,12 +39457,12 @@ class basic_continuous_loader {
     using traits_type = typename Registry::traits_type;
 
     void restore(typename Registry::entity_type entt) {
-        if(const auto entity = to_entity(entt); remloc.contains(entity) && remloc[entity].first == entt) {
-            if(!reg->valid(remloc[entity].second)) {
-                remloc[entity].second = reg->create();
+        if(const auto primitive = to_entity(entt); remloc.contains(primitive) && remloc[primitive].first == entt) {
+            if(!reg->valid(remloc[primitive].second)) {
+                remloc[primitive].second = reg->create();
             }
         } else {
-            remloc.insert_or_assign(entity, std::make_pair(entt, reg->create()));
+            remloc.insert_or_assign(primitive, std::make_pair(entt, reg->create()));
         }
     }
 
@@ -39480,7 +39480,7 @@ class basic_continuous_loader {
             } else if constexpr(std::is_same_v<first_type, entity_type>) {
                 other.emplace(map(pair.first), std::move(pair.second));
             } else {
-                static_assert(std::is_same_v<second_type, entity_type>, "Neither the key nor the value are of entity type");
+                static_assert(std::is_same_v<second_type, entity_type>, "Neither the key nor the value are of primitive type");
                 other.emplace(std::move(pair.first), map(pair.second));
             }
         }
@@ -39514,7 +39514,7 @@ class basic_continuous_loader {
 public:
     /*! Basic registry type. */
     using registry_type = Registry;
-    /*! @brief Underlying entity identifier. */
+    /*! @brief Underlying primitive identifier. */
     using entity_type = typename registry_type::entity_type;
 
     /**
@@ -39567,12 +39567,12 @@ public:
             for(std::size_t pos = in_use; pos < length; ++pos) {
                 archive(entt);
 
-                if(const auto entity = to_entity(entt); remloc.contains(entity)) {
-                    if(reg->valid(remloc[entity].second)) {
-                        reg->destroy(remloc[entity].second);
+                if(const auto primitive = to_entity(entt); remloc.contains(primitive)) {
+                    if(reg->valid(remloc[primitive].second)) {
+                        reg->destroy(remloc[primitive].second);
                     }
 
-                    remloc.erase(entity);
+                    remloc.erase(primitive);
                 }
             }
         } else {
@@ -39614,9 +39614,9 @@ public:
     }
 
     /**
-     * @brief Tests if a loader knows about a given entity.
+     * @brief Tests if a loader knows about a given primitive.
      * @param entt A valid identifier.
-     * @return True if `entity` is managed by the loader, false otherwise.
+     * @return True if `primitive` is managed by the loader, false otherwise.
      */
     [[nodiscard]] bool contains(entity_type entt) const noexcept {
         const auto it = remloc.find(to_entity(entt));
@@ -39624,9 +39624,9 @@ public:
     }
 
     /**
-     * @brief Returns the identifier to which an entity refers.
+     * @brief Returns the identifier to which an primitive refers.
      * @param entt A valid identifier.
-     * @return The local identifier if any, the null entity otherwise.
+     * @return The local identifier if any, the null primitive otherwise.
      */
     [[nodiscard]] entity_type map(entity_type entt) const noexcept {
         if(const auto it = remloc.find(to_entity(entt)); it != remloc.cend() && it->second.first == entt) {
@@ -39645,7 +39645,7 @@ private:
 
 #endif
 
-// #include "entity/sparse_set.hpp"
+// #include "primitive/sparse_set.hpp"
 #ifndef ENTT_ENTITY_SPARSE_SET_HPP
 #define ENTT_ENTITY_SPARSE_SET_HPP
 
@@ -39665,7 +39665,7 @@ private:
 
 // #include "../core/type_info.hpp"
 
-// #include "entity.hpp"
+// #include "primitive.hpp"
 
 // #include "fwd.hpp"
 
@@ -39806,34 +39806,34 @@ template<typename Container>
  * no guarantees that entities are returned in the insertion order when iterate
  * a sparse set. Do not make assumption on the order in any case.
  *
- * @tparam Entity A valid entity type.
+ * @tparam Primitive A valid primitive type.
  * @tparam Allocator Type of allocator used to manage memory and elements.
  */
-template<typename Entity, typename Allocator>
+template<typename Primitive, typename Allocator>
 class basic_sparse_set {
     using alloc_traits = std::allocator_traits<Allocator>;
-    static_assert(std::is_same_v<typename alloc_traits::value_type, Entity>, "Invalid value type");
+    static_assert(std::is_same_v<typename alloc_traits::value_type, Primitive>, "Invalid value type");
     using sparse_container_type = std::vector<typename alloc_traits::pointer, typename alloc_traits::template rebind_alloc<typename alloc_traits::pointer>>;
-    using packed_container_type = std::vector<Entity, Allocator>;
-    using underlying_type = typename entt_traits<Entity>::entity_type;
+    using packed_container_type = std::vector<Primitive, Allocator>;
+    using underlying_type = typename entt_traits<Primitive>::entity_type;
 
-    [[nodiscard]] auto sparse_ptr(const Entity entt) const {
+    [[nodiscard]] auto sparse_ptr(const Primitive entt) const {
         const auto pos = static_cast<size_type>(traits_type::to_entity(entt));
         const auto page = pos / traits_type::page_size;
         return (page < sparse.size() && sparse[page]) ? (sparse[page] + fast_mod(pos, traits_type::page_size)) : nullptr;
     }
 
-    [[nodiscard]] auto &sparse_ref(const Entity entt) const {
+    [[nodiscard]] auto &sparse_ref(const Primitive entt) const {
         ENTT_ASSERT(sparse_ptr(entt), "Invalid element");
         const auto pos = static_cast<size_type>(traits_type::to_entity(entt));
         return sparse[pos / traits_type::page_size][fast_mod(pos, traits_type::page_size)];
     }
 
-    [[nodiscard]] auto to_iterator(const Entity entt) const {
+    [[nodiscard]] auto to_iterator(const Primitive entt) const {
         return --(end() - index(entt));
     }
 
-    [[nodiscard]] auto &assure_at_least(const Entity entt) {
+    [[nodiscard]] auto &assure_at_least(const Primitive entt) {
         const auto pos = static_cast<size_type>(traits_type::to_entity(entt));
         const auto page = pos / traits_type::page_size;
 
@@ -39891,7 +39891,7 @@ protected:
     using basic_iterator = internal::sparse_set_iterator<packed_container_type>;
 
     /**
-     * @brief Erases an entity from a sparse set.
+     * @brief Erases an primitive from a sparse set.
      * @param it An iterator to the element to pop.
      */
     void swap_only(const basic_iterator it) {
@@ -39902,7 +39902,7 @@ protected:
     }
 
     /**
-     * @brief Erases an entity from a sparse set.
+     * @brief Erases an primitive from a sparse set.
      * @param it An iterator to the element to pop.
      */
     void swap_and_pop(const basic_iterator it) {
@@ -39919,7 +39919,7 @@ protected:
     }
 
     /**
-     * @brief Erases an entity from a sparse set.
+     * @brief Erases an primitive from a sparse set.
      * @param it An iterator to the element to pop.
      */
     void in_place_pop(const basic_iterator it) {
@@ -39980,12 +39980,12 @@ protected:
     }
 
     /**
-     * @brief Assigns an entity to a sparse set.
+     * @brief Assigns an primitive to a sparse set.
      * @param entt A valid identifier.
      * @param force_back Force back insertion.
      * @return Iterator pointing to the emplaced element.
      */
-    virtual basic_iterator try_emplace(const Entity entt, const bool force_back, const void * = nullptr) {
+    virtual basic_iterator try_emplace(const Primitive entt, const bool force_back, const void * = nullptr) {
         auto &elem = assure_at_least(entt);
         auto pos = size();
 
@@ -40025,9 +40025,9 @@ protected:
     }
 
 public:
-    /*! @brief Entity traits. */
-    using traits_type = entt_traits<Entity>;
-    /*! @brief Underlying entity identifier. */
+    /*! @brief Primitive traits. */
+    using traits_type = entt_traits<Primitive>;
+    /*! @brief Underlying primitive identifier. */
     using entity_type = typename traits_type::value_type;
     /*! @brief Underlying version type. */
     using version_type = typename traits_type::version_type;
@@ -40256,7 +40256,7 @@ public:
      * If the sparse set is empty, the returned iterator will be equal to
      * `end()`.
      *
-     * @return An iterator to the first entity of the sparse set.
+     * @return An iterator to the first primitive of the sparse set.
      */
     [[nodiscard]] iterator begin() const noexcept {
         const auto pos = static_cast<typename iterator::difference_type>(packed.size());
@@ -40270,7 +40270,7 @@ public:
 
     /**
      * @brief Returns an iterator to the end.
-     * @return An iterator to the element following the last entity of a sparse
+     * @return An iterator to the element following the last primitive of a sparse
      * set.
      */
     [[nodiscard]] iterator end() const noexcept {
@@ -40288,7 +40288,7 @@ public:
      * If the sparse set is empty, the returned iterator will be equal to
      * `rend()`.
      *
-     * @return An iterator to the first entity of the reversed internal packed
+     * @return An iterator to the first primitive of the reversed internal packed
      * array.
      */
     [[nodiscard]] reverse_iterator rbegin() const noexcept {
@@ -40302,7 +40302,7 @@ public:
 
     /**
      * @brief Returns a reverse iterator to the end.
-     * @return An iterator to the element following the last entity of the
+     * @return An iterator to the element following the last primitive of the
      * reversed sparse set.
      */
     [[nodiscard]] reverse_iterator rend() const noexcept {
@@ -40355,9 +40355,9 @@ public:
     }
 
     /**
-     * @brief Finds an entity.
+     * @brief Finds an primitive.
      * @param entt A valid identifier.
-     * @return An iterator to the given entity if it's found, past the end
+     * @return An iterator to the given primitive if it's found, past the end
      * iterator otherwise.
      */
     [[nodiscard]] const_iterator find(const entity_type entt) const noexcept {
@@ -40365,9 +40365,9 @@ public:
     }
 
     /**
-     * @brief Checks if a sparse set contains an entity.
+     * @brief Checks if a sparse set contains an primitive.
      * @param entt A valid identifier.
-     * @return True if the sparse set contains the entity, false otherwise.
+     * @return True if the sparse set contains the primitive, false otherwise.
      */
     [[nodiscard]] bool contains(const entity_type entt) const noexcept {
         const auto elem = sparse_ptr(entt);
@@ -40390,33 +40390,33 @@ public:
     }
 
     /**
-     * @brief Returns the position of an entity in a sparse set.
+     * @brief Returns the position of an primitive in a sparse set.
      *
      * @warning
-     * Attempting to get the position of an entity that doesn't belong to the
+     * Attempting to get the position of an primitive that doesn't belong to the
      * sparse set results in undefined behavior.
      *
      * @param entt A valid identifier.
-     * @return The position of the entity in the sparse set.
+     * @return The position of the primitive in the sparse set.
      */
     [[nodiscard]] size_type index(const entity_type entt) const noexcept {
-        ENTT_ASSERT(contains(entt), "Set does not contain entity");
+        ENTT_ASSERT(contains(entt), "Set does not contain primitive");
         return static_cast<size_type>(traits_type::to_entity(sparse_ref(entt)));
     }
 
     /**
-     * @brief Returns the entity at specified location, with bounds checking.
-     * @param pos The position for which to return the entity.
-     * @return The entity at specified location if any, a null entity otherwise.
+     * @brief Returns the primitive at specified location, with bounds checking.
+     * @param pos The position for which to return the primitive.
+     * @return The primitive at specified location if any, a null primitive otherwise.
      */
     [[deprecated("use .begin()[pos] instead")]] [[nodiscard]] entity_type at(const size_type pos) const noexcept {
         return pos < packed.size() ? packed[pos] : null;
     }
 
     /**
-     * @brief Returns the entity at specified location, without bounds checking.
-     * @param pos The position for which to return the entity.
-     * @return The entity at specified location.
+     * @brief Returns the primitive at specified location, without bounds checking.
+     * @param pos The position for which to return the primitive.
+     * @return The primitive at specified location.
      */
     [[nodiscard]] entity_type operator[](const size_type pos) const noexcept {
         ENTT_ASSERT(pos < packed.size(), "Position is out of bounds");
@@ -40424,14 +40424,14 @@ public:
     }
 
     /**
-     * @brief Returns the element assigned to an entity, if any.
+     * @brief Returns the element assigned to an primitive, if any.
      *
      * @warning
-     * Attempting to use an entity that doesn't belong to the sparse set results
+     * Attempting to use an primitive that doesn't belong to the sparse set results
      * in undefined behavior.
      *
      * @param entt A valid identifier.
-     * @return An opaque pointer to the element assigned to the entity, if any.
+     * @return An opaque pointer to the element assigned to the primitive, if any.
      */
     [[nodiscard]] const void *value(const entity_type entt) const noexcept {
         return get_at(index(entt));
@@ -40443,10 +40443,10 @@ public:
     }
 
     /**
-     * @brief Assigns an entity to a sparse set.
+     * @brief Assigns an primitive to a sparse set.
      *
      * @warning
-     * Attempting to assign an entity that already belongs to the sparse set
+     * Attempting to assign an primitive that already belongs to the sparse set
      * results in undefined behavior.
      *
      * @param entt A valid identifier.
@@ -40462,7 +40462,7 @@ public:
      * @brief Assigns one or more entities to a sparse set.
      *
      * @warning
-     * Attempting to assign an entity that already belongs to the sparse set
+     * Attempting to assign an primitive that already belongs to the sparse set
      * results in undefined behavior.
      *
      * @tparam It Type of input iterator.
@@ -40481,28 +40481,28 @@ public:
     }
 
     /**
-     * @brief Bump the version number of an entity.
+     * @brief Bump the version number of an primitive.
      *
      * @warning
-     * Attempting to bump the version of an entity that doesn't belong to the
+     * Attempting to bump the version of an primitive that doesn't belong to the
      * sparse set results in undefined behavior.
      *
      * @param entt A valid identifier.
      * @return The version of the given identifier.
      */
     version_type bump(const entity_type entt) {
-        auto &entity = sparse_ref(entt);
-        ENTT_ASSERT(entt != tombstone && entity != null, "Cannot set the required version");
-        entity = traits_type::combine(traits_type::to_integral(entity), traits_type::to_integral(entt));
-        packed[static_cast<size_type>(traits_type::to_entity(entity))] = entt;
+        auto &primitive = sparse_ref(entt);
+        ENTT_ASSERT(entt != tombstone && primitive != null, "Cannot set the required version");
+        primitive = traits_type::combine(traits_type::to_integral(primitive), traits_type::to_integral(entt));
+        packed[static_cast<size_type>(traits_type::to_entity(primitive))] = entt;
         return traits_type::to_version(entt);
     }
 
     /**
-     * @brief Erases an entity from a sparse set.
+     * @brief Erases an primitive from a sparse set.
      *
      * @warning
-     * Attempting to erase an entity that doesn't belong to the sparse set
+     * Attempting to erase an primitive that doesn't belong to the sparse set
      * results in undefined behavior.
      *
      * @param entt A valid identifier.
@@ -40533,9 +40533,9 @@ public:
     }
 
     /**
-     * @brief Removes an entity from a sparse set if it exists.
+     * @brief Removes an primitive from a sparse set if it exists.
      * @param entt A valid identifier.
-     * @return True if the entity is actually removed, false otherwise.
+     * @return True if the primitive is actually removed, false otherwise.
      */
     bool remove(const entity_type entt) {
         return contains(entt) && (erase(entt), true);
@@ -40589,8 +40589,8 @@ public:
                     swap_or_move(from, to);
 
                     packed[to] = packed[from];
-                    const auto entity = static_cast<typename traits_type::entity_type>(to);
-                    sparse_ref(packed[to]) = traits_type::combine(entity, traits_type::to_integral(packed[to]));
+                    const auto primitive = static_cast<typename traits_type::entity_type>(to);
+                    sparse_ref(packed[to]) = traits_type::combine(primitive, traits_type::to_integral(packed[to]));
 
                     for(; from && packed[from - 1u] == tombstone; --from) {}
                 }
@@ -40631,7 +40631,7 @@ public:
      * comparison function should be equivalent to the following:
      *
      * @code{.cpp}
-     * bool(const Entity, const Entity);
+     * bool(const Primitive, const Primitive);
      * @endcode
      *
      * Moreover, the comparison function object shall induce a
@@ -40668,8 +40668,8 @@ public:
                 const auto entt = packed[curr];
 
                 swap_or_move(next, idx);
-                const auto entity = static_cast<typename traits_type::entity_type>(curr);
-                sparse_ref(entt) = traits_type::combine(entity, traits_type::to_integral(packed[curr]));
+                const auto primitive = static_cast<typename traits_type::entity_type>(curr);
+                sparse_ref(entt) = traits_type::combine(primitive, traits_type::to_integral(packed[curr]));
                 curr = std::exchange(next, idx);
             }
         }
@@ -40760,7 +40760,7 @@ private:
 
 #endif
 
-// #include "entity/storage.hpp"
+// #include "primitive/storage.hpp"
 #ifndef ENTT_ENTITY_STORAGE_HPP
 #define ENTT_ENTITY_STORAGE_HPP
 
@@ -40781,7 +40781,7 @@ private:
 
 // #include "component.hpp"
 
-// #include "entity.hpp"
+// #include "primitive.hpp"
 
 // #include "fwd.hpp"
 
@@ -40993,15 +40993,15 @@ template<typename... Lhs, typename... Rhs>
  * normally available for non-empty types will not be available for empty ones.
  *
  * @tparam Type Type of objects assigned to the entities.
- * @tparam Entity A valid entity type.
+ * @tparam Primitive A valid primitive type.
  * @tparam Allocator Type of allocator used to manage memory and elements.
  */
-template<typename Type, typename Entity, typename Allocator, typename>
-class basic_storage: public basic_sparse_set<Entity, typename std::allocator_traits<Allocator>::template rebind_alloc<Entity>> {
+template<typename Type, typename Primitive, typename Allocator, typename>
+class basic_storage: public basic_sparse_set<Primitive, typename std::allocator_traits<Allocator>::template rebind_alloc<Primitive>> {
     using alloc_traits = std::allocator_traits<Allocator>;
     static_assert(std::is_same_v<typename alloc_traits::value_type, Type>, "Invalid value type");
     using container_type = std::vector<typename alloc_traits::pointer, typename alloc_traits::template rebind_alloc<typename alloc_traits::pointer>>;
-    using underlying_type = basic_sparse_set<Entity, typename alloc_traits::template rebind_alloc<Entity>>;
+    using underlying_type = basic_sparse_set<Primitive, typename alloc_traits::template rebind_alloc<Primitive>>;
     using underlying_iterator = typename underlying_type::basic_iterator;
 
     [[nodiscard]] auto &element_at(const std::size_t pos) const {
@@ -41031,7 +41031,7 @@ class basic_storage: public basic_sparse_set<Entity, typename std::allocator_tra
     }
 
     template<typename... Args>
-    auto emplace_element(const Entity entt, const bool force_back, Args &&...args) {
+    auto emplace_element(const Primitive entt, const bool force_back, Args &&...args) {
         const auto it = base_type::try_emplace(entt, force_back);
 
         ENTT_TRY {
@@ -41136,13 +41136,13 @@ protected:
     }
 
     /**
-     * @brief Assigns an entity to a storage.
+     * @brief Assigns an primitive to a storage.
      * @param entt A valid identifier.
      * @param value Optional opaque value.
      * @param force_back Force back insertion.
      * @return Iterator pointing to the emplaced element.
      */
-    underlying_iterator try_emplace([[maybe_unused]] const Entity entt, [[maybe_unused]] const bool force_back, const void *value) override {
+    underlying_iterator try_emplace([[maybe_unused]] const Primitive entt, [[maybe_unused]] const bool force_back, const void *value) override {
         if(value) {
             if constexpr(std::is_copy_constructible_v<value_type>) {
                 return emplace_element(entt, force_back, *static_cast<const value_type *>(value));
@@ -41165,8 +41165,8 @@ public:
     using value_type = Type;
     /*! @brief Component traits. */
     using traits_type = component_traits<value_type>;
-    /*! @brief Underlying entity identifier. */
-    using entity_type = Entity;
+    /*! @brief Underlying primitive identifier. */
+    using entity_type = Primitive;
     /*! @brief Unsigned integer type. */
     using size_type = std::size_t;
     /*! @brief Allocator type. */
@@ -41386,14 +41386,14 @@ public:
     }
 
     /**
-     * @brief Returns the object assigned to an entity.
+     * @brief Returns the object assigned to an primitive.
      *
      * @warning
-     * Attempting to use an entity that doesn't belong to the storage results in
+     * Attempting to use an primitive that doesn't belong to the storage results in
      * undefined behavior.
      *
      * @param entt A valid identifier.
-     * @return The object assigned to the entity.
+     * @return The object assigned to the primitive.
      */
     [[nodiscard]] const value_type &get(const entity_type entt) const noexcept {
         return element_at(base_type::index(entt));
@@ -41405,9 +41405,9 @@ public:
     }
 
     /**
-     * @brief Returns the object assigned to an entity as a tuple.
+     * @brief Returns the object assigned to an primitive as a tuple.
      * @param entt A valid identifier.
-     * @return The object assigned to the entity as a tuple.
+     * @return The object assigned to the primitive as a tuple.
      */
     [[nodiscard]] std::tuple<const value_type &> get_as_tuple(const entity_type entt) const noexcept {
         return std::forward_as_tuple(get(entt));
@@ -41419,15 +41419,15 @@ public:
     }
 
     /**
-     * @brief Assigns an entity to a storage and constructs its object.
+     * @brief Assigns an primitive to a storage and constructs its object.
      *
      * @warning
-     * Attempting to use an entity that already belongs to the storage results
+     * Attempting to use an primitive that already belongs to the storage results
      * in undefined behavior.
      *
      * @tparam Args Types of arguments to use to construct the object.
      * @param entt A valid identifier.
-     * @param args Parameters to use to construct an object for the entity.
+     * @param args Parameters to use to construct an object for the primitive.
      * @return A reference to the newly created object.
      */
     template<typename... Args>
@@ -41442,7 +41442,7 @@ public:
     }
 
     /**
-     * @brief Updates the instance assigned to a given entity in-place.
+     * @brief Updates the instance assigned to a given primitive in-place.
      * @tparam Func Types of the function objects to invoke.
      * @param entt A valid identifier.
      * @param func Valid function objects.
@@ -41461,7 +41461,7 @@ public:
      * objects from a given instance.
      *
      * @warning
-     * Attempting to assign an entity that already belongs to the storage
+     * Attempting to assign an primitive that already belongs to the storage
      * results in undefined behavior.
      *
      * @tparam It Type of input iterator.
@@ -41504,7 +41504,7 @@ public:
     /**
      * @brief Returns an iterable object to use to _visit_ a storage.
      *
-     * The iterable object returns a tuple that contains the current entity and
+     * The iterable object returns a tuple that contains the current primitive and
      * a reference to its component.
      *
      * @return An iterable object to use to _visit_ the storage.
@@ -41539,21 +41539,21 @@ private:
 };
 
 /*! @copydoc basic_storage */
-template<typename Type, typename Entity, typename Allocator>
-class basic_storage<Type, Entity, Allocator, std::enable_if_t<component_traits<Type>::page_size == 0u>>
-    : public basic_sparse_set<Entity, typename std::allocator_traits<Allocator>::template rebind_alloc<Entity>> {
+template<typename Type, typename Primitive, typename Allocator>
+class basic_storage<Type, Primitive, Allocator, std::enable_if_t<component_traits<Type>::page_size == 0u>>
+    : public basic_sparse_set<Primitive, typename std::allocator_traits<Allocator>::template rebind_alloc<Primitive>> {
     using alloc_traits = std::allocator_traits<Allocator>;
     static_assert(std::is_same_v<typename alloc_traits::value_type, Type>, "Invalid value type");
 
 public:
     /*! @brief Base type. */
-    using base_type = basic_sparse_set<Entity, typename alloc_traits::template rebind_alloc<Entity>>;
+    using base_type = basic_sparse_set<Primitive, typename alloc_traits::template rebind_alloc<Primitive>>;
     /*! @brief Type of the objects assigned to entities. */
     using value_type = Type;
     /*! @brief Component traits. */
     using traits_type = component_traits<value_type>;
-    /*! @brief Underlying entity identifier. */
-    using entity_type = Entity;
+    /*! @brief Underlying primitive identifier. */
+    using entity_type = Primitive;
     /*! @brief Unsigned integer type. */
     using size_type = std::size_t;
     /*! @brief Allocator type. */
@@ -41613,38 +41613,38 @@ public:
     }
 
     /**
-     * @brief Returns the object assigned to an entity, that is `void`.
+     * @brief Returns the object assigned to an primitive, that is `void`.
      *
      * @warning
-     * Attempting to use an entity that doesn't belong to the storage results in
+     * Attempting to use an primitive that doesn't belong to the storage results in
      * undefined behavior.
      *
      * @param entt A valid identifier.
      */
     void get([[maybe_unused]] const entity_type entt) const noexcept {
-        ENTT_ASSERT(base_type::contains(entt), "Storage does not contain entity");
+        ENTT_ASSERT(base_type::contains(entt), "Storage does not contain primitive");
     }
 
     /**
      * @brief Returns an empty tuple.
      *
      * @warning
-     * Attempting to use an entity that doesn't belong to the storage results in
+     * Attempting to use an primitive that doesn't belong to the storage results in
      * undefined behavior.
      *
      * @param entt A valid identifier.
      * @return Returns an empty tuple.
      */
     [[nodiscard]] std::tuple<> get_as_tuple([[maybe_unused]] const entity_type entt) const noexcept {
-        ENTT_ASSERT(base_type::contains(entt), "Storage does not contain entity");
+        ENTT_ASSERT(base_type::contains(entt), "Storage does not contain primitive");
         return std::tuple{};
     }
 
     /**
-     * @brief Assigns an entity to a storage and constructs its object.
+     * @brief Assigns an primitive to a storage and constructs its object.
      *
      * @warning
-     * Attempting to use an entity that already belongs to the storage results
+     * Attempting to use an primitive that already belongs to the storage results
      * in undefined behavior.
      *
      * @tparam Args Types of arguments to use to construct the object.
@@ -41656,14 +41656,14 @@ public:
     }
 
     /**
-     * @brief Updates the instance assigned to a given entity in-place.
+     * @brief Updates the instance assigned to a given primitive in-place.
      * @tparam Func Types of the function objects to invoke.
      * @param entt A valid identifier.
      * @param func Valid function objects.
      */
     template<typename... Func>
     void patch([[maybe_unused]] const entity_type entt, Func &&...func) {
-        ENTT_ASSERT(base_type::contains(entt), "Storage does not contain entity");
+        ENTT_ASSERT(base_type::contains(entt), "Storage does not contain primitive");
         (std::forward<Func>(func)(), ...);
     }
 
@@ -41684,7 +41684,7 @@ public:
     /**
      * @brief Returns an iterable object to use to _visit_ a storage.
      *
-     * The iterable object returns a tuple that contains the current entity.
+     * The iterable object returns a tuple that contains the current primitive.
      *
      * @return An iterable object to use to _visit_ the storage.
      */
@@ -41715,16 +41715,16 @@ public:
 };
 
 /**
- * @brief Swap-only entity storage specialization.
- * @tparam Entity A valid entity type.
+ * @brief Swap-only primitive storage specialization.
+ * @tparam Primitive A valid primitive type.
  * @tparam Allocator Type of allocator used to manage memory and elements.
  */
-template<typename Entity, typename Allocator>
-class basic_storage<Entity, Entity, Allocator>
-    : public basic_sparse_set<Entity, Allocator> {
+template<typename Primitive, typename Allocator>
+class basic_storage<Primitive, Primitive, Allocator>
+    : public basic_sparse_set<Primitive, Allocator> {
     using alloc_traits = std::allocator_traits<Allocator>;
-    static_assert(std::is_same_v<typename alloc_traits::value_type, Entity>, "Invalid value type");
-    using underlying_type = basic_sparse_set<Entity, typename alloc_traits::template rebind_alloc<Entity>>;
+    static_assert(std::is_same_v<typename alloc_traits::value_type, Primitive>, "Invalid value type");
+    using underlying_type = basic_sparse_set<Primitive, typename alloc_traits::template rebind_alloc<Primitive>>;
     using underlying_iterator = typename underlying_type::basic_iterator;
 
     auto entity_at(const std::size_t pos) const noexcept {
@@ -41734,21 +41734,21 @@ class basic_storage<Entity, Entity, Allocator>
 
 protected:
     /**
-     * @brief Assigns an entity to a storage.
+     * @brief Assigns an primitive to a storage.
      * @param hint A valid identifier.
      * @return Iterator pointing to the emplaced element.
      */
-    underlying_iterator try_emplace(const Entity hint, const bool, const void *) override {
+    underlying_iterator try_emplace(const Primitive hint, const bool, const void *) override {
         return base_type::find(emplace(hint));
     }
 
 public:
     /*! @brief Base type. */
-    using base_type = basic_sparse_set<Entity, Allocator>;
+    using base_type = basic_sparse_set<Primitive, Allocator>;
     /*! @brief Type of the objects assigned to entities. */
-    using value_type = Entity;
-    /*! @brief Underlying entity identifier. */
-    using entity_type = Entity;
+    using value_type = Primitive;
+    /*! @brief Underlying primitive identifier. */
+    using entity_type = Primitive;
     /*! @brief Unsigned integer type. */
     using size_type = std::size_t;
     /*! @brief Allocator type. */
@@ -41800,30 +41800,30 @@ public:
     }
 
     /**
-     * @brief Returns the object assigned to an entity, that is `void`.
+     * @brief Returns the object assigned to an primitive, that is `void`.
      *
      * @warning
-     * Attempting to use an entity that doesn't belong to the storage results in
+     * Attempting to use an primitive that doesn't belong to the storage results in
      * undefined behavior.
      *
      * @param entt A valid identifier.
      */
     void get([[maybe_unused]] const entity_type entt) const noexcept {
-        ENTT_ASSERT(base_type::index(entt) < base_type::free_list(), "The requested entity is not a live one");
+        ENTT_ASSERT(base_type::index(entt) < base_type::free_list(), "The requested primitive is not a live one");
     }
 
     /**
      * @brief Returns an empty tuple.
      *
      * @warning
-     * Attempting to use an entity that doesn't belong to the storage results in
+     * Attempting to use an primitive that doesn't belong to the storage results in
      * undefined behavior.
      *
      * @param entt A valid identifier.
      * @return Returns an empty tuple.
      */
     [[nodiscard]] std::tuple<> get_as_tuple([[maybe_unused]] const entity_type entt) const noexcept {
-        ENTT_ASSERT(base_type::index(entt) < base_type::free_list(), "The requested entity is not a live one");
+        ENTT_ASSERT(base_type::index(entt) < base_type::free_list(), "The requested primitive is not a live one");
         return std::tuple{};
     }
 
@@ -41873,7 +41873,7 @@ public:
      */
     template<typename... Func>
     void patch([[maybe_unused]] const entity_type entt, Func &&...func) {
-        ENTT_ASSERT(base_type::index(entt) < base_type::free_list(), "The requested entity is not a live one");
+        ENTT_ASSERT(base_type::index(entt) < base_type::free_list(), "The requested primitive is not a live one");
         (std::forward<Func>(func)(), ...);
     }
 
@@ -41926,7 +41926,7 @@ public:
     /**
      * @brief Returns an iterable object to use to _visit_ a storage.
      *
-     * The iterable object returns a tuple that contains the current entity.
+     * The iterable object returns a tuple that contains the current primitive.
      *
      * @return An iterable object to use to _visit_ the storage.
      */
@@ -41960,7 +41960,7 @@ public:
 
 #endif
 
-// #include "entity/view.hpp"
+// #include "primitive/view.hpp"
 #ifndef ENTT_ENTITY_VIEW_HPP
 #define ENTT_ENTITY_VIEW_HPP
 
@@ -41975,7 +41975,7 @@ public:
 
 // #include "../core/type_traits.hpp"
 
-// #include "entity.hpp"
+// #include "primitive.hpp"
 
 // #include "fwd.hpp"
 
@@ -41985,8 +41985,8 @@ namespace entt {
 /*! @cond TURN_OFF_DOXYGEN */
 namespace internal {
 
-template<typename Type, typename Entity>
-[[nodiscard]] bool all_of_but(const std::size_t index, const Type *const *it, const std::size_t len, const Entity entt) noexcept {
+template<typename Type, typename Primitive>
+[[nodiscard]] bool all_of_but(const std::size_t index, const Type *const *it, const std::size_t len, const Primitive entt) noexcept {
     std::size_t pos{};
     for(; (pos != index) && it[pos]->contains(entt); ++pos) {}
 
@@ -41997,8 +41997,8 @@ template<typename Type, typename Entity>
     return pos == len;
 }
 
-template<typename Type, typename Entity>
-[[nodiscard]] bool none_of(const Type *const *it, const std::size_t len, const Entity entt) noexcept {
+template<typename Type, typename Primitive>
+[[nodiscard]] bool none_of(const Type *const *it, const std::size_t len, const Primitive entt) noexcept {
     std::size_t pos{};
     for(; (pos != len) && !(it[pos] && it[pos]->contains(entt)); ++pos) {}
     return pos == len;
@@ -42164,9 +42164,9 @@ template<typename... Lhs, typename... Rhs>
  * View iterators aren't invalidated if:
  *
  * * New elements are added to the storage iterated by the view.
- * * The entity currently returned is modified (for example, components are
+ * * The primitive currently returned is modified (for example, components are
  *   added or removed from it).
- * * The entity currently returned is destroyed.
+ * * The primitive currently returned is destroyed.
  *
  * In all other cases, modifying the storage iterated by a view in any way can
  * invalidate all iterators.
@@ -42221,7 +42221,7 @@ protected:
 public:
     /*! @brief Common type among all storage types. */
     using common_type = Type;
-    /*! @brief Underlying entity identifier. */
+    /*! @brief Underlying primitive identifier. */
     using entity_type = typename Type::entity_type;
     /*! @brief Unsigned integer type. */
     using size_type = std::size_t;
@@ -42255,27 +42255,27 @@ public:
     }
 
     /**
-     * @brief Returns an iterator to the first entity of the view.
+     * @brief Returns an iterator to the first primitive of the view.
      *
      * If the view is empty, the returned iterator will be equal to `end()`.
      *
-     * @return An iterator to the first entity of the view.
+     * @return An iterator to the first primitive of the view.
      */
     [[nodiscard]] iterator begin() const noexcept {
         return leading ? iterator{leading->begin(0), leading->end(0), pools, filter, index} : iterator{};
     }
 
     /**
-     * @brief Returns an iterator that is past the last entity of the view.
-     * @return An iterator to the entity following the last entity of the view.
+     * @brief Returns an iterator that is past the last primitive of the view.
+     * @return An iterator to the primitive following the last primitive of the view.
      */
     [[nodiscard]] iterator end() const noexcept {
         return leading ? iterator{leading->end(0), leading->end(0), pools, filter, index} : iterator{};
     }
 
     /**
-     * @brief Returns the first entity of the view, if any.
-     * @return The first entity of the view if one exists, the null entity
+     * @brief Returns the first primitive of the view, if any.
+     * @return The first primitive of the view if one exists, the null primitive
      * otherwise.
      */
     [[nodiscard]] entity_type front() const noexcept {
@@ -42284,8 +42284,8 @@ public:
     }
 
     /**
-     * @brief Returns the last entity of the view, if any.
-     * @return The last entity of the view if one exists, the null entity
+     * @brief Returns the last primitive of the view, if any.
+     * @return The last primitive of the view if one exists, the null primitive
      * otherwise.
      */
     [[nodiscard]] entity_type back() const noexcept {
@@ -42300,9 +42300,9 @@ public:
     }
 
     /**
-     * @brief Finds an entity.
+     * @brief Finds an primitive.
      * @param entt A valid identifier.
-     * @return An iterator to the given entity if it's found, past the end
+     * @return An iterator to the given primitive if it's found, past the end
      * iterator otherwise.
      */
     [[nodiscard]] iterator find(const entity_type entt) const noexcept {
@@ -42318,9 +42318,9 @@ public:
     }
 
     /**
-     * @brief Checks if a view contains an entity.
+     * @brief Checks if a view contains an primitive.
      * @param entt A valid identifier.
-     * @return True if the view contains the given entity, false otherwise.
+     * @return True if the view contains the given primitive, false otherwise.
      */
     [[nodiscard]] bool contains(const entity_type entt) const noexcept {
         if(leading) {
@@ -42394,7 +42394,7 @@ class basic_view<get_t<Get...>, exclude_t<Exclude...>>: public basic_common_view
 public:
     /*! @brief Common type among all storage types. */
     using common_type = typename base_type::common_type;
-    /*! @brief Underlying entity identifier. */
+    /*! @brief Underlying primitive identifier. */
     using entity_type = typename base_type::entity_type;
     /*! @brief Unsigned integer type. */
     using size_type = typename base_type::size_type;
@@ -42497,20 +42497,20 @@ public:
     }
 
     /**
-     * @brief Returns the components assigned to the given entity.
+     * @brief Returns the components assigned to the given primitive.
      * @param entt A valid identifier.
-     * @return The components assigned to the given entity.
+     * @return The components assigned to the given primitive.
      */
     [[nodiscard]] decltype(auto) operator[](const entity_type entt) const {
         return get(entt);
     }
 
     /**
-     * @brief Returns the components assigned to the given entity.
+     * @brief Returns the components assigned to the given primitive.
      * @tparam Type Type of the component to get.
      * @tparam Other Other types of components to get.
      * @param entt A valid identifier.
-     * @return The components assigned to the entity.
+     * @return The components assigned to the primitive.
      */
     template<typename Type, typename... Other>
     [[nodiscard]] decltype(auto) get(const entity_type entt) const {
@@ -42518,10 +42518,10 @@ public:
     }
 
     /**
-     * @brief Returns the components assigned to the given entity.
+     * @brief Returns the components assigned to the given primitive.
      * @tparam Index Indexes of the components to get.
      * @param entt A valid identifier.
-     * @return The components assigned to the entity.
+     * @return The components assigned to the primitive.
      */
     template<std::size_t... Index>
     [[nodiscard]] decltype(auto) get(const entity_type entt) const {
@@ -42559,7 +42559,7 @@ public:
     /**
      * @brief Returns an iterable object to use to _visit_ a view.
      *
-     * The iterable object returns a tuple that contains the current entity and
+     * The iterable object returns a tuple that contains the current primitive and
      * a set of references to its non-empty components. The _constness_ of the
      * components is as requested.
      *
@@ -42602,7 +42602,7 @@ protected:
 public:
     /*! @brief Common type among all storage types. */
     using common_type = Type;
-    /*! @brief Underlying entity identifier. */
+    /*! @brief Underlying primitive identifier. */
     using entity_type = typename common_type::entity_type;
     /*! @brief Unsigned integer type. */
     using size_type = std::size_t;
@@ -42636,39 +42636,39 @@ public:
     }
 
     /**
-     * @brief Returns an iterator to the first entity of the view.
+     * @brief Returns an iterator to the first primitive of the view.
      *
      * If the view is empty, the returned iterator will be equal to `end()`.
      *
-     * @return An iterator to the first entity of the view.
+     * @return An iterator to the first primitive of the view.
      */
     [[nodiscard]] iterator begin() const noexcept {
         return leading ? leading->begin() : iterator{};
     }
 
     /**
-     * @brief Returns an iterator that is past the last entity of the view.
-     * @return An iterator to the entity following the last entity of the view.
+     * @brief Returns an iterator that is past the last primitive of the view.
+     * @return An iterator to the primitive following the last primitive of the view.
      */
     [[nodiscard]] iterator end() const noexcept {
         return leading ? leading->end() : iterator{};
     }
 
     /**
-     * @brief Returns an iterator to the first entity of the reversed view.
+     * @brief Returns an iterator to the first primitive of the reversed view.
      *
      * If the view is empty, the returned iterator will be equal to `rend()`.
      *
-     * @return An iterator to the first entity of the reversed view.
+     * @return An iterator to the first primitive of the reversed view.
      */
     [[nodiscard]] reverse_iterator rbegin() const noexcept {
         return leading ? leading->rbegin() : reverse_iterator{};
     }
 
     /**
-     * @brief Returns an iterator that is past the last entity of the reversed
+     * @brief Returns an iterator that is past the last primitive of the reversed
      * view.
-     * @return An iterator to the entity following the last entity of the
+     * @return An iterator to the primitive following the last primitive of the
      * reversed view.
      */
     [[nodiscard]] reverse_iterator rend() const noexcept {
@@ -42676,8 +42676,8 @@ public:
     }
 
     /**
-     * @brief Returns the first entity of the view, if any.
-     * @return The first entity of the view if one exists, the null entity
+     * @brief Returns the first primitive of the view, if any.
+     * @return The first primitive of the view if one exists, the null primitive
      * otherwise.
      */
     [[nodiscard]] entity_type front() const noexcept {
@@ -42685,8 +42685,8 @@ public:
     }
 
     /**
-     * @brief Returns the last entity of the view, if any.
-     * @return The last entity of the view if one exists, the null entity
+     * @brief Returns the last primitive of the view, if any.
+     * @return The last primitive of the view if one exists, the null primitive
      * otherwise.
      */
     [[nodiscard]] entity_type back() const noexcept {
@@ -42694,9 +42694,9 @@ public:
     }
 
     /**
-     * @brief Finds an entity.
+     * @brief Finds an primitive.
      * @param entt A valid identifier.
-     * @return An iterator to the given entity if it's found, past the end
+     * @return An iterator to the given primitive if it's found, past the end
      * iterator otherwise.
      */
     [[nodiscard]] iterator find(const entity_type entt) const noexcept {
@@ -42712,9 +42712,9 @@ public:
     }
 
     /**
-     * @brief Checks if a view contains an entity.
+     * @brief Checks if a view contains an primitive.
      * @param entt A valid identifier.
-     * @return True if the view contains the given entity, false otherwise.
+     * @return True if the view contains the given primitive, false otherwise.
      */
     [[nodiscard]] bool contains(const entity_type entt) const noexcept {
         return leading && leading->contains(entt);
@@ -42743,7 +42743,7 @@ class basic_view<get_t<Get>, exclude_t<>, std::void_t<std::enable_if_t<!Get::tra
 public:
     /*! @brief Common type among all storage types. */
     using common_type = typename base_type::common_type;
-    /*! @brief Underlying entity identifier. */
+    /*! @brief Underlying primitive identifier. */
     using entity_type = typename base_type::entity_type;
     /*! @brief Unsigned integer type. */
     using size_type = typename base_type::size_type;
@@ -42815,9 +42815,9 @@ public:
     }
 
     /**
-     * @brief Returns the component assigned to the given entity.
+     * @brief Returns the component assigned to the given primitive.
      * @param entt A valid identifier.
-     * @return The component assigned to the given entity.
+     * @return The component assigned to the given primitive.
      */
     [[nodiscard]] decltype(auto) operator[](const entity_type entt) const {
         return storage()->get(entt);
@@ -42833,10 +42833,10 @@ public:
     }
 
     /**
-     * @brief Returns the component assigned to the given entity.
+     * @brief Returns the component assigned to the given primitive.
      * @tparam Elem Type of the component to get.
      * @param entt A valid identifier.
-     * @return The component assigned to the entity.
+     * @return The component assigned to the primitive.
      */
     template<typename Elem>
     [[nodiscard]] decltype(auto) get(const entity_type entt) const {
@@ -42845,10 +42845,10 @@ public:
     }
 
     /**
-     * @brief Returns the component assigned to the given entity.
+     * @brief Returns the component assigned to the given primitive.
      * @tparam Index Index of the component to get.
      * @param entt A valid identifier.
-     * @return The component assigned to the entity.
+     * @return The component assigned to the primitive.
      */
     template<std::size_t... Index>
     [[nodiscard]] decltype(auto) get(const entity_type entt) const {
@@ -42896,7 +42896,7 @@ public:
     /**
      * @brief Returns an iterable object to use to _visit_ a view.
      *
-     * The iterable object returns a tuple that contains the current entity and
+     * The iterable object returns a tuple that contains the current primitive and
      * a reference to its component if it's a non-empty one. The _constness_ of
      * the component is as requested.
      *

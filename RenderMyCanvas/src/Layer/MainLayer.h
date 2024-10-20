@@ -20,75 +20,118 @@ namespace RMC
             : m_Camera(45.0f, 0.1f, 100.0f),
                 m_ToolManager(ToolManager::Tool::None),
                 m_ViewportOffset(0.0f, 0.0f) 
-		{
-			Material& pinkSphere = m_Scene.Materials.emplace_back();
-			pinkSphere.Albedo = { 1.0f, 0.0f, 1.0f };
-			pinkSphere.Roughness = 0.0f;
+        {
+            std::vector<glm::vec3> predefinedColors = {
+                {0.9f, 0.6f, 0.7f},
+                {0.4f, 0.6f, 0.9f},
+                {0.6f, 0.9f, 0.7f},
+                {0.9f, 0.9f, 0.5f},
+                {0.8f, 0.5f, 0.4f},
+                {0.5f, 0.8f, 0.9f},
+                {0.7f, 0.8f, 0.4f},
+                {0.9f, 0.7f, 0.4f},
+                {0.9f, 0.5f, 0.8f},
+                {0.6f, 0.4f, 0.9f},
+                {0.2f, 0.8f, 0.6f},
+                {0.4f, 0.7f, 0.9f},
+                {0.8f, 0.7f, 0.3f},
+                {0.6f, 0.3f, 0.4f},
+                {0.7f, 0.3f, 0.6f},
+                {0.3f, 0.6f, 0.4f},
+                {0.7f, 0.9f, 0.6f},
+                {0.9f, 0.4f, 0.6f},
+                {0.5f, 0.6f, 0.9f},
+                {0.6f, 0.9f, 0.4f},
+                {0.3f, 0.4f, 0.7f}
+            };
 
-			Material& blueSphere = m_Scene.Materials.emplace_back();
-			blueSphere.Albedo = { 0.2f, 0.3f, 1.0f };
-			blueSphere.Roughness = 0.1f;
+            Material& floorMaterial = m_Scene.Materials.emplace_back();
+            floorMaterial.Albedo = { 0.7f, 0.7f, 0.7f };
+            floorMaterial.Roughness = 0.8f;
+            floorMaterial.Metallic = 1.0f;
 
-			Material& orangeSphere = m_Scene.Materials.emplace_back();
-			orangeSphere.Albedo = { 0.8f, 0.5f, 0.2f };
-			orangeSphere.Roughness = 0.1f;
-			orangeSphere.EmissionColor = orangeSphere.Albedo;
-			orangeSphere.EmissionPower = 2.0f;
+            Material& pinkSphere = m_Scene.Materials.emplace_back();
+            pinkSphere.Albedo = { 0.9f, 0.6f, 0.7f };
+            pinkSphere.Roughness = 0.3f;
 
-			Material& mirrorMaterial = m_Scene.Materials.emplace_back();
-			mirrorMaterial.Albedo = { 1.0f, 1.0f, 1.0f };
-			mirrorMaterial.Roughness = 0.0f;
-			mirrorMaterial.Metallic = 1.0f;
+            Material& blueSphere = m_Scene.Materials.emplace_back();
+            blueSphere.Albedo = { 0.4f, 0.6f, 0.9f };
+            blueSphere.Roughness = 0.2f;
 
-			for (int i = 0; i < 5; i++) {
+            Material& orangeSphere = m_Scene.Materials.emplace_back();
+            orangeSphere.Albedo = { 0.8f, 0.5f, 0.4f };
+            orangeSphere.Roughness = 0.1f;
+            orangeSphere.EmissionColor = orangeSphere.Albedo * 0.5f;
+            orangeSphere.EmissionPower = 1.5f;
+
+            Material& mirrorMaterial = m_Scene.Materials.emplace_back();
+            mirrorMaterial.Albedo = { 0.95f, 0.95f, 0.95f };
+            mirrorMaterial.Roughness = 0.0f;
+            mirrorMaterial.Metallic = 1.0f;
+
+            for (int i = 0; i < 8; i++) {
+                Material& randomMaterial = m_Scene.Materials.emplace_back();
+                randomMaterial.Albedo = predefinedColors[rand() % predefinedColors.size()];
+                randomMaterial.Roughness = static_cast<float>(rand()) / RAND_MAX * 1.0f;
+				randomMaterial.Metallic = 0.0f;
+                if (rand() % 2 == 0) {
+					randomMaterial.EmissionColor = randomMaterial.Albedo * 0.5f;
+                    randomMaterial.EmissionPower = 2.0f;
+                }
+            }
+
+			for (int i = 0; i < 6; i++) {
 				Material& randomMaterial = m_Scene.Materials.emplace_back();
-				randomMaterial.Albedo = {
-					static_cast<float>(rand()) / RAND_MAX,
-					static_cast<float>(rand()) / RAND_MAX,
-					static_cast<float>(rand()) / RAND_MAX
-				};
-				randomMaterial.Roughness = static_cast<float>(rand()) / RAND_MAX;
-				randomMaterial.Metallic = static_cast<float>(rand()) / RAND_MAX;
-				if (rand() % 2 == 0) {
-					randomMaterial.EmissionColor = randomMaterial.Albedo;
-					randomMaterial.EmissionPower = static_cast<float>(rand()) / RAND_MAX * 10.0f;
-				}
+				randomMaterial.Albedo = predefinedColors[rand() % predefinedColors.size()];
+				randomMaterial.Roughness = static_cast<float>(rand()) / RAND_MAX * 0.2f;
+				randomMaterial.Metallic = static_cast<float>(rand()) / RAND_MAX * 0.2f + 0.8f;
 			}
 
-			{
-				Sphere sphere;
-				sphere.Position = { 0.0f, 0.0f, 0.0f };
-				sphere.Radius = 1.0f;
-				sphere.MaterialIndex = 0;
-				m_Scene.Spheres.push_back(sphere);
-			}
-			{
-				Sphere sphere;
-				sphere.Position = { 2.0f, 0.0f, 0.0f };
-				sphere.Radius = 1.0f;
-				sphere.MaterialIndex = 2;
-				m_Scene.Spheres.push_back(sphere);
-			}
-			{
-				Sphere sphere;
-				sphere.Position = { 0.0f, -101.0f, 0.0f };
-				sphere.Radius = 100.0f;
-				sphere.MaterialIndex = 1;
-				m_Scene.Spheres.push_back(sphere);
-			}
+            for (int i = 0; i < 8; i++) {
+                Material& randomMaterial = m_Scene.Materials.emplace_back();
+                randomMaterial.Albedo = predefinedColors[rand() % predefinedColors.size()];
+                randomMaterial.Roughness = static_cast<float>(rand()) / RAND_MAX * 1.0f;
+                randomMaterial.Metallic = 0.0f;
+            }
 
-			for (int i = 0; i < 20; i++) {
-				Sphere sphere;
-				sphere.Position = {
-					static_cast<float>(rand()) / RAND_MAX * 10.0f - 5.0f,
-					static_cast<float>(rand()) / RAND_MAX * 10.0f - 5.0f,
-					static_cast<float>(rand()) / RAND_MAX * 10.0f - 5.0f
-				};
-				sphere.Radius = static_cast<float>(rand()) / RAND_MAX * 2.0f + 0.5f;
-				sphere.MaterialIndex = rand() % m_Scene.Materials.size();
-				m_Scene.Spheres.push_back(sphere);
-			}
-		}
+            int centralSpheresCount = 10;
+            float baseRadius = 0.5f;
+            float fixedGap = 0.05f;
+            float currentYPosition = 0.0f;
+
+            for (int i = 0; i < centralSpheresCount; i++) {
+                Sphere sphere;
+                sphere.Radius = baseRadius;
+                if (i == 0)
+                    currentYPosition = sphere.Radius;
+                else
+                    currentYPosition += sphere.Radius + baseRadius * 2 + fixedGap;
+                sphere.Position = { currentYPosition, sphere.Radius, 0.0f };
+                sphere.MaterialIndex = ((3 * static_cast<unsigned long long>(i)) % (m_Scene.Materials.size() - 1)) + 1;
+                m_Scene.Spheres.push_back(sphere);
+				baseRadius *= 1.2f;
+            }
+
+            {
+                Sphere sphere;
+                sphere.Position = { 0.0f, -1000.0f, 0.0f };
+                sphere.Radius = 1000.0f;
+                sphere.MaterialIndex = 0;
+                m_Scene.Spheres.push_back(sphere);
+            }
+
+            for (int i = 0; i < 40; i++) {
+                Sphere sphere;
+                sphere.Position = {
+                    static_cast<float>(rand()) / RAND_MAX * 10.0f - 10.0f,
+                    static_cast<float>(rand()) / RAND_MAX * 10.0f,
+                    static_cast<float>(rand()) / RAND_MAX * 10.0f - 5.0f
+                };
+                sphere.Radius = static_cast<float>(rand()) / RAND_MAX * 1.5f + 0.5f;
+                sphere.MaterialIndex = rand() % m_Scene.Materials.size();
+                m_Scene.Spheres.push_back(sphere);
+            }
+        }
 
 		virtual void OnUIRender() override;
 		virtual void OnUpdate(float ts) override;

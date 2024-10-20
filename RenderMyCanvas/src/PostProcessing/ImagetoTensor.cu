@@ -32,7 +32,6 @@ void NearestNeighborScaleCUDA(uint32_t* img_data, int old_width, int old_height,
     int new_width = old_width * 2;
     int new_height = old_height * 2;
 
-
     // 定义 CUDA 线程块和网格的大小
     dim3 blockSize(16, 16); // 每个线程块 16x16 个线程
     dim3 gridSize((new_width + blockSize.x - 1) / blockSize.x, (new_height + blockSize.y - 1) / blockSize.y);
@@ -51,10 +50,10 @@ void ImageToTensor(const uint32_t* img_data, float* tensor_data, int width, int 
     //std::cout << "start convert" << std::endl;
     cudaMemcpy(d_img_data, img_data, width * height * sizeof(uint32_t), cudaMemcpyHostToDevice);
 
-    uint32_t* d_scaled_img_data;
+    /*uint32_t* d_scaled_img_data;
     cudaMalloc(&d_scaled_img_data, width*2 * height*2 * sizeof(uint32_t));
 
-    NearestNeighborScaleCUDA(d_img_data, width, height, d_scaled_img_data);
+    NearestNeighborScaleCUDA(d_img_data, width, height, d_scaled_img_data);*/
 
 
     // 设定CUDA网格和线程块大小
@@ -62,7 +61,7 @@ void ImageToTensor(const uint32_t* img_data, float* tensor_data, int width, int 
     dim3 grid_size((width*2 + block_size.x - 1) / block_size.x, (height*2 + block_size.y - 1) / block_size.y);
 
     // 启动 CUDA 核函数
-    ImageToTensorKernel << <grid_size, block_size >> > (d_scaled_img_data, tensor_data, width, height);
+    ImageToTensorKernel << <grid_size, block_size >> > (d_img_data, tensor_data, width, height);
 
     // 等待CUDA完成
     cudaDeviceSynchronize();

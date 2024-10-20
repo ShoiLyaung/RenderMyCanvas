@@ -16,7 +16,7 @@ void RMC::PostProcessingPipeLine::addProcess(std::shared_ptr<PostProcessingBase>
 
 std::shared_ptr<Walnut::Image> RMC::PostProcessingPipeLine::process(std::shared_ptr<Walnut::Image> img)
 {
-	std::shared_ptr<Walnut::Image> FinalImage = img;
+	std::shared_ptr<Walnut::Image> FinalImage = std::make_shared<Walnut::Image>(img->GetWidth(), img->GetHeight(), Walnut::ImageFormat::RGBA);
 	//std::cout<<"start processing"<<std::endl;
 	for (auto &process : ProcessList)
 	{

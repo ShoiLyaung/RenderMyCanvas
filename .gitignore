@@ -10,7 +10,6 @@ bin-int/
 *.vcxproj.filters
 *.sln
 *.nvuser
-print.ipynb
 
 # Exclude
 !vendor/bin

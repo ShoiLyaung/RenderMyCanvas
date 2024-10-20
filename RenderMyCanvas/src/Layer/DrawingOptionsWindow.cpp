@@ -5,6 +5,8 @@ namespace RMC {
     {
         ImGui::Begin("Scene");
         ImGui::Text("Render Time: %.3fms", lastRenderTime);
+		ImGui::Checkbox("night", &scene.GetSettings().night);
+
         for (size_t i = 0; i < scene.Spheres.size(); i++)
         {
             ImGui::PushID((int)i);

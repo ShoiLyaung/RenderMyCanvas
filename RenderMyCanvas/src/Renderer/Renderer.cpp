@@ -2,6 +2,9 @@
 
 #include "Walnut/Random.h"
 #include "Renderer.h"
+
+#include "Walnut/Random.h"
+#include "Renderer.h"
 #include<iostream>
 namespace Utils {
 	static uint32_t ConvertToRGBA(const glm::vec4& color)
@@ -13,7 +16,30 @@ namespace Utils {
 
 		return (a << 24) | (b << 16) | (g << 8) | r;
 	}
-}
+
+	static uint32_t PCG_Hash(uint32_t input) 
+	{
+        uint32_t state = input * 747796405u + 2891336453u;
+        uint32_t word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
+        return (word >> 22u) ^ word;
+    }
+
+	static float RandomFloat(uint32_t &seed) 
+	{
+		seed = PCG_Hash(seed);
+		return (float)seed / (float)std::numeric_limits<uint32_t>::max();
+    }
+
+	static glm::vec3 InUnitSphere(uint32_t& seed)
+	{
+		return glm::normalize(glm::vec3(
+			RandomFloat(seed) * 2.0f - 1.0f,
+			RandomFloat(seed) * 2.0f - 1.0f,
+			RandomFloat(seed) * 2.0f - 1.0f)
+		);
+	}
+} // namespace Utils
+
 namespace RMC
 {
 	bool DLSSEnabled = true;
@@ -85,6 +111,7 @@ namespace RMC
 						accumulatedColor /= (float)m_FrameIndex;
 						accumulatedColor = glm::clamp(accumulatedColor, glm::vec4(0.0f), glm::vec4(1.0f));
 						render_data[x + y * m_FinalImage->GetWidth()] = Utils::ConvertToRGBA(accumulatedColor);
+						m_ImageData[x + y * m_FinalImage->GetWidth()] = Utils::ConvertToRGBA(accumulatedColor);
 					});
 			});
 #else
@@ -116,38 +143,44 @@ namespace RMC
 		ray.Origin = m_ActiveCamera->GetPosition();
 		ray.Direction = m_ActiveCamera->GetRayDirections()[x + y * m_FinalImage->GetWidth()];
 
-		glm::vec3 color(0.0f);
-		float multiplier = 1.0f;
+		glm::vec3 light(0.0f);
+        glm::vec3 contribution(1.0f);
+
+		uint32_t seed = x + y * m_FinalImage->GetWidth();
+		seed *= m_FrameIndex;
 
 		int bounces = 5;
 		for (int i = 0; i < bounces; i++)
 		{
+			seed += i;
 			Renderer::HitPayload payload = TraceRay(ray);
 			if (payload.HitDistance < 0.0f)
 			{
-				glm::vec3 skyColor = glm::vec3(0.6f, 0.7f, 0.9f);
-				color += skyColor * multiplier;
+				if (!m_ActiveScene->IsNight())
+					light += m_ActiveScene->GetSkyColor() * contribution;
 				break;
 			}
-
-			glm::vec3 lightDir = glm::normalize(glm::vec3(-1, -1, -1));
-			float lightIntensity = glm::max(glm::dot(payload.WorldNormal, -lightDir), 0.0f); // == cos(angle)
 
 			const Sphere& sphere = m_ActiveScene->Spheres[payload.ObjectIndex];
 			const Material& material = m_ActiveScene->Materials[sphere.MaterialIndex];
 
-			glm::vec3 sphereColor = material.Albedo;
-			sphereColor *= lightIntensity;
-			color += sphereColor * multiplier;
-
-			multiplier *= 0.5f;
+			contribution *= material.Albedo;
+            light += material.GetEmission();
 
 			ray.Origin = payload.WorldPosition + payload.WorldNormal * 0.0001f;
-			ray.Direction = glm::reflect(ray.Direction,
-				payload.WorldNormal + material.Roughness * Walnut::Random::Vec3(-0.5f, 0.5f));
+
+			if (material.Metallic > 0.0f)
+			{
+				glm::vec3 reflected = glm::reflect(ray.Direction, payload.WorldNormal);
+				ray.Direction = glm::normalize(reflected + material.Roughness * Utils::InUnitSphere(seed));
+			}
+			else
+			{
+				ray.Direction = glm::normalize(payload.WorldNormal + Utils::InUnitSphere(seed));
+			}
 		}
 
-		return glm::vec4(color, 1.0f);
+		return glm::vec4(light, 1.0f);
 	}
 
 	Renderer::HitPayload Renderer::TraceRay(const Ray& ray)

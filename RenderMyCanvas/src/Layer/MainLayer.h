@@ -35,6 +35,26 @@ namespace RMC
 			orangeSphere.EmissionColor = orangeSphere.Albedo;
 			orangeSphere.EmissionPower = 2.0f;
 
+			Material& mirrorMaterial = m_Scene.Materials.emplace_back();
+			mirrorMaterial.Albedo = { 1.0f, 1.0f, 1.0f };
+			mirrorMaterial.Roughness = 0.0f;
+			mirrorMaterial.Metallic = 1.0f;
+
+			for (int i = 0; i < 5; i++) {
+				Material& randomMaterial = m_Scene.Materials.emplace_back();
+				randomMaterial.Albedo = {
+					static_cast<float>(rand()) / RAND_MAX,
+					static_cast<float>(rand()) / RAND_MAX,
+					static_cast<float>(rand()) / RAND_MAX
+				};
+				randomMaterial.Roughness = static_cast<float>(rand()) / RAND_MAX;
+				randomMaterial.Metallic = static_cast<float>(rand()) / RAND_MAX;
+				if (rand() % 2 == 0) {
+					randomMaterial.EmissionColor = randomMaterial.Albedo;
+					randomMaterial.EmissionPower = static_cast<float>(rand()) / RAND_MAX * 10.0f;
+				}
+			}
+
 			{
 				Sphere sphere;
 				sphere.Position = { 0.0f, 0.0f, 0.0f };
@@ -50,12 +70,23 @@ namespace RMC
 				sphere.MaterialIndex = 2;
 				m_Scene.Spheres.push_back(sphere);
 			}
-
 			{
 				Sphere sphere;
 				sphere.Position = { 0.0f, -101.0f, 0.0f };
 				sphere.Radius = 100.0f;
 				sphere.MaterialIndex = 1;
+				m_Scene.Spheres.push_back(sphere);
+			}
+
+			for (int i = 0; i < 20; i++) {
+				Sphere sphere;
+				sphere.Position = {
+					static_cast<float>(rand()) / RAND_MAX * 10.0f - 5.0f,
+					static_cast<float>(rand()) / RAND_MAX * 10.0f - 5.0f,
+					static_cast<float>(rand()) / RAND_MAX * 10.0f - 5.0f
+				};
+				sphere.Radius = static_cast<float>(rand()) / RAND_MAX * 2.0f + 0.5f;
+				sphere.MaterialIndex = rand() % m_Scene.Materials.size();
 				m_Scene.Spheres.push_back(sphere);
 			}
 		}

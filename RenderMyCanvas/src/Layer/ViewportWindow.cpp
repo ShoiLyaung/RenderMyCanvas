@@ -6,17 +6,22 @@ namespace RMC {
        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
        ImGui::Begin("Viewport");
 
-       viewportWidth = (uint32_t)ImGui::GetContentRegionAvail().x;
-       viewportHeight = (uint32_t)ImGui::GetContentRegionAvail().y;
+       auto image = currentRenderer->GetFinalImage();
+	   auto scale = currentRenderer->GetImageScale();
+
+	   viewportWidth = (uint32_t)ImGui::GetContentRegionAvail().x / scale;
+	   viewportHeight = (uint32_t)ImGui::GetContentRegionAvail().y / scale;
 
        ImVec2 viewportPos = ImGui::GetWindowPos();
        ImVec2 cursorPos = ImGui::GetCursorScreenPos();
 
-       auto image = currentRenderer->GetFinalImage();
        if (image)
            ImGui::Image(
                image->GetDescriptorSet(),
-			   { (float)image->GetWidth(), (float)image->GetHeight() },
+			   { 
+                   (float)image->GetWidth() * scale, 
+				   (float)image->GetHeight()* scale
+               },
                currentRenderer->Get_uv0(),
 			   currentRenderer->Get_uv1()
            );

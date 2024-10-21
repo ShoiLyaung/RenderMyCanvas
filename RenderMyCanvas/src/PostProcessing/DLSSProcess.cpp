@@ -47,11 +47,9 @@ namespace Utils {
         torch::TensorOptions options = torch::TensorOptions().device(torch::kCUDA).dtype(torch::kFloat32);
 
 
-        auto deleter = [](void* ptr) { delete[] static_cast<float*>(ptr); };
+        auto deleter = [](void* ptr) { cudaFree(ptr); };
 
-        tensor = torch::from_blob(d_tensor_data, { 1, channels, height, width }, options);
-        //tensor = torch::CUDA(d_tensor_data);
-
+        tensor = torch::from_blob(d_tensor_data, { 1, channels, height, width }, deleter, options);
 
         return tensor;
     }
@@ -75,22 +73,21 @@ namespace Utils {
 
         uint32_t* img_data = new uint32_t[width * height];
 
+        convertTensorToImage(data_ptr, img_data, width, height);
+
         // 7. 将图像数据设置到 Walnut::Image
         img->SetData(img_data);
 
-        
+        delete[] img_data;
 
         return img;
     }
-
-
 }
 
 RMC::DLSSProcess::DLSSProcess()
 {
     try {
         std::cout << "G:\\code\\RenderMyCanvas\\SRCNN.pt" << std::endl;
-        std::string modelPath = "G:\\code\\RenderMyCanvas\\SRCNN.pt";
         model = torch::jit::load("G:\\code\\RenderMyCanvas\\SRCNN.pt");
         model.eval();
         model.to(torch::kCUDA);
@@ -113,7 +110,7 @@ std::shared_ptr<Walnut::Image> RMC::DLSSProcess::process(std::shared_ptr<Walnut:
     std::shared_ptr<Walnut::Image> outputImage = Utils::tensorToWalnutImage(outputTensor);
     //std::cout << "outputImage" << outputImage->GetWidth() << outputImage->GetHeight() << std::endl;
 
-    return outputImage;
+    return img;
 }
 
 

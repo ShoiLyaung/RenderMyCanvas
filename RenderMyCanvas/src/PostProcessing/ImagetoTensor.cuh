@@ -4,6 +4,7 @@
 #define MY_KERNELS_CUH
 
 void ImageToTensor(const uint32_t* img_data, float* tensor_data, int width, int height);
+void convertTensorToImage(const float* data_ptr, uint32_t* img_data, int width, int height);
 
 __global__ void ImageToTensorKernel(const uint32_t* img_data,float* output_tensor,int width, int height);
 

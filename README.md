@@ -33,3 +33,9 @@ see [Framework](./Framework.md) for more details.
 
 ## MAYBE
 - [ ] LOD/Cluster-Based Mesh Pipeline (like Nanite)
+
+## GAME TODO
+- [ ] Player Controller(Camera moves with Player) wjx
+- [ ] UI zyh
+- [ ] Sound wyz
+- [ ] Server qyx

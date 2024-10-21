@@ -30,6 +30,7 @@ namespace RMC
 		ImVec2 Get_uv1() const { return m_uv1; }
 		void ResetFrameIndex() { m_FrameIndex = 1; }
 		Settings& GetSettings() { return m_Settings; }
+		std::unique_ptr < PostProcessingPipeLine > m_PpPipeline;
 	protected:
 		int _width = 0, _height = 0;
 		struct HitPayload
@@ -52,11 +53,9 @@ namespace RMC
 
 		const Scene* m_ActiveScene = nullptr;
 		const Camera* m_ActiveCamera = nullptr;
-		uint32_t m_ImageScale = 4;
+		uint32_t m_ImageScale = 2;
 		uint32_t* m_ImageData = nullptr;
-		uint32_t* render_data;
 		ImVec2 m_uv0 = { 0, 1 }, m_uv1 = { 1, 0 };
-		std::unique_ptr < PostProcessingPipeLine > m_PpPipeline;
 		glm::vec4* m_AccumulationData = nullptr;
 		uint32_t m_FrameIndex = 1;
 	};

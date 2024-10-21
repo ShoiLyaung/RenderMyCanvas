@@ -117,7 +117,6 @@ namespace RMC
 #endif
 
 		m_FinalImage->SetData(m_ImageData);
-		m_FinalImage = m_PpPipeline->process(m_FinalImage);
 		if (m_Settings.Accumulate)
 			m_FrameIndex++;
 		else

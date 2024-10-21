@@ -99,8 +99,8 @@ RMC::DLSSProcess::DLSSProcess()
 
 std::shared_ptr<Walnut::Image> RMC::DLSSProcess::process(std::shared_ptr<Walnut::Image> img)
 {
-    /*std::cout << "DLSSProcess" << std::endl;
-    std::cout << "img" << img->GetWidth() << img->GetHeight() << std::endl;*/
+    //std::cout << "DLSSProcess" << std::endl;
+    //std::cout << "img" << img->GetWidth() << img->GetHeight() << std::endl;
     torch::Tensor inputTensor = Utils::WalnutImageToTensor(img).toType(torch::kFloat32);
     //std::cout<<"inputTensor"<<inputTensor.sizes()<<std::endl;
     std::vector<torch::jit::IValue> inputs;

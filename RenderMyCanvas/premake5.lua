@@ -11,6 +11,7 @@ project "RenderMyCanvas"
    {
       "src",
       "vendor/entt/single_include",
+      "vendor/tinyobjloader",
       
       "../Walnut/vendor/imgui",
       "../Walnut/vendor/glfw/include",

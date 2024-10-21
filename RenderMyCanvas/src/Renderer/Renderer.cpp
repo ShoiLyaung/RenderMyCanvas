@@ -3,6 +3,9 @@
 #include "Walnut/Random.h"
 #include "Renderer.h"
 
+#include "Walnut/Random.h"
+#include "Renderer.h"
+#include<iostream>
 namespace Utils {
 	static uint32_t ConvertToRGBA(const glm::vec4& color)
 	{
@@ -39,6 +42,12 @@ namespace Utils {
 
 namespace RMC
 {
+	Renderer::Renderer()
+	{
+		m_ImageData = nullptr;
+		m_PpPipeline = std::make_unique<PostProcessingPipeLine>();
+		m_PpPipeline->addProcess(std::make_shared<DLSSProcess>());
+	}
 	void Renderer::OnResize(uint32_t width, uint32_t height)
 	{
 		//resize the image
@@ -108,7 +117,6 @@ namespace RMC
 #endif
 
 		m_FinalImage->SetData(m_ImageData);
-
 		if (m_Settings.Accumulate)
 			m_FrameIndex++;
 		else

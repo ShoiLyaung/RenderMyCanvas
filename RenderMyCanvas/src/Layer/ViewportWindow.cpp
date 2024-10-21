@@ -1,7 +1,7 @@
 #include "ViewportWindow.h"
 
 namespace RMC {
-   void ViewportWindow::Render(uint32_t& viewportWidth, uint32_t& viewportHeight, glm::vec2& viewportOffset, Renderer* currentRenderer, float& lastRenderTime, Scene& scene, Camera& camera)
+    void ViewportWindow::Render(uint32_t& viewportWidth, uint32_t& viewportHeight, glm::vec2& viewportOffset, Renderer* currentRenderer, float& lastRenderTime, Scene& scene, Camera& camera)
    {
        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
        ImGui::Begin("Viewport");
@@ -25,6 +25,8 @@ namespace RMC {
                currentRenderer->Get_uv0(),
 			   currentRenderer->Get_uv1()
            );
+       
+       image = currentRenderer->m_PpPipeline->process(image);
 
        ImGui::End();
        ImGui::PopStyleVar();

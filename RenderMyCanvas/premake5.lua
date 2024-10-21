@@ -1,5 +1,5 @@
-LibTorchDir = "G:\\libtorch" -- 替换为实际路径
-CUDA_SDK_DIR = "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.0" -- 替换为你的CUDA安装路径
+CUDA_SDK_DIR = os.getenv("CUDA_PATH")
+LibTorchDir = os.getenv("LIBTORCH_DIR")
 
 project "RenderMyCanvas"
    kind "ConsoleApp"

@@ -127,7 +127,7 @@ namespace RMC
 		uint32_t seed = x + y * m_FinalImage->GetWidth();
 		seed *= m_FrameIndex;
 
-		int bounces = 5;
+		int bounces = 15;
 		for (int i = 0; i < bounces; i++)
 		{
 			seed += i;

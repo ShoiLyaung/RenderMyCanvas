@@ -50,24 +50,41 @@ namespace RMC
             floorMaterial.Roughness = 0.8f;
             floorMaterial.Metallic = 1.0f;
 
+            Material& lightMaterial = m_Scene.Materials.emplace_back();
+            lightMaterial.Albedo = { 1.0f, 1.0f, 1.0f };
+            lightMaterial.EmissionColor = { 1.0f, 1.0f, 1.0f };
+            lightMaterial.EmissionPower = 1.5f;
+
+            Material& mirrorMaterial = m_Scene.Materials.emplace_back();
+            mirrorMaterial.Albedo = { 0.99f, 0.99f, 0.99f };
+            mirrorMaterial.Roughness = 0.0001f;
+            mirrorMaterial.Metallic = 1.0f;
+			mirrorMaterial.EmissionColor = { 0.0f, 0.0f, 0.0f };
+			mirrorMaterial.EmissionPower = 0.0f;
+
+            Material& glassMaterial = m_Scene.Materials.emplace_back();
+            glassMaterial.Transparency = 1.0f;
+            glassMaterial.IOR = 1.5f;
+
             Material& pinkSphere = m_Scene.Materials.emplace_back();
             pinkSphere.Albedo = { 0.9f, 0.6f, 0.7f };
             pinkSphere.Roughness = 0.3f;
+			pinkSphere.Metallic = 0.0f;
+			pinkSphere.EmissionColor = { 0.0f, 0.0f, 0.0f };
+			pinkSphere.EmissionPower = 0.0f;
 
             Material& blueSphere = m_Scene.Materials.emplace_back();
             blueSphere.Albedo = { 0.4f, 0.6f, 0.9f };
             blueSphere.Roughness = 0.2f;
+			blueSphere.Metallic = 0.0f;
+			blueSphere.EmissionColor = { 0.0f, 0.0f, 0.0f };
+			blueSphere.EmissionPower = 0.0f;
 
             Material& orangeSphere = m_Scene.Materials.emplace_back();
             orangeSphere.Albedo = { 0.8f, 0.5f, 0.4f };
             orangeSphere.Roughness = 0.1f;
             orangeSphere.EmissionColor = orangeSphere.Albedo * 0.5f;
             orangeSphere.EmissionPower = 1.5f;
-
-            Material& mirrorMaterial = m_Scene.Materials.emplace_back();
-            mirrorMaterial.Albedo = { 0.95f, 0.95f, 0.95f };
-            mirrorMaterial.Roughness = 0.0f;
-            mirrorMaterial.Metallic = 1.0f;
 
             for (int i = 0; i < 8; i++) {
                 Material& randomMaterial = m_Scene.Materials.emplace_back();
@@ -76,7 +93,7 @@ namespace RMC
 				randomMaterial.Metallic = 0.0f;
                 if (rand() % 2 == 0) {
 					randomMaterial.EmissionColor = randomMaterial.Albedo * 0.5f;
-                    randomMaterial.EmissionPower = 2.0f;
+                    randomMaterial.EmissionPower = 1.5f;
                 }
             }
 
@@ -119,11 +136,25 @@ namespace RMC
                 sphere.MaterialIndex = 0;
                 m_Scene.Spheres.push_back(sphere);
             }
+            {
+                Sphere sphere;
+                sphere.Position = { 0.0f, 0.0f, -1010.0f };
+                sphere.Radius = 1000.0f;
+                sphere.MaterialIndex = 2;
+                m_Scene.Spheres.push_back(sphere);
+            }
+            {
+                Sphere sphere;
+                sphere.Position = { 0.0f, 0.0f, 1010.0f };
+                sphere.Radius = 1000.0f;
+                sphere.MaterialIndex = 2;
+                m_Scene.Spheres.push_back(sphere);
+            }
 
             for (int i = 0; i < 40; i++) {
                 Sphere sphere;
                 sphere.Position = {
-                    static_cast<float>(rand()) / RAND_MAX * 10.0f - 10.0f,
+                    static_cast<float>(rand()) / RAND_MAX * 20.0f - 20.0f,
                     static_cast<float>(rand()) / RAND_MAX * 10.0f,
                     static_cast<float>(rand()) / RAND_MAX * 10.0f - 5.0f
                 };

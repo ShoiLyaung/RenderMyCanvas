@@ -5,7 +5,10 @@ namespace RMC {
 
     namespace LineAlgorithm {
 
-        void Bresenham(const glm::vec3& start, const glm::vec3& end, uint32_t* imageData, uint32_t width, uint32_t height) {
+        void Bresenham(const glm::vec3& start, const glm::vec3& end,
+                   uint32_t* imageData, uint32_t width, uint32_t height,
+                   float lineWidth = 0.0f, uint32_t color = 0xFFFFFFFF)
+    {
             int x1 = static_cast<int>(start.x);
             int y1 = static_cast<int>(start.y);
             int x2 = static_cast<int>(end.x);
@@ -18,8 +21,16 @@ namespace RMC {
             int err = dx - dy;
 
             while (true) {
-                if (x1 >= 0 && x1 < static_cast<int>(width) && y1 >= 0 && y1 < static_cast<int>(height)) {
-                    imageData[y1 * width + x1] = 0xFFFFFFFF; // Set pixel to white (RGBA)
+                for (float dx = -lineWidth; dx <= lineWidth; dx += 0.1f) {
+                    for (float dy = -lineWidth; dy <= lineWidth; dy += 0.1f) {
+                        int px = static_cast<int>(x1 + dx);
+                        int py = static_cast<int>(y1 + dy);
+
+                        if (px >= 0 && px < static_cast<int>(width) &&
+                            py >= 0 && py < static_cast<int>(height)) {
+                            imageData[py * width + px] = color;
+                        }
+                    }
                 }
 
                 if (x1 == x2 && y1 == y2) break;

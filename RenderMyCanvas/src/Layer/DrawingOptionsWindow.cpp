@@ -40,6 +40,15 @@ namespace RMC {
 
         ImGui::Begin("Drawing Options");
         ImGui::Text("Render Time: %.3fms", lastRenderTime);
+        float lineWidth_t = drawBoard.GetLineWidth();
+        ImGui::DragFloat("Line Width", &lineWidth_t, 0.05f, 0, 5);
+        drawBoard.SetLineWidth(lineWidth_t);
+        uint32_t lineColor_t = drawBoard.GetLineColor();
+        ImVec4 color = ImGui::ColorConvertU32ToFloat4(lineColor_t);
+        if (ImGui::ColorEdit4("Line Color", (float*)&color)) {
+            lineColor_t = ImGui::ColorConvertFloat4ToU32(color);
+            drawBoard.SetLineColor(lineColor_t);
+        }
         if (ImGui::CollapsingHeader("Shapes"))
         {
             if (ImGui::Button("None"))
@@ -77,6 +86,26 @@ namespace RMC {
 					currentTool = ToolManager::Tool::Ellipse;
 					drawBoard.SetDrawingMode(DrawingMode::Ellipse_CenterAxes);
 				}
+                if(ImGui::Button("Foci-Bersenham"))
+				{
+					currentTool = ToolManager::Tool::Ellipse;
+					drawBoard.SetDrawingMode(DrawingMode::Ellipse_Foci_Bersenham);
+				}
+                if (ImGui::Button("Center-Axes-Bersenham"))
+                {
+                    currentTool = ToolManager::Tool::Ellipse;
+					drawBoard.SetDrawingMode(DrawingMode::Ellipse_CenterAxes_Bersenham);
+				}
+            }
+            if (ImGui::CollapsingHeader("Arc")) {
+                if (ImGui::Button("Circle Arc")) {
+                    currentTool = ToolManager::Tool::Arc;
+                    drawBoard.SetDrawingMode(DrawingMode::Arc_Circle);
+                }
+                if (ImGui::Button("Ellipse Arc")) {
+                    currentTool = ToolManager::Tool::Arc;
+                    drawBoard.SetDrawingMode(DrawingMode::Arc_Ellipse);
+                }
             }
         }
 

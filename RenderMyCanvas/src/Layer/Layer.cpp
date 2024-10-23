@@ -16,6 +16,18 @@ namespace RMC::layer {
     {
         m_renderer.m_activeCamera = &m_camera;
         m_renderer.m_activeScene = &m_scene;
+        ImGuiStyle& style = ImGui::GetStyle();
+        style.Colors[ImGuiCol_WindowBg] = ImVec4(0.85f, 0.95f, 1.0f, 1.0f); // 窗口背景颜色
+        style.Colors[ImGuiCol_Text] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f); // 文本颜色
+        style.Colors[ImGuiCol_Button] = ImVec4(0.7f, 0.9f, 1.0f, 1.0f); // 按钮颜色
+        style.Colors[ImGuiCol_Border] = ImVec4(0.8f, 0.9f, 1.0f, 1.0f); // 边框颜色
+        style.Colors[ImGuiCol_Separator] = ImVec4(0.7f, 0.9f, 1.0f, 1.0f);
+        style.Colors[ImGuiCol_TitleBg] = ImVec4(0.53f, 0.81f, 0.92f, 1.0f); 
+        style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.7f, 0.9f, 1.0f, 1.0f);
+        style.Colors[ImGuiCol_FrameBg] = ImVec4(0.7f, 0.9f, 1.0f, 1.0f); // 下拉框背景颜色
+        style.Colors[ImGuiCol_PopupBg] = ImVec4(0.9f, 0.9f, 1.0f, 1.0f); // 下拉菜单背景颜色
+        style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.9f, 0.9f, 1.0f, 1.0f);
+        style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.294f, 0.0f, 0.51f, 1.0f);
 
         //component::Material gray{};
         //gray.Albedo = { 0.5f,0.5f,0.5f,1.0f };
@@ -235,7 +247,9 @@ namespace RMC::layer {
 
         // Viewport for image rendering
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
         ImGui::Begin("Viewport");
+        ImGui::PopStyleColor();
         m_fullScreenMouseCoord = ImGui::GetMousePos();
         glm::vec2 viewportMouseCoord = this->GetViewportMouseCoord();
         glm::vec3 worldMouseCoord = m_camera.ScreenToWorld(this->GetViewportMouseCoord());
@@ -245,8 +259,11 @@ namespace RMC::layer {
         ImGui::End();
         ImGui::PopStyleVar();
 
+
         // Status
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
         ImGui::Begin("Status");
+        ImGui::PopStyleColor();
         ImGui::Text(
             "Mouse coord: (%d, %d)",
             static_cast<int32_t>(viewportMouseCoord.x),
@@ -280,7 +297,9 @@ namespace RMC::layer {
         ImGui::End();
 
         // Configurations
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
         ImGui::Begin("Configuration");
+        ImGui::PopStyleColor();
         ImGui::Text("Last Render Time: %.2f", m_lastRenderTime);
         ImGui::SameLine();
         ImGui::Separator();
@@ -311,7 +330,9 @@ namespace RMC::layer {
 
         ImGui::End();
 
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
         ImGui::Begin("Drawing Tools");
+        ImGui::PopStyleColor();
         if (ImGui::Button("Line Segment")) { m_settings.curDrawing = Settings::CUR_DRAWING::LINE_SEGMENT; m_settings.drawStep = 0; }
         ImGui::SameLine();
         if (ImGui::Button("Ellipse")) { m_settings.curDrawing = Settings::CUR_DRAWING::ELLIPSE; m_settings.drawStep = 0; }

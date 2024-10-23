@@ -1,0 +1,9 @@
+E:/code1/RMC ref/RenderMyCanvas/build/CMakeFiles/spdlog.dir
+E:/code1/RMC ref/RenderMyCanvas/build/CMakeFiles/PACKAGE.dir
+E:/code1/RMC ref/RenderMyCanvas/build/CMakeFiles/INSTALL.dir
+E:/code1/RMC ref/RenderMyCanvas/build/CMakeFiles/ALL_BUILD.dir
+E:/code1/RMC ref/RenderMyCanvas/build/CMakeFiles/ZERO_CHECK.dir
+E:/code1/RMC ref/RenderMyCanvas/build/example/CMakeFiles/example.dir
+E:/code1/RMC ref/RenderMyCanvas/build/example/CMakeFiles/PACKAGE.dir
+E:/code1/RMC ref/RenderMyCanvas/build/example/CMakeFiles/INSTALL.dir
+E:/code1/RMC ref/RenderMyCanvas/build/example/CMakeFiles/ALL_BUILD.dir

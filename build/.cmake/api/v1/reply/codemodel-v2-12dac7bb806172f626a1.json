@@ -1,0 +1,472 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-55cc24e53e1da8fc6c07.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						2,
+						4
+					]
+				},
+				{
+					"build" : "example",
+					"jsonFile" : "directory-example-Debug-8ca0c98ee1efd38c600f.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.11"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 1,
+					"source" : "example",
+					"targetIndexes" : 
+					[
+						1,
+						3
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1
+					],
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "spdlog",
+					"targetIndexes" : 
+					[
+						0,
+						2,
+						4
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						1
+					],
+					"name" : "spdlog_examples",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						1,
+						3
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "ALL_BUILD::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ALL_BUILD-Debug-8fc918f8a7edef0466d1.json",
+					"name" : "ALL_BUILD",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "ALL_BUILD::@70983d692f648185febe",
+					"jsonFile" : "target-ALL_BUILD-Debug-cfb4c88975cfa1b40a71.json",
+					"name" : "ALL_BUILD",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ZERO_CHECK-Debug-83d22935e47a8c28eccb.json",
+					"name" : "ZERO_CHECK",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "example::@70983d692f648185febe",
+					"jsonFile" : "target-example-Debug-5a2ab4db8aaf3f18f378.json",
+					"name" : "example",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "spdlog::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-spdlog-Debug-314986cdad5f329fd8e7.json",
+					"name" : "spdlog",
+					"projectIndex" : 0
+				}
+			]
+		},
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Release-d8226fb31313ede1ab93.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						2,
+						4
+					]
+				},
+				{
+					"build" : "example",
+					"jsonFile" : "directory-example-Release-8ca0c98ee1efd38c600f.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.11"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 1,
+					"source" : "example",
+					"targetIndexes" : 
+					[
+						1,
+						3
+					]
+				}
+			],
+			"name" : "Release",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1
+					],
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "spdlog",
+					"targetIndexes" : 
+					[
+						0,
+						2,
+						4
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						1
+					],
+					"name" : "spdlog_examples",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						1,
+						3
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "ALL_BUILD::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ALL_BUILD-Release-8fc918f8a7edef0466d1.json",
+					"name" : "ALL_BUILD",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "ALL_BUILD::@70983d692f648185febe",
+					"jsonFile" : "target-ALL_BUILD-Release-cfb4c88975cfa1b40a71.json",
+					"name" : "ALL_BUILD",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ZERO_CHECK-Release-83d22935e47a8c28eccb.json",
+					"name" : "ZERO_CHECK",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "example::@70983d692f648185febe",
+					"jsonFile" : "target-example-Release-292145ff0de36e9a3c60.json",
+					"name" : "example",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "spdlog::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-spdlog-Release-9cd2cf2f8c275f1df2ed.json",
+					"name" : "spdlog",
+					"projectIndex" : 0
+				}
+			]
+		},
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-MinSizeRel-131d222267f91097c4b4.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						2,
+						4
+					]
+				},
+				{
+					"build" : "example",
+					"jsonFile" : "directory-example-MinSizeRel-8ca0c98ee1efd38c600f.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.11"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 1,
+					"source" : "example",
+					"targetIndexes" : 
+					[
+						1,
+						3
+					]
+				}
+			],
+			"name" : "MinSizeRel",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1
+					],
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "spdlog",
+					"targetIndexes" : 
+					[
+						0,
+						2,
+						4
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						1
+					],
+					"name" : "spdlog_examples",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						1,
+						3
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "ALL_BUILD::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ALL_BUILD-MinSizeRel-8fc918f8a7edef0466d1.json",
+					"name" : "ALL_BUILD",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "ALL_BUILD::@70983d692f648185febe",
+					"jsonFile" : "target-ALL_BUILD-MinSizeRel-cfb4c88975cfa1b40a71.json",
+					"name" : "ALL_BUILD",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ZERO_CHECK-MinSizeRel-83d22935e47a8c28eccb.json",
+					"name" : "ZERO_CHECK",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "example::@70983d692f648185febe",
+					"jsonFile" : "target-example-MinSizeRel-e711a60c326c8ce543dd.json",
+					"name" : "example",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "spdlog::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-spdlog-MinSizeRel-ab9fc693c24ee8862133.json",
+					"name" : "spdlog",
+					"projectIndex" : 0
+				}
+			]
+		},
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-RelWithDebInfo-f6abc962db1d434c1f48.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						2,
+						4
+					]
+				},
+				{
+					"build" : "example",
+					"jsonFile" : "directory-example-RelWithDebInfo-8ca0c98ee1efd38c600f.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.11"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 1,
+					"source" : "example",
+					"targetIndexes" : 
+					[
+						1,
+						3
+					]
+				}
+			],
+			"name" : "RelWithDebInfo",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1
+					],
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "spdlog",
+					"targetIndexes" : 
+					[
+						0,
+						2,
+						4
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						1
+					],
+					"name" : "spdlog_examples",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						1,
+						3
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "ALL_BUILD::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ALL_BUILD-RelWithDebInfo-8fc918f8a7edef0466d1.json",
+					"name" : "ALL_BUILD",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "ALL_BUILD::@70983d692f648185febe",
+					"jsonFile" : "target-ALL_BUILD-RelWithDebInfo-cfb4c88975cfa1b40a71.json",
+					"name" : "ALL_BUILD",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ZERO_CHECK-RelWithDebInfo-83d22935e47a8c28eccb.json",
+					"name" : "ZERO_CHECK",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "example::@70983d692f648185febe",
+					"jsonFile" : "target-example-RelWithDebInfo-8fdc0d4a9a75b05c6c4a.json",
+					"name" : "example",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "spdlog::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-spdlog-RelWithDebInfo-66103b41ad7ad7416991.json",
+					"name" : "spdlog",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "E:/code1/RMC ref/RenderMyCanvas/build",
+		"source" : "E:/code1/RMC ref/RenderMyCanvas/RenderMyCanvas/vendor/spdlog"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 5
+	}
+}

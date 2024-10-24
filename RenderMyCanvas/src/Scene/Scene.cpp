@@ -1,142 +1,84 @@
 #include "Scene.h"
+#include "Components/TransformComponent.h"
+#include "Components/SphereComponent.h"
+#include "Components/MaterialComponent.h"
+#include "Components/PlayerComponent.h"
+#include "Systems/MovementSystem.h"
+#include "Systems/CollisionSystem.h"
 
 namespace RMC {
-	Scene::Scene()
-	{
-        std::vector<glm::vec3> predefinedColors = {
-            {0.9f, 0.6f, 0.7f},
-            {0.4f, 0.6f, 0.9f},
-            {0.6f, 0.9f, 0.7f},
-            {0.9f, 0.9f, 0.5f},
-            {0.8f, 0.5f, 0.4f},
-            {0.5f, 0.8f, 0.9f},
-            {0.7f, 0.8f, 0.4f},
-            {0.9f, 0.7f, 0.4f},
-            {0.9f, 0.5f, 0.8f},
-            {0.6f, 0.4f, 0.9f},
-            {0.2f, 0.8f, 0.6f},
-            {0.4f, 0.7f, 0.9f},
-            {0.8f, 0.7f, 0.3f},
-            {0.6f, 0.3f, 0.4f},
-            {0.7f, 0.3f, 0.6f},
-            {0.3f, 0.6f, 0.4f},
-            {0.7f, 0.9f, 0.6f},
-            {0.9f, 0.4f, 0.6f},
-            {0.5f, 0.6f, 0.9f},
-            {0.6f, 0.9f, 0.4f},
-            {0.3f, 0.4f, 0.7f}
-        };
+    Scene::Scene()
+    {
+        // 创建玩家实体
+        entt::entity player = m_Registry.create();
+        TransformComponent playerTransform;
+        playerTransform.Position = glm::vec3(0.0f, 0.0f, 0.0f);
+        m_Registry.emplace<TransformComponent>(player, playerTransform);
 
-        Material& floorMaterial = Materials.emplace_back();
-        floorMaterial.Albedo = { 0.7f, 0.7f, 0.7f };
-        floorMaterial.Roughness = 0.8f;
-        floorMaterial.Metallic = 1.0f;
+        SphereComponent playerSphere;
+        playerSphere.Radius = 1.0f;
+        m_Registry.emplace<SphereComponent>(player, playerSphere);
 
-        Material& lightMaterial = Materials.emplace_back();
-        lightMaterial.Albedo = { 1.0f, 1.0f, 1.0f };
-        lightMaterial.EmissionColor = { 1.0f, 1.0f, 1.0f };
-        lightMaterial.EmissionPower = 1.5f;
+        MaterialComponent playerMaterial;
+        playerMaterial.Albedo = glm::vec3(0.8f, 0.1f, 0.1f); // 红色
+        m_Registry.emplace<MaterialComponent>(player, playerMaterial);
 
-        Material& mirrorMaterial = Materials.emplace_back();
-        mirrorMaterial.Albedo = { 0.99f, 0.99f, 0.99f };
-        mirrorMaterial.Roughness = 0.0001f;
-        mirrorMaterial.Metallic = 1.0f;
-        mirrorMaterial.EmissionColor = { 0.0f, 0.0f, 0.0f };
-        mirrorMaterial.EmissionPower = 0.0f;
+        m_Registry.emplace<PlayerComponent>(player);
 
-        Material& glassMaterial = Materials.emplace_back();
-        glassMaterial.Transparency = 1.0f;
-        glassMaterial.IOR = 1.5f;
-
-        for (int i = 0; i < 3; i++) {
-            Material& randomMaterial = Materials.emplace_back();
-            randomMaterial.Albedo = predefinedColors[rand() % predefinedColors.size()];
-            randomMaterial.Roughness = static_cast<float>(rand()) / RAND_MAX * 1.0f;
-            randomMaterial.Metallic = 0.0f;
-            if (rand() % 2 == 0) {
-                randomMaterial.EmissionColor = randomMaterial.Albedo * 0.5f;
-                randomMaterial.EmissionPower = 1.5f;
-            }
-        }
-
-        for (int i = 0; i < 3; i++) {
-            Material& randomMaterial = Materials.emplace_back();
-            randomMaterial.Albedo = predefinedColors[rand() % predefinedColors.size()];
-            randomMaterial.Roughness = static_cast<float>(rand()) / RAND_MAX * 0.2f;
-            randomMaterial.Metallic = static_cast<float>(rand()) / RAND_MAX * 0.2f + 0.8f;
-        }
-
-        for (int i = 0; i < 4; i++) {
-            Material& randomMaterial = Materials.emplace_back();
-            randomMaterial.Albedo = predefinedColors[rand() % predefinedColors.size()];
-            randomMaterial.Roughness = static_cast<float>(rand()) / RAND_MAX * 1.0f;
-            randomMaterial.Metallic = 0.0f;
-        }
-
-        int centralSpheresCount = 10;
-        float baseRadius = 0.5f;
-        float fixedGap = 0.05f;
-        float currentYPosition = 0.0f;
-
-        for (int i = 0; i < centralSpheresCount; i++) {
-            Sphere sphere;
-            sphere.Radius = baseRadius;
-            if (i == 0)
-                currentYPosition = sphere.Radius;
-            else
-                currentYPosition += sphere.Radius + baseRadius * 2 + fixedGap;
-            sphere.Position = { currentYPosition, sphere.Radius, 0.0f };
-            sphere.MaterialIndex = ((3 * static_cast<unsigned long long>(i)) % (Materials.size() - 1)) + 1;
-            Spheres.push_back(sphere);
-            baseRadius *= 1.2f;
-        }
-
+        // 创建一些小球实体
+        for (int i = 0; i < 10; ++i)
         {
-            Sphere sphere;
-            sphere.Position = { 0.0f, -1000.0f, 0.0f };
-            sphere.Radius = 1000.0f;
-            sphere.MaterialIndex = 0;
-            Spheres.push_back(sphere);
-        }
-        {
-            Sphere sphere;
-            sphere.Position = { 0.0f, 0.0f, -1010.0f };
-            sphere.Radius = 1000.0f;
-            sphere.MaterialIndex = 2;
-            Spheres.push_back(sphere);
-        }
-        {
-            Sphere sphere;
-            sphere.Position = { 0.0f, 0.0f, 1010.0f };
-            sphere.Radius = 1000.0f;
-            sphere.MaterialIndex = 2;
-            Spheres.push_back(sphere);
+            entt::entity ball = m_Registry.create();
+
+            TransformComponent ballTransform;
+            ballTransform.Position = glm::vec3(
+                RandomFloat(-15.0f, 15.0f),
+                RandomFloat(-15.0f, 15.0f),
+                RandomFloat(-15.0f, 15.0f)
+            );
+            m_Registry.emplace<TransformComponent>(ball, ballTransform);
+
+            SphereComponent ballSphere;
+            ballSphere.Radius = RandomFloat(0.5f, 1.0f);
+            m_Registry.emplace<SphereComponent>(ball, ballSphere);
+
+            MaterialComponent ballMaterial;
+            ballMaterial.Albedo = glm::vec3(
+                RandomFloat(0.0f, 1.0f),
+                RandomFloat(0.0f, 1.0f),
+                RandomFloat(0.0f, 1.0f)
+            );
+            m_Registry.emplace<MaterialComponent>(ball, ballMaterial);
         }
 
-        for (int i = 0; i < 40; i++) {
-            Sphere sphere;
-            sphere.Position = {
-                static_cast<float>(rand()) / RAND_MAX * 20.0f - 20.0f,
-                static_cast<float>(rand()) / RAND_MAX * 10.0f,
-                static_cast<float>(rand()) / RAND_MAX * 10.0f - 5.0f
-            };
-            sphere.Radius = static_cast<float>(rand()) / RAND_MAX * 1.5f + 0.5f;
-            sphere.MaterialIndex = rand() % Materials.size();
-            Spheres.push_back(sphere);
-        }
-	}
+        // 如果需要，可以创建障碍物实体
+    }
 
 	Scene::~Scene()
 	{
+		// 更新系统
+		// MovementSystem::Update(m_Registry, deltaTime);
+		// CollisionSystem::Update(m_Registry);
+		// SpawnerSystem::Update(m_Registry, deltaTime);
 	}
 
-	//entt::entity Scene::CreateEntity()
-	//{
-	//	return m_Registry.create();
-	//}
+	entt::entity Scene::CreateEntity()
+	{
+		return m_Registry.create();
+	}
 
 	bool Scene::OnUpdate(float ts)
 	{
+        MovementSystem::Update(m_Registry, ts);
+        CollisionSystem::Update(m_Registry);
 		return 0;
 	}
+
+    // 随机数生成函数
+    float Scene::RandomFloat(float min, float max)
+    {
+        static std::default_random_engine e;
+        static std::uniform_real_distribution<float> dis(min, max);
+        return dis(e);
+    }
 } // namespace RMC

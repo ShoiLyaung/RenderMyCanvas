@@ -1,11 +1,10 @@
 #include <execution>
 
-#include "Walnut/Random.h"
 #include "Renderer.h"
+#include "Components/TransformComponent.h"
+#include "Components/SphereComponent.h"
+#include "Components/MaterialComponent.h"
 
-#include "Walnut/Random.h"
-#include "Renderer.h"
-#include<iostream>
 namespace Utils {
 	static uint32_t ConvertToRGBA(const glm::vec4& color)
 	{
@@ -42,7 +41,7 @@ namespace Utils {
 
 namespace RMC
 {
-	Renderer::Renderer()
+		Renderer::Renderer()
 	{
 		m_ImageData = nullptr;
 		m_PpPipeline = std::make_unique<PostProcessingPipeLine>();
@@ -77,160 +76,156 @@ namespace RMC
 			m_ImageVerticalIter[i] = i;
 	}
 
-	void Renderer::Render(const Scene& scene, const Camera& camera)
-	{
-		m_ActiveScene = &scene;
-		m_ActiveCamera = &camera;
+    void Renderer::Render(const Scene& scene, const Camera& camera)
+    {
+        m_ActiveScene = &scene;
+        m_ActiveCamera = &camera;
+        m_Registry = &scene.GetRegistry();
 
-		if (m_FrameIndex == 1)
-			memset(m_AccumulationData, 0, m_FinalImage->GetWidth() * m_FinalImage->GetHeight() * sizeof(glm::vec4));
+        if (m_FrameIndex == 1)
+            memset(m_AccumulationData, 0, m_FinalImage->GetWidth() * m_FinalImage->GetHeight() * sizeof(glm::vec4));
 
-#define MT 1
-#if MT
-		std::for_each(std::execution::par, m_ImageVerticalIter.begin(), m_ImageVerticalIter.end(),
-			[this](uint32_t y)
-			{
-				std::for_each(std::execution::par, m_ImageHorizontalIter.begin(), m_ImageHorizontalIter.end(),
-					[this, y](uint32_t x)
-					{
-						glm::vec4 color = PerPixel(x, y);
-						m_AccumulationData[x + y * m_FinalImage->GetWidth()] += color;
-						glm::vec4 accumulatedColor = m_AccumulationData[x + y * m_FinalImage->GetWidth()];
-						accumulatedColor /= (float)m_FrameIndex;
-						accumulatedColor = glm::clamp(accumulatedColor, glm::vec4(0.0f), glm::vec4(1.0f));
-						m_ImageData[x + y * m_FinalImage->GetWidth()] = Utils::ConvertToRGBA(accumulatedColor);
-					});
-			});
-#else
-		for (uint32_t y = 0; y < m_FinalImage->GetHeight(); y++)
-		{
-			for (uint32_t x = 0; x < m_FinalImage->GetWidth(); x++)
-			{
-				glm::vec4 color = PerPixel(x, y);
-				m_AccumulationData[x + y * m_FinalImage->GetWidth()] += color;
-				glm::vec4 accumulatedColor = m_AccumulationData[x + y * m_FinalImage->GetWidth()];
-				accumulatedColor /= (float)m_FrameIndex;
-				accumulatedColor = glm::clamp(accumulatedColor, glm::vec4(0.0f), glm::vec4(1.0f));
-				m_ImageData[x + y * m_FinalImage->GetWidth()] = Utils::ConvertToRGBA(accumulatedColor);
-			}
-		}
-#endif
+        std::for_each(std::execution::par, m_ImageVerticalIter.begin(), m_ImageVerticalIter.end(),
+            [this](uint32_t y)
+            {
+                std::for_each(std::execution::par, m_ImageHorizontalIter.begin(), m_ImageHorizontalIter.end(),
+                    [this, y](uint32_t x)
+                    {
+                        glm::vec4 color = PerPixel(x, y);
+                        m_AccumulationData[x + y * m_FinalImage->GetWidth()] += color;
+                        glm::vec4 accumulatedColor = m_AccumulationData[x + y * m_FinalImage->GetWidth()];
+                        accumulatedColor /= (float)m_FrameIndex;
+                        accumulatedColor = glm::clamp(accumulatedColor, glm::vec4(0.0f), glm::vec4(1.0f));
+                        m_ImageData[x + y * m_FinalImage->GetWidth()] = Utils::ConvertToRGBA(accumulatedColor);
+                    });
+            });
 
-		m_FinalImage->SetData(m_ImageData);
-		if (m_Settings.Accumulate)
-			m_FrameIndex++;
-		else
-			m_FrameIndex = 1;
-	}
+        m_FinalImage->SetData(m_ImageData);
 
-	glm::vec4 Renderer::PerPixel(uint32_t x, uint32_t y)
-	{
-		Ray ray;
-		ray.Origin = m_ActiveCamera->GetPosition();
-		ray.Direction = m_ActiveCamera->GetRayDirections()[x + y * m_FinalImage->GetWidth()];
+        if (m_Settings.Accumulate)
+            m_FrameIndex++;
+        else
+            m_FrameIndex = 1;
+    }
 
-		glm::vec3 light(0.0f);
+    // 修改PerPixel方法
+    glm::vec4 Renderer::PerPixel(uint32_t x, uint32_t y)
+    {
+        Ray ray;
+        ray.Origin = m_ActiveCamera->GetPosition();
+        ray.Direction = m_ActiveCamera->GetRayDirections()[x + y * m_FinalImage->GetWidth()];
+
+        glm::vec3 light(0.0f);
         glm::vec3 contribution(1.0f);
 
-		uint32_t seed = x + y * m_FinalImage->GetWidth();
-		seed *= m_FrameIndex;
+        uint32_t seed = x + y * m_FinalImage->GetWidth();
+        seed *= m_FrameIndex;
 
-		int bounces = 15;
-		for (int i = 0; i < bounces; i++)
-		{
-			seed += i;
-			Renderer::HitPayload payload = TraceRay(ray);
-			if (payload.HitDistance < 0.0f)
-			{
-				if (!m_ActiveScene->IsNight())
-					light += m_ActiveScene->GetSkyColor() * contribution;
-				break;
-			}
+        int bounces = 5;
+        for (int i = 0; i < bounces; i++)
+        {
+            seed += i;
+            Renderer::HitPayload payload = TraceRay(ray);
+            if (payload.HitDistance < 0.0f)
+            {
+                if (!m_ActiveScene->IsNight())
+                    light += m_ActiveScene->GetSkyColor() * contribution;
+                break;
+            }
 
-			const Sphere& sphere = m_ActiveScene->Spheres[payload.ObjectIndex];
-			const Material& material = m_ActiveScene->Materials[sphere.MaterialIndex];
+            // 从ECS中获取组件
+            auto entity = payload.HitEntity;
+            auto& material = m_Registry->get<MaterialComponent>(entity);
 
-			contribution *= material.Albedo;
+            contribution *= material.Albedo;
             light += material.GetEmission();
 
-			ray.Origin = payload.WorldPosition + payload.WorldNormal * 0.0001f;
+            ray.Origin = payload.WorldPosition + payload.WorldNormal * 0.0001f;
 
-			if (material.Metallic > 0.0f)
-			{
-				glm::vec3 reflected = glm::reflect(ray.Direction, payload.WorldNormal);
-				ray.Direction = glm::normalize(reflected + material.Roughness * Utils::InUnitSphere(seed));
-			}
-			else
-			{
-				ray.Direction = glm::normalize(payload.WorldNormal + Utils::InUnitSphere(seed));
-			}
-		}
+            if (material.Metallic > 0.0f)
+            {
+                glm::vec3 reflected = glm::reflect(ray.Direction, payload.WorldNormal);
+                ray.Direction = glm::normalize(reflected + material.Roughness * Utils::InUnitSphere(seed));
+            }
+            else
+            {
+                ray.Direction = glm::normalize(payload.WorldNormal + Utils::InUnitSphere(seed));
+            }
+        }
 
-		return glm::vec4(light, 1.0f);
-	}
+        return glm::vec4(light, 1.0f);
+    }
 
-	Renderer::HitPayload Renderer::TraceRay(const Ray& ray)
-	{
+    // 修改TraceRay方法
+    Renderer::HitPayload Renderer::TraceRay(const Ray& ray)
+    {
 		// (bx^2 + by^2)t^2 + (2(axbx + ayby))t + (ax^2 + ay^2 - r^2) = 0
 		// where
 		// a = ray origin
 		// b = ray direction
 		// r = radius
 		// t = hit distance
+		
+        Renderer::HitPayload closestPayload;
+        closestPayload.HitDistance = -1.0f;
+        float hitDistance = std::numeric_limits<float>::max();
 
-		int closestSphere = -1;
-		float hitDistance = std::numeric_limits<float>::max();
-		for (size_t i = 0; i < m_ActiveScene->Spheres.size(); i++)
-		{
-			const Sphere& sphere = m_ActiveScene->Spheres[i];
-			glm::vec3 origin = ray.Origin - sphere.Position;
-			float a = glm::dot(ray.Direction, ray.Direction);
-			float b = 2.0f * glm::dot(origin, ray.Direction);
-			float c = glm::dot(origin, origin) - sphere.Radius * sphere.Radius;
+        // 遍历所有具有SphereComponent和TransformComponent的实体
+        auto view = m_Registry->view<TransformComponent, SphereComponent>();
+        for (auto entity : view)
+        {
+            auto& transform = view.get<TransformComponent>(entity);
+            auto& sphere = view.get<SphereComponent>(entity);
 
-			float discriminant = b * b - 4.0f * a * c;
-			if (discriminant < 0.0f)
-				continue;
+            glm::vec3 origin = ray.Origin - transform.Position;
+
+            float a = glm::dot(ray.Direction, ray.Direction);
+            float b = 2.0f * glm::dot(origin, ray.Direction);
+            float c = glm::dot(origin, origin) - sphere.Radius * sphere.Radius;
+
+            float discriminant = b * b - 4.0f * a * c;
+            if (discriminant < 0.0f)
+                continue;
 			// Quadratic formula:
 			// (-b +- sqrt(discriminant)) / 2a
 			// float t0 = (-b + glm::sqrt(discriminant)) / (2.0f * a); // Second hit distance (currently unused)
 			float closestT = (-b - glm::sqrt(discriminant)) / (2.0f * a);
-			if (closestT > 0.0f && closestT < hitDistance)
-			{
-				hitDistance = closestT;
-				closestSphere = (int)i;
-			}
-		}
+            if (closestT > 0.0f && closestT < hitDistance)
+            {
+                hitDistance = closestT;
+                closestPayload.HitDistance = hitDistance;
+                closestPayload.HitEntity = entity;
+            }
+        }
 
-		if (closestSphere < 0)
-			return Miss(ray);
+        if (closestPayload.HitDistance < 0.0f)
+            return Miss(ray);
 
-		return ClosestHit(ray, hitDistance, closestSphere);
-	}
+        return ClosestHit(ray, closestPayload.HitDistance, closestPayload.HitEntity);
+    }
 
-	Renderer::HitPayload Renderer::ClosestHit(const Ray& ray, float hitDistance, int objectIndex)
-	{
-		Renderer::HitPayload payload;
-		payload.HitDistance = hitDistance;
-		payload.ObjectIndex = objectIndex;
+    Renderer::HitPayload Renderer::ClosestHit(const Ray& ray, float hitDistance, entt::entity entity)
+    {
+        Renderer::HitPayload payload;
+        payload.HitDistance = hitDistance;
+        payload.HitEntity = entity;
 
-		const Sphere& closestSphere = m_ActiveScene->Spheres[objectIndex];
+        auto& transform = m_Registry->get<TransformComponent>(entity);
+        auto& sphere = m_Registry->get<SphereComponent>(entity);
 
-		glm::vec3 origin = ray.Origin - closestSphere.Position;
-		payload.WorldPosition = origin + ray.Direction * hitDistance;
-		payload.WorldNormal = glm::normalize(payload.WorldPosition);
+        glm::vec3 origin = ray.Origin - transform.Position;
+        payload.WorldPosition = origin + ray.Direction * hitDistance;
+        payload.WorldNormal = glm::normalize(payload.WorldPosition);
 
-		payload.WorldPosition += closestSphere.Position;
+        payload.WorldPosition += transform.Position;
 
-		return payload;
-	}
+        return payload;
+    }
 
-	Renderer::HitPayload Renderer::Miss(const Ray& ray)
-	{
-		Renderer::HitPayload payload;
-		payload.HitDistance = -1.0f;
-		return payload;
-	}
-
-	//void Renderer::Draw(entt::registry& registry)
+    Renderer::HitPayload Renderer::Miss(const Ray& ray)
+    {
+        Renderer::HitPayload payload;
+        payload.HitDistance = -1.0f;
+        return payload;
+    }
 } // namespace RMC

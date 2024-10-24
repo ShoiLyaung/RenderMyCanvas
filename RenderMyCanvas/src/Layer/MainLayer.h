@@ -5,6 +5,7 @@
 #include "DrawBoard/DrawBoard.h"
 #include "Scene/Scene.h"
 #include "Camera/Camera.h"
+#include "Systems/InputSystem.h"
 
 #include "ToolManager.h"
 #include "SettingWindow.h"

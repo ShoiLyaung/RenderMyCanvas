@@ -31,7 +31,7 @@ namespace RMC
         {
 			m_Renderer.ResetFrameIndex();
         }
-
+        InputSystem::Update(m_Scene.GetRegistry(), ts);
         // Handle mouse input for drawing in DrawBoard
         if (m_CurrentRenderer == &m_DrawBoard)
         {

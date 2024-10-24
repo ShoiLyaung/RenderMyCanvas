@@ -87,8 +87,8 @@ namespace Utils {
 RMC::DLSSProcess::DLSSProcess()
 {
     try {
-        std::cout << "G:\\code\\RenderMyCanvas\\SRCNN.pt" << std::endl;
-        model = torch::jit::load("G:\\code\\RenderMyCanvas\\SRCNN.pt");
+        std::cout << "E:\\Documents\\UniversityFiles\\Forth\\CG\\RenderMyCanvas\\SRCNN.pt" << std::endl;
+        model = torch::jit::load("E:\\Documents\\UniversityFiles\\Forth\\CG\\RenderMyCanvas\\SRCNN.pt");
         model.eval();
         model.to(torch::kCUDA);
     }

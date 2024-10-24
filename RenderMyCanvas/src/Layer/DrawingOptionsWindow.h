@@ -5,7 +5,11 @@
 #include "ToolManager.h"
 #include "Renderer/Renderer.h"
 #include "DrawBoard/DrawBoard.h"
+#include <entt.hpp>
 
+#include "Components/TransformComponent.h"
+#include "Components/SphereComponent.h"
+#include "Components/MaterialComponent.h"
 
 namespace RMC {
     class DrawingOptionsWindow

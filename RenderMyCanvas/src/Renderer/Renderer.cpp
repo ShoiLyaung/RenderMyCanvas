@@ -47,6 +47,16 @@ namespace RMC
 		m_ImageData = nullptr;
 		m_PpPipeline = std::make_unique<PostProcessingPipeLine>();
 		m_PpPipeline->addProcess(std::make_shared<DLSSProcess>());
+		std::ifstream cntfile("G:/output/cnt.txt");
+		if (!cntfile.is_open())
+		{
+			std::ofstream cntfile1("G:/output/cnt.txt");
+			cntfile1 << 0 << " " << 0 << std::endl;
+			cntfile1.close();
+		}
+		cntfile = std::ifstream("G:/output/cnt.txt");
+		cntfile >> original_image_cnt >> downsample_image_cnt;
+		cntfile.close();
 	}
 	void Renderer::OnResize(uint32_t width, uint32_t height)
 	{
@@ -68,6 +78,8 @@ namespace RMC
 
 		delete[] m_AccumulationData;
 		m_AccumulationData = new glm::vec4[width * height];
+		m_AccumulationDataLength = width * height;
+
 
 		m_ImageHorizontalIter.resize(width);
 		m_ImageVerticalIter.resize(height);
@@ -79,12 +91,17 @@ namespace RMC
 
 	void Renderer::Render(const Scene& scene, const Camera& camera)
 	{
+		m_ImageScale = DLSSEnabled ? 4 : 1;
 		m_ActiveScene = &scene;
 		m_ActiveCamera = &camera;
 
-		if (m_FrameIndex == 1)
-			memset(m_AccumulationData, 0, m_FinalImage->GetWidth() * m_FinalImage->GetHeight() * sizeof(glm::vec4));
-
+		if (m_FrameIndex == 1 || DLSSEnabled != DLSSRecord)
+		{
+				memset(m_AccumulationData, 0, m_AccumulationDataLength * sizeof(glm::vec4));
+			m_FrameIndex = 1;
+		}
+			
+		DLSSRecord = DLSSEnabled;
 #define MT 1
 #if MT
 		std::for_each(std::execution::par, m_ImageVerticalIter.begin(), m_ImageVerticalIter.end(),
@@ -116,11 +133,38 @@ namespace RMC
 		}
 #endif
 
-		m_FinalImage->SetData(m_ImageData);
+		if(m_FrameIndex < m_MaxAccumulate || !DLSSEnabled)
+			m_FinalImage->SetData(m_ImageData);
 		if (m_Settings.Accumulate)
 			m_FrameIndex++;
 		else
 			m_FrameIndex = 1;
+	}
+
+	void Renderer::outputImage()
+	{
+		std::ifstream cntfile("G:/output/cnt.txt");
+		cntfile >> original_image_cnt >> downsample_image_cnt;
+        cntfile.close();
+		std::string filename;
+		if(DLSSEnabled)
+            filename = "G:/output/down_" + std::to_string(downsample_image_cnt++) + ".txt";
+		else
+            filename = "G:/output/" + std::to_string(original_image_cnt++) + ".txt";
+		std::ofstream file(filename);
+		file << m_FinalImage->GetWidth() << " " << m_FinalImage->GetHeight() << std::endl;
+		for (uint32_t y = 0; y < m_FinalImage->GetHeight(); y++)
+		{
+			for (uint32_t x = 0; x < m_FinalImage->GetWidth(); x++)
+			{
+                uint32_t pixel = m_ImageData[x + y * m_FinalImage->GetWidth()];
+                file << ((pixel >> 24) & 0xFF) << " " << ((pixel >> 16) & 0xFF) << " " << ((pixel >> 8) & 0xFF) << " " << (pixel & 0xFF) << " ";
+			}
+		}
+        file.close();
+		std::ofstream cntfile2("G:/output/cnt.txt");
+        cntfile2 << original_image_cnt << " " << downsample_image_cnt << std::endl;
+        cntfile2.close();
 	}
 
 	glm::vec4 Renderer::PerPixel(uint32_t x, uint32_t y)

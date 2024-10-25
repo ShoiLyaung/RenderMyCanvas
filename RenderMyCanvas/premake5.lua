@@ -45,7 +45,6 @@ project "RenderMyCanvas"
    {
       "cudart", -- CUDA runtime library
       "cublas", -- CUDA Basic Linear Algebra Subroutines (if needed)
-      "cudnn", -- CUDA Deep Neural Network library (if needed, optional)
       "c10",
       "torch_cpu",
       "torch_cuda"

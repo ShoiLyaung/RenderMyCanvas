@@ -13,7 +13,13 @@ namespace RMC {
         {
             currentRenderer = &renderer;
         }
+        ImGui::Checkbox("DLSS", &renderer.DLSSEnabled);
         ImGui::Checkbox("Accumulate", &renderer.GetSettings().Accumulate);
+        if (ImGui::Button("output"))
+        {
+            renderer.outputImage();
+        }
+        ImGui::Text("origin: %d, downscale: %d", renderer.original_image_cnt, renderer.downsample_image_cnt);
         if (ImGui::Button("Reset"))
             renderer.ResetFrameIndex();
         ImGui::End();

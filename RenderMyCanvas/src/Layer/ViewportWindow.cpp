@@ -25,8 +25,8 @@ namespace RMC {
                currentRenderer->Get_uv0(),
 			   currentRenderer->Get_uv1()
            );
-       
-       image = currentRenderer->m_PpPipeline->process(image);
+       //if(currentRenderer->DLSSEnabled)
+       // image = currentRenderer->m_PpPipeline->process(image);
 
        ImGui::End();
        ImGui::PopStyleVar();

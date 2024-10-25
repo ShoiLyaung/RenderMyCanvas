@@ -9,6 +9,7 @@ bin-int/
 *.vcxproj.user
 *.vcxproj.filters
 *.sln
+*.obj
 print.ipynb
 
 # Exclude

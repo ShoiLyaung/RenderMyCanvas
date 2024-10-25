@@ -2,7 +2,8 @@
 
 #include "Walnut/Application.h"
 #include "Walnut/Image.h"
-
+#include <chrono>
+#include <ctime>
 #include <memory>
 #include <glm/glm.hpp>
 #include "Camera/Camera.h"
@@ -10,6 +11,7 @@
 #include "Scene/Scene.h"
 #include "PostProcessing/PostProcessingPipeLine.h"
 #include "PostProcessing/DLSSProcess.h"
+#include <fstream>
 
 namespace RMC
 {
@@ -31,6 +33,14 @@ namespace RMC
 		void ResetFrameIndex() { m_FrameIndex = 1; }
 		Settings& GetSettings() { return m_Settings; }
 		std::unique_ptr < PostProcessingPipeLine > m_PpPipeline;
+		bool DLSSEnabled = false;
+		bool DLSSRecord = false;
+		uint32_t m_ImageScale = 4;
+		uint32_t m_MaxAccumulate = 20;
+		void outputImage();
+		uint32_t original_image_cnt = 0;
+		uint32_t downsample_image_cnt = 0;
+		uint32_t m_AccumulationDataLength;
 	protected:
 		int _width = 0, _height = 0;
 		struct HitPayload
@@ -49,14 +59,14 @@ namespace RMC
 
 		std::shared_ptr<Walnut::Image> m_FinalImage;
 		Settings m_Settings;
-		std::vector<uint32_t> m_ImageHorizontalIter, m_ImageVerticalIter;
+		std::vector<uint32_t> m_ImageHorizontalIter, m_ImageVerticalIter, m_AccumulationCounter;
 
 		const Scene* m_ActiveScene = nullptr;
 		const Camera* m_ActiveCamera = nullptr;
-		uint32_t m_ImageScale = 2;
 		uint32_t* m_ImageData = nullptr;
 		ImVec2 m_uv0 = { 0, 1 }, m_uv1 = { 1, 0 };
 		glm::vec4* m_AccumulationData = nullptr;
 		uint32_t m_FrameIndex = 1;
+		uint32_t m_FrameIdx = 1;
 	};
 } // namespace RMC

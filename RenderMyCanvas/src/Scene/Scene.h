@@ -5,9 +5,6 @@
 #include <entt.hpp>
 #include <random>
 
-#include "Primitives/Sphere.h"
-#include "Material/Material.h"
-
 namespace RMC
 {
 	class Scene

@@ -8,7 +8,7 @@ float RandomFloat(float min, float max)
 {
     static std::default_random_engine e;
     static std::uniform_real_distribution<> dis(min, max); // rage 0 - 1
-    return dis(e);
+    return (float)dis(e);
 }
 
 void SpawnerSystem::Update(entt::registry& registry, float deltaTime)

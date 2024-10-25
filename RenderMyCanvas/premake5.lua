@@ -8,12 +8,20 @@ project "RenderMyCanvas"
    targetdir "bin/%{cfg.buildcfg}"
    staticruntime "off"
 
-   files { "src/**.h", "src/**.cpp", "src/**.cuh", "src/**.cu" }
-
+   files {
+      "src/**.h",
+      "src/**.cpp",
+      "src/**.cuh", "src/**.cu",
+      "shaders/**.rgen",
+      "shaders/**.rchit",
+      "shaders/**.rmiss",
+      "shaders/**.rahit",
+      "shaders/**.rint",
+   }
    includedirs
    {
       "src",
-      "vendor/entt/single_include",
+      "vendor/entt",
       "vendor/tinyobjloader",
       
       "../Walnut/vendor/imgui",
@@ -58,7 +66,26 @@ project "RenderMyCanvas"
       systemversion "latest"
       defines { "WL_PLATFORM_WINDOWS" }
       defines { "TORCH_USE_CUDA" }
-      
+
+   vpaths {
+      ["Shaders"] = { "shaders/**.rgen", "shaders/**.rchit", "shaders/**.rmiss", "shaders/**.rahit", "shaders/**.rint" },
+   }
+
+   -- 设置着色器文件的处理方式为“None”
+   filter { "files:**.rgen or files:**.rchit or files:**.rmiss or files:**.rahit or files:**.rint" }
+      buildaction "None"
+
+      -- 定义着色器编译的输出目录
+      shaderOutputDir = "%{cfg.targetdir}/shaders/compiled"
+
+      -- 为着色器文件添加自定义构建步骤
+      buildcommands {
+         "{MKDIR} \"" .. shaderOutputDir .. "\"",
+         "glslangValidator -V \"%{file.relpath}\" -o \"" .. shaderOutputDir .. "/%{file.basename}.spv\""
+      }
+      buildoutputs { shaderOutputDir .. "/%{file.basename}.spv" }
+      buildmessage "Compiling shader %{file.name}"
+
    filter "configurations:Debug"
       defines { "WL_DEBUG" }
       runtime "Debug"

@@ -16,7 +16,7 @@ namespace RMC {
         m_Registry.emplace<TransformComponent>(player, playerTransform);
 
         SphereComponent playerSphere;
-        playerSphere.Radius = 1.0f;
+        playerSphere.Radius = 2.0f;
         m_Registry.emplace<SphereComponent>(player, playerSphere);
 
         MaterialComponent playerMaterial;
@@ -26,20 +26,20 @@ namespace RMC {
         m_Registry.emplace<PlayerComponent>(player);
 
         // 创建一些小球实体
-        for (int i = 0; i < 10; ++i)
+        for (int i = 0; i < 20; ++i)
         {
             entt::entity ball = m_Registry.create();
 
             TransformComponent ballTransform;
             ballTransform.Position = glm::vec3(
-                RandomFloat(-15.0f, 15.0f),
-                RandomFloat(-15.0f, 15.0f),
-                RandomFloat(-15.0f, 15.0f)
+                RandomFloat(-10.0f, 10.0f),
+                RandomFloat(-10.0f, 10.0f),
+                RandomFloat(0.0f, 5.0f)
             );
             m_Registry.emplace<TransformComponent>(ball, ballTransform);
 
             SphereComponent ballSphere;
-            ballSphere.Radius = RandomFloat(0.5f, 1.0f);
+            ballSphere.Radius = 1.2f;
             m_Registry.emplace<SphereComponent>(ball, ballSphere);
 
             MaterialComponent ballMaterial;
@@ -48,6 +48,7 @@ namespace RMC {
                 RandomFloat(0.0f, 1.0f),
                 RandomFloat(0.0f, 1.0f)
             );
+			ballMaterial.EmissionPower = 0.0f;
             m_Registry.emplace<MaterialComponent>(ball, ballMaterial);
         }
 

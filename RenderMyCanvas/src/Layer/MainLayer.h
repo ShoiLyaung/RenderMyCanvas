@@ -31,7 +31,7 @@ namespace RMC
 
 		Renderer m_Renderer;
 		DrawBoard m_DrawBoard;
-		Renderer* m_CurrentRenderer = &m_DrawBoard;
+		Renderer* m_CurrentRenderer = &m_Renderer;
 		Scene m_Scene;
 		Camera m_Camera;
 

@@ -9,7 +9,7 @@
 #include "Camera/Ray.h"
 #include "Scene/Scene.h"
 #include "PostProcessing/PostProcessingPipeLine.h"
-#include "PostProcessing/DLSSProcess.h"
+//#include "PostProcessing/DLSSProcess.h"
 
 namespace RMC
 {

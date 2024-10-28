@@ -46,7 +46,7 @@ namespace RMC
 	{
 		m_ImageData = nullptr;
 		m_PpPipeline = std::make_unique<PostProcessingPipeLine>();
-		m_PpPipeline->addProcess(std::make_shared<DLSSProcess>());
+		//m_PpPipeline->addProcess(std::make_shared<DLSSProcess>());
 	}
 	void Renderer::OnResize(uint32_t width, uint32_t height)
 	{

@@ -20,6 +20,7 @@ namespace RMC
 		~Scene();
 		//std::vector<Primitive> Primitives;
 		std::vector<Sphere> Spheres;
+		int playerID=0;
 		std::vector<Material> Materials;
 		glm::vec3 GetSkyColor() const { return skyColor; }
 		Settings& GetSettings() { return m_Settings; }

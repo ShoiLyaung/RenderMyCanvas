@@ -53,7 +53,7 @@ namespace RMC
 
 		const Scene* m_ActiveScene = nullptr;
 		const Camera* m_ActiveCamera = nullptr;
-		uint32_t m_ImageScale = 2;
+		uint32_t m_ImageScale = 1;
 		uint32_t* m_ImageData = nullptr;
 		ImVec2 m_uv0 = { 0, 1 }, m_uv1 = { 1, 0 };
 		glm::vec4* m_AccumulationData = nullptr;

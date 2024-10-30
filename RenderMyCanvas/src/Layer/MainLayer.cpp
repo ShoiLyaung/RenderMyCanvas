@@ -21,6 +21,7 @@ namespace RMC
     void MainLayer::OnUpdate(float ts)
     {
 		m_Scene.OnUpdate(ts);
+		ballGame.OnUpdate(ts, m_Scene);
         if (m_Camera.OnUpdate(ts))
         {
 			m_Renderer.ResetFrameIndex();

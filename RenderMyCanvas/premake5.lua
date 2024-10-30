@@ -1,5 +1,6 @@
 CUDA_SDK_DIR = os.getenv("CUDA_PATH")
 LibTorchDir = os.getenv("LIBTORCH_DIR")
+LibCurlDir = os.getenv("LIBCURL_DIR")
 
 project "RenderMyCanvas"
    kind "ConsoleApp"
@@ -28,6 +29,8 @@ project "RenderMyCanvas"
       "%{LibTorchDir}/include/torch/csrc/api/include",
       
       "%{CUDA_SDK_DIR}/include" -- CUDA include path
+
+      "%{LibCurlDir}/include"
    }
 
    links
@@ -39,16 +42,17 @@ project "RenderMyCanvas"
    { 
       "%{LibTorchDir}/lib",
       "%{CUDA_SDK_DIR}/lib/x64" -- CUDA library path for 64-bit systems
+      "%{LibCurlDir}/lib"
    }
 
    links 
    {
       "cudart", -- CUDA runtime library
       "cublas", -- CUDA Basic Linear Algebra Subroutines (if needed)
-      "cudnn", -- CUDA Deep Neural Network library (if needed, optional)
       "c10",
       "torch_cpu",
-      "torch_cuda"
+      "torch_cuda",
+      "libcurl"
    }
 
    targetdir ("../bin/" .. outputdir .. "/%{prj.name}")

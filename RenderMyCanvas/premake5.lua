@@ -28,7 +28,7 @@ project "RenderMyCanvas"
       "%{LibTorchDir}/include",
       "%{LibTorchDir}/include/torch/csrc/api/include",
       
-      "%{CUDA_SDK_DIR}/include" -- CUDA include path
+      "%{CUDA_SDK_DIR}/include", -- CUDA include path
 
       "%{LibCurlDir}/include"
    }

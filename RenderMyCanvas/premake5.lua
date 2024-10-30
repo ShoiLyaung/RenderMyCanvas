@@ -1,5 +1,6 @@
 CUDA_SDK_DIR = os.getenv("CUDA_PATH")
 LibTorchDir = os.getenv("LIBTORCH_DIR")
+CppRestSdkDir = os.getenv("CPPRESTSDK_DIR")
 
 project "RenderMyCanvas"
    kind "ConsoleApp"
@@ -28,6 +29,8 @@ project "RenderMyCanvas"
       "%{LibTorchDir}/include/torch/csrc/api/include",
       
       "%{CUDA_SDK_DIR}/include" -- CUDA include path
+
+      "%{CppRestSdkDir}/include" -- CppRestSDK include path
    }
 
    links
@@ -39,6 +42,7 @@ project "RenderMyCanvas"
    { 
       "%{LibTorchDir}/lib",
       "%{CUDA_SDK_DIR}/lib/x64" -- CUDA library path for 64-bit systems
+      "%{CppRestSdkDir}/lib" -- CppRestSDK library path
    }
 
    links 
@@ -47,7 +51,10 @@ project "RenderMyCanvas"
       "cublas", -- CUDA Basic Linear Algebra Subroutines (if needed)
       "c10",
       "torch_cpu",
-      "torch_cuda"
+      "torch_cuda",
+      "cpprestsdk", 
+      "cpprestsdk_zlib_internal", 
+      "cpprestsdk_brotli_internal"
    }
 
    targetdir ("../bin/" .. outputdir .. "/%{prj.name}")

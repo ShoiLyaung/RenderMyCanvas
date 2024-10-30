@@ -8,6 +8,6 @@ namespace RMC {
     class SettingWindow
     {
     public:
-        static void Render(float& lastRenderTime, Renderer*& currentRenderer, DrawBoard& drawBoard, Renderer& renderer, Scene& scene, Camera& camera);
+        static void Render(float& lastRenderTime, Renderer*& currentRenderer, Renderer& renderer, Scene& scene, Camera& camera);
     };
 } // namespace RMC

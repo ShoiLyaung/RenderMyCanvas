@@ -41,7 +41,7 @@ project "RenderMyCanvas"
    libdirs 
    { 
       "%{LibTorchDir}/lib",
-      "%{CUDA_SDK_DIR}/lib/x64" -- CUDA library path for 64-bit systems
+      "%{CUDA_SDK_DIR}/lib/x64", -- CUDA library path for 64-bit systems
       "%{LibCurlDir}/lib"
    }
 

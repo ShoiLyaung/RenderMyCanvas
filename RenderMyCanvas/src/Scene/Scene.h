@@ -1,9 +1,11 @@
 #pragma once
 
 #include <vector>
+#include <memory>
 #include <glm/glm.hpp>
 //#include "entt.hpp"
 
+#include "Game/BallGame.h"
 #include "Primitives/Sphere.h"
 #include "Material/Material.h"
 
@@ -16,18 +18,15 @@ namespace RMC
 		{
 			bool night = false;
 		};
-		Scene() ;
+		Scene();
 		~Scene();
-		//std::vector<Primitive> Primitives;
-		std::vector<Sphere> Spheres;
-		std::vector<int> playerID = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+		std::vector<std::unique_ptr<Sphere>> Spheres;
 		std::vector<Material> Materials;
 		glm::vec3 GetSkyColor() const { return skyColor; }
 		Settings& GetSettings() { return m_Settings; }
 		bool IsNight() const { return m_Settings.night; }
-		//entt::entity CreateEntity();
 
-		bool OnUpdate(float ts);
+		bool OnUpdate(float ts, BallGame& ballGame);
 	protected:
 		glm::vec3 skyColor = glm::vec3(0.16f, 0.17f, 0.19f);
 		Settings m_Settings;

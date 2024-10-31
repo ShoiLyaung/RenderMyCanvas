@@ -1,24 +1,28 @@
 #pragma once
 
 #include <vector>
+#include <string>
 #include <glm/glm.hpp>
-#include "Scene/Scene.h"
-#include "Primitives/Sphere.h"
+
 #include "Material/Material.h"
+
+#include "Game/Player.h"
+#include "Game/Food.h"
 
 namespace RMC {
 
     class BallGame {
     public:
-        BallGame(Scene& scene);
-        void OnUpdate(float ts, Scene& scene);
+        BallGame();
+        void OnUpdate(float ts);
         void HandleInput();
-
+        std::vector<Player> Players;
+        std::vector<Food> Foods;
     private:
+        std::string m_playerID = "1001";
         glm::vec3 bigBallDirection; // 大球移动方向
-        float bigBallSpeed; // 大球速度
 
-        void CheckCollision(Scene& scene);
+        //void CheckCollision(Scene& scene);
     };
 
 } // namespace RMC

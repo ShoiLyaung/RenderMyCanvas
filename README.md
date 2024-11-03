@@ -1,6 +1,6 @@
 # RenderMyCanvas
 > A Computer Graphics Course Project
-
+vcpkg install curl[core,non-http,schannel,ssl,sspi,websockets]
 GUI uses a simple app template [Walnut](https://github.com/TheCherno/Walnut).
 
 ## Getting Started

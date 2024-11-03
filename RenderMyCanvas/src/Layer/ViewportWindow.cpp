@@ -1,5 +1,5 @@
 #include "ViewportWindow.h"
-
+#include "Network/Network.h"
 namespace RMC {
     void ViewportWindow::Render(uint32_t& viewportWidth, uint32_t& viewportHeight, glm::vec2& viewportOffset, Renderer* currentRenderer, float& lastRenderTime, Scene& scene, Camera& camera)
    {

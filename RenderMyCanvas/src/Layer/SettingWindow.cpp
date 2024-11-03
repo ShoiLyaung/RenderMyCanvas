@@ -1,5 +1,5 @@
 #include "SettingWindow.h"
-
+#include "Network/Network.h"
 namespace RMC {
     void SettingWindow::Render(float& lastRenderTime, Renderer*& currentRenderer, Renderer& renderer, Scene& scene, Camera& camera)
     {
@@ -8,6 +8,8 @@ namespace RMC {
         ImGui::Checkbox("Accumulate", &renderer.GetSettings().Accumulate);
         if (ImGui::Button("Reset"))
             renderer.ResetFrameIndex();
+        if(ImGui::Button("Network Test"))
+            Network network("123");
         ImGui::End();
     }
 } // namespace RMC

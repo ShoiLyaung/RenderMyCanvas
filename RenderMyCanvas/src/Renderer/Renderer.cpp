@@ -131,7 +131,7 @@ namespace RMC
 				break;
 			}
 
-			const Sphere& sphere = m_ActiveScene->Spheres[payload.ObjectIndex];
+			const Sphere& sphere = *m_ActiveScene->Spheres[payload.ObjectIndex];
 			const Material& material = m_ActiveScene->Materials[sphere.MaterialIndex];
 
 			contribution *= material.Albedo;
@@ -166,7 +166,7 @@ namespace RMC
 		float hitDistance = std::numeric_limits<float>::max();
 		for (size_t i = 0; i < m_ActiveScene->Spheres.size(); i++)
 		{
-			const Sphere& sphere = m_ActiveScene->Spheres[i];
+			const Sphere& sphere = *m_ActiveScene->Spheres[i];
 			glm::vec3 origin = ray.Origin - sphere.Position;
 			float a = glm::dot(ray.Direction, ray.Direction);
 			float b = 2.0f * glm::dot(origin, ray.Direction);
@@ -198,7 +198,7 @@ namespace RMC
 		payload.HitDistance = hitDistance;
 		payload.ObjectIndex = objectIndex;
 
-		const Sphere& closestSphere = m_ActiveScene->Spheres[objectIndex];
+		const Sphere& closestSphere = *m_ActiveScene->Spheres[objectIndex];
 
 		glm::vec3 origin = ray.Origin - closestSphere.Position;
 		payload.WorldPosition = origin + ray.Direction * hitDistance;

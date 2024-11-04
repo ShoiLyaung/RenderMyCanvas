@@ -20,7 +20,8 @@ namespace RMC
 
     void MainLayer::OnUpdate(float ts)
     {
-		m_Scene.OnUpdate(ts);
+        m_ballGame.OnUpdate(ts);
+		m_Scene.OnUpdate(ts, m_ballGame);
         if (m_Camera.OnUpdate(ts))
         {
 			m_Renderer.ResetFrameIndex();

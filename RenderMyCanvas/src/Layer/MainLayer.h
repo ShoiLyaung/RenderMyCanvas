@@ -7,6 +7,7 @@
 
 #include "SettingWindow.h"
 #include "ViewportWindow.h"
+#include "Game/BallGame.h"
 
 namespace RMC
 {
@@ -15,7 +16,9 @@ namespace RMC
 	public:
         MainLayer()
             : m_Camera(45.0f, 0.1f, 100.0f),
-                m_ViewportOffset(0.0f, 0.0f) {}
+			m_ViewportOffset(0.0f, 0.0f),
+			m_ballGame()
+		{}
 
 		virtual void OnUIRender() override;
 		virtual void OnUpdate(float ts) override;
@@ -28,6 +31,7 @@ namespace RMC
 		Renderer* m_CurrentRenderer = &m_Renderer;
 		Scene m_Scene;
 		Camera m_Camera;
+		BallGame m_ballGame;
 
 		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
 		float m_LastRenderTime = 0.0f;

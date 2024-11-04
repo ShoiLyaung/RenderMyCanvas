@@ -1,6 +1,5 @@
 CUDA_SDK_DIR = os.getenv("CUDA_PATH")
 LibTorchDir = os.getenv("LIBTORCH_DIR")
-CprDir = os.getenv("CPR_DIR")
 
 project "RenderMyCanvas"
    kind "ConsoleApp"
@@ -32,7 +31,6 @@ project "RenderMyCanvas"
       "%{LibTorchDir}/include/torch/csrc/api/include",
       
       "%{CUDA_SDK_DIR}/include", -- CUDA include path
-      "%{CprDir}/include"
 
    }
 
@@ -45,7 +43,6 @@ project "RenderMyCanvas"
    { 
       "%{LibTorchDir}/lib",
       "%{CUDA_SDK_DIR}/lib/x64", -- CUDA library path for 64-bit systems
-      "%{CprDir}/lib"
 
    }
 
@@ -55,8 +52,7 @@ project "RenderMyCanvas"
       "cublas", -- CUDA Basic Linear Algebra Subroutines (if needed)
       "c10",
       "torch_cpu",
-      "torch_cuda",
-      "cpr"
+      "torch_cuda"
    }
 
    defines { "_WEBSOCKETPP_CPP11_STL_", "ASIO_STANDALONE" }

@@ -1,8 +1,7 @@
 #include "Network.h"
 
-RMC::Network::Network(BallGame* game)
+RMC::Network::Network()
 {
-	m_game = game;
 	std::cout << "Network testing" << std::endl;
 	ws_client.init_asio();
 
@@ -60,7 +59,6 @@ void RMC::Network::recv_message(const std::string& message)
 	if (!game_started)
 	{
 		start_game(message);
-		game_started = true;
 	}
 	else
 	{
@@ -71,49 +69,18 @@ void RMC::Network::recv_message(const std::string& message)
 void RMC::Network::start_game(const std::string& message)
 {
 	nlohmann::json jsonObj = nlohmann::json::parse(message);
-
-	m_game->m_playerID = jsonObj["id"];
+	if (jsonObj.contains("id"))
+	{
+		std::cout << "Player ID: " << jsonObj["id"] << std::endl;
+		game_started = true;
+	}
+	m_playerID = jsonObj["id"];
 }
 
 void RMC::Network::recv_data(const std::string& message)
 {
 	// 解析 JSON 数据
-	nlohmann::json jsonObj = nlohmann::json::parse(message);
-
-	// 访问并遍历 "players" 列表
-	if (jsonObj.contains("data") && jsonObj["data"].contains("players") && jsonObj["data"]["players"].is_array()) {
-		std::cout << "Players:" << std::endl;
-		for (const auto& player : jsonObj["data"]["players"]) {
-			std::string id = player["id"];
-			int weight = player["weight"];
-			bool alive = player["alive"];
-			auto pos = player["pos"];
-
-			if (id == m_game->m_playerID)
-				continue;
-			// 输出玩家信息
-			m_game->UpdateOtherPlayer(id, pos[0], pos[1], pos[2]);
-		}
-	}
-	else {
-		std::cout << "No players found in JSON data." << std::endl;
-	}
-
-	// 访问并遍历 "foods" 列表
-	if (jsonObj.contains("data") && jsonObj["data"].contains("foods") && jsonObj["data"]["foods"].is_array()) {
-		std::cout << "Foods:" << std::endl;
-		for (const auto& food : jsonObj["data"]["foods"]) {
-			int id = food["id"];
-			auto pos = food["pos"];
-
-			// 输出食物信息
-			std::cout << "  Food ID: " << id << std::endl;
-			std::cout << "    Position: [" << pos[0] << ", " << pos[1] << ", " << pos[2] << "]" << std::endl;
-		}
-	}
-	else {
-		std::cout << "No foods found in JSON data." << std::endl;
-	}
+	m_jsonObj = nlohmann::json::parse(message);
 
 }
 

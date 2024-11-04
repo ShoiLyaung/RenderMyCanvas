@@ -5,25 +5,30 @@ namespace RMC {
 
 	BallGame::BallGame() : bigBallDirection(0.0f)
 	{
-		// 初始化大球和小球
-		Player player;
-		player.MaterialIndex = 0;
-		player.Position = glm::vec3(0.0f, 0.0f, 0.0f);
-		player.Radius = 1.0f;
-		Players.push_back(player);
+		//// 初始化大球和小球
+		//Player player;
+		//player.MaterialIndex = 0;
+		//player.Position = glm::vec3(0.0f, 0.0f, 0.0f);
+		//player.Radius = 1.0f;
+		//Players.push_back(player);
 
-
-		// 生成一些小球
-		for (int i = 0; i < 100; ++i) {
-			Food smallBall;
-			smallBall.MaterialIndex = 2;
-			smallBall.Radius = 0.2f; // 小球半径
-			smallBall.Position = glm::vec3(rand() % 100 - 50, 0.0f, rand() % 100 - 50); // 随机位置
-			Foods.push_back(smallBall);
-		}
+		//// 生成一些小球
+		//for (int i = 0; i < 100; ++i) {
+		//	Food smallBall;
+		//	smallBall.MaterialIndex = 2;
+		//	smallBall.Radius = 0.2f; // 小球半径
+		//	smallBall.Position = glm::vec3(rand() % 100 - 50, 0.0f, rand() % 100 - 50); // 随机位置
+		//	Foods.push_back(smallBall);
+		//}
 	}
 
 	void BallGame::OnUpdate(float ts) {
+		while (!m_network.game_started)
+		{
+
+		}
+		m_playerID = m_network.m_playerID;
+
 		HandleInput();
 		//CheckCollision(scene);
 
@@ -32,8 +37,42 @@ namespace RMC {
 			if (player.GetPlayerID() == m_playerID)
 			{
 				player.Position += bigBallDirection * player.GetSpeed() * ts;
-				m_network->send_data(0, m_playerID, player.Position[0]*1000, player.Position[1] * 1000, player.Position[2] * 1000);
+				m_network.send_data(0, m_playerID, player.Position[0]*1000, player.Position[1] * 1000, player.Position[2] * 1000);
 			}
+		}
+
+		// 访问并遍历 "players" 列表
+		if (m_network.m_jsonObj.contains("data") && m_network.m_jsonObj["data"].contains("players") && m_network.m_jsonObj["data"]["players"].is_array()) {
+			std::cout << "Players:" << std::endl;
+			for (const auto& player : m_network.m_jsonObj["data"]["players"]) {
+				std::string id = player["id"];
+				int weight = player["weight"];
+				bool alive = player["alive"];
+				auto pos = player["pos"];
+
+				if (id == m_playerID)
+					continue;
+				// 输出玩家信息
+				UpdateOtherPlayer(id, pos[0], pos[1], pos[2],weight);
+			}
+		}
+		else {
+			std::cout << "No players found in JSON data." << std::endl;
+		}
+
+		// 访问并遍历 "foods" 列表
+		if (m_network.m_jsonObj.contains("data") && m_network.m_jsonObj["data"].contains("foods") && m_network.m_jsonObj["data"]["foods"].is_array()) {
+			std::cout << "Foods:" << std::endl;
+			for (const auto& food : m_network.m_jsonObj["data"]["foods"]) {
+				std::string id = food["id"];
+				auto pos = food["pos"];
+
+				// 输出食物信息
+				UpdateFood(id, pos[0], pos[1], pos[2]);
+			}
+		}
+		else {
+			std::cout << "No foods found in JSON data." << std::endl;
 		}
 	}
 
@@ -71,6 +110,22 @@ namespace RMC {
 		new_player.playerID = player_id;
 		new_player.Position = glm::vec3(x, y, z);
 		Players.push_back(new_player);
+	}
+
+	void BallGame::UpdateFood(std::string food_id, uint32_t x, uint32_t y, uint32_t z)
+	{
+		for (auto& food : Foods)
+		{
+			if (food.foodID == food_id)
+			{
+				food.Position = glm::vec3(x / 1000.0, y / 1000.0, z / 1000.0);
+				return;
+			}
+		}
+		Food new_food;
+		new_food.foodID = food_id;
+		new_food.Position = glm::vec3(x / 1000.0, y / 1000.0, z / 1000.0);
+		Foods.push_back(new_food);
 	}
 
 	//void BallGame::CheckCollision(Scene& scene) {

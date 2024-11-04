@@ -8,6 +8,6 @@ namespace RMC {
 	public:
 		Food() {}
 		~Food() = default;
-
+		std::string id;
     };
 }

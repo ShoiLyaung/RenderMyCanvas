@@ -12,6 +12,7 @@ namespace RMC {
 
         float speed = 5.0f;     // 速度
         std::string playerID = "1001"; // 玩家ID
+        bool alive = true;
 
         // 访问者函数
         float GetSpeed() const { return speed; }

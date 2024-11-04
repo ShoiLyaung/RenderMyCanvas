@@ -30,7 +30,10 @@ namespace RMC {
 		// 更新玩家位置
 		for (auto& player : Players) {
 			if (player.GetPlayerID() == m_playerID)
+			{
 				player.Position += bigBallDirection * player.GetSpeed() * ts;
+				m_network->send_data(0, m_playerID, player.Position[0]*1000, player.Position[1] * 1000, player.Position[2] * 1000);
+			}
 		}
 	}
 
@@ -51,6 +54,23 @@ namespace RMC {
 		if (glm::length(bigBallDirection) > 0.0f) {
 			bigBallDirection = glm::normalize(bigBallDirection);
 		}
+	}
+
+	void BallGame::UpdateOtherPlayer(std::string player_id, uint32_t x, uint32_t y, uint32_t z, uint32_t weight)
+	{
+		for (auto& player : Players)
+		{
+			if (player.playerID == player_id)
+			{
+				player.Position = glm::vec3(x / 1000.0, y / 1000.0, z / 1000.0);
+				player.Radius = weight;
+				return;
+			}
+		}
+		Player new_player;
+		new_player.playerID = player_id;
+		new_player.Position = glm::vec3(x, y, z);
+		Players.push_back(new_player);
 	}
 
 	//void BallGame::CheckCollision(Scene& scene) {

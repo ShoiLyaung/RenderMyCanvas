@@ -8,11 +8,6 @@ namespace RMC {
         ImGui::Checkbox("Accumulate", &renderer.GetSettings().Accumulate);
         if (ImGui::Button("Reset"))
             renderer.ResetFrameIndex();
-        if(ImGui::Button("Network Test"))
-        {
-            std::cout << "Network£º";
-            RMC::Network N;
-        }
         ImGui::End();
     }
 } // namespace RMC

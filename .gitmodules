@@ -1,3 +1,9 @@
 [submodule "Walnut"]
 	path = Walnut
 	url = https://github.com/StudioCherno/Walnut
+[submodule "RenderMyCanvas/lib/websocketpp"]
+	path = RenderMyCanvas/lib/websocketpp
+	url = https://github.com/zaphoyd/websocketpp.git
+[submodule "RenderMyCanvas/lib/axio"]
+	path = RenderMyCanvas/lib/axio
+	url = https://github.com/chriskohlhoff/asio.git

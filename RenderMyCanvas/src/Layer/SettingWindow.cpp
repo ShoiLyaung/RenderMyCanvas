@@ -9,7 +9,10 @@ namespace RMC {
         if (ImGui::Button("Reset"))
             renderer.ResetFrameIndex();
         if(ImGui::Button("Network Test"))
-            Network network("123");
+        {
+            std::cout << "Network£º";
+            RMC::Network N;
+        }
         ImGui::End();
     }
 } // namespace RMC

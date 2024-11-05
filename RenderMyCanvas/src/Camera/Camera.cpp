@@ -16,7 +16,7 @@ namespace RMC {
 		m_Position = glm::vec3(0, 0, 6);
 	}
 
-	bool Camera::OnUpdate(float ts)
+	bool Camera::OnUpdate(float ts, glm::vec3 position)
 	{
 		glm::vec2 mousePos = Input::GetMousePosition();
 		glm::vec2 delta = (mousePos - m_LastMousePosition) * 0.002f;
@@ -38,34 +38,9 @@ namespace RMC {
 		float speed = 5.0f;
 
 		// Movement
-		if (Input::IsKeyDown(KeyCode::W))
+		if (m_Position != position)
 		{
-			m_Position += m_ForwardDirection * speed * ts;
-			moved = true;
-		}
-		else if (Input::IsKeyDown(KeyCode::S))
-		{
-			m_Position -= m_ForwardDirection * speed * ts;
-			moved = true;
-		}
-		if (Input::IsKeyDown(KeyCode::A))
-		{
-			m_Position -= rightDirection * speed * ts;
-			moved = true;
-		}
-		else if (Input::IsKeyDown(KeyCode::D))
-		{
-			m_Position += rightDirection * speed * ts;
-			moved = true;
-		}
-		if (Input::IsKeyDown(KeyCode::Q))
-		{
-			m_Position -= upDirection * speed * ts;
-			moved = true;
-		}
-		else if (Input::IsKeyDown(KeyCode::E))
-		{
-			m_Position += upDirection * speed * ts;
+			m_Position = position - (m_ForwardDirection * 10.0f);
 			moved = true;
 		}
 

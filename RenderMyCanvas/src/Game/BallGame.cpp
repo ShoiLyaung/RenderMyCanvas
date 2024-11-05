@@ -8,7 +8,7 @@ namespace RMC {
 		m_ForwardDirection = glm::vec3(0.0f, 0.0f, -1.0f);
 		// 初始化大球和小球
 		Player player;
-		player.MaterialIndex = 7;
+		player.MaterialIndex = 0;
 		player.Position = glm::vec3(0.0f, 0.0f, 0.0f);
 		player.Radius = 1.0f;
 		Players.push_back(player);
@@ -28,6 +28,7 @@ namespace RMC {
 		if (!m_network.game_started)
 			return;
 		m_playerID = m_network.m_playerID;
+		Players[0].playerID = m_playerID;
 
 		HandleInput();
 		//CheckCollision(scene);
@@ -64,7 +65,7 @@ namespace RMC {
 		else {
 			//std::cout << "No players found in JSON data." << std::endl;
 		}
-		std::cout << "Food LEN:" << Foods.size() << std::endl;
+		//std::cout << "Food LEN:" << Foods.size() << std::endl;
 
 		// 访问并遍历 "foods" 列表
 		if (m_network.m_jsonObj.contains("data") && m_network.m_jsonObj["data"].contains("foods") && m_network.m_jsonObj["data"]["foods"].is_array()) {

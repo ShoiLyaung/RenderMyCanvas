@@ -38,11 +38,8 @@ namespace RMC {
 		float speed = 5.0f;
 
 		// Movement
-		if (m_Position != position)
-		{
-			m_Position = position - (m_ForwardDirection * 10.0f);
-			moved = true;
-		}
+		m_Position = position - (m_ForwardDirection * 10.0f) + upDirection;
+		moved = true;
 
 		// Rotation
 		if (delta.x != 0.0f || delta.y != 0.0f)

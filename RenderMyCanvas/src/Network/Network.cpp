@@ -43,7 +43,8 @@ RMC::Network::Network()
 			auto start = std::chrono::high_resolution_clock::now();
 
 			// 执行要计时的函数
-			send_message(message_to_send);
+			if (message_to_send.length()>0)
+				send_message(message_to_send);
 
 
 

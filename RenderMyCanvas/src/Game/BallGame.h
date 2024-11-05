@@ -27,7 +27,7 @@ namespace RMC {
         std::vector<Food> Foods;
         std::string m_playerID = "1001";
     private:
-        glm::vec3 m_ForwardDirection{ 0.0f, 0.0f, 0.0f };
+        glm::vec3 m_ForwardDirection{ 0.0f, 0.0f, -1.0f };
         glm::vec2 m_LastMousePosition{ 0.0f, 0.0f };
         glm::vec3 bigBallDirection; // 大球移动方向
         Network m_network;

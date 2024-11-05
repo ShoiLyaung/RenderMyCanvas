@@ -5,6 +5,7 @@ namespace RMC {
 
 	BallGame::BallGame() : bigBallDirection(0.0f)
 	{
+		m_ForwardDirection = glm::vec3(0.0f, 0.0f, -1.0f);
 		// 初始化大球和小球
 		Player player;
 		player.MaterialIndex = 7;
@@ -80,6 +81,7 @@ namespace RMC {
 		bigBallDirection = glm::vec3(0.0f);
 		glm::vec2 mousePos = Walnut::Input::GetMousePosition();
 		glm::vec2 delta = (mousePos - m_LastMousePosition) * 0.002f;
+		m_LastMousePosition = mousePos;
 
 		if (!Walnut::Input::IsMouseButtonDown(Walnut::MouseButton::Left))
 		{

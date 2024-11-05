@@ -41,6 +41,7 @@ namespace RMC {
 			}
 		}
 
+		m_network.jsonObj_lock = true;
 		// 访问并遍历 "players" 列表
 		if (m_network.m_jsonObj.contains("data") && m_network.m_jsonObj["data"].contains("players") && m_network.m_jsonObj["data"]["players"].is_array()) {
 			std::cout << "Players:" << std::endl;
@@ -51,7 +52,11 @@ namespace RMC {
 				auto pos = player["pos"];
 
 				if (id == m_playerID)
+				{
+					Players[0].Radius = weight / 1000.0;
 					continue;
+				}
+					
 				// 输出玩家信息
 				UpdateOtherPlayer(id, pos[0], pos[1], pos[2],weight);
 			}
@@ -64,6 +69,7 @@ namespace RMC {
 		// 访问并遍历 "foods" 列表
 		if (m_network.m_jsonObj.contains("data") && m_network.m_jsonObj["data"].contains("foods") && m_network.m_jsonObj["data"]["foods"].is_array()) {
 			std::cout << "Foods:" << std::endl;
+			Foods.clear();
 			for (const auto& food : m_network.m_jsonObj["data"]["foods"]) {
 				std::string id = food["id"];
 				auto pos = food["pos"];
@@ -75,6 +81,7 @@ namespace RMC {
 		else {
 			//std::cout << "No foods found in JSON data." << std::endl;
 		}
+		m_network.jsonObj_lock = false;
 	}
 
 	void BallGame::HandleInput() {
@@ -116,14 +123,6 @@ namespace RMC {
 
 	void BallGame::UpdateFood(std::string food_id, uint32_t x, uint32_t y, uint32_t z)
 	{
-		for (auto& food : Foods)
-		{
-			if (food.foodID == food_id)
-			{
-				food.Position = glm::vec3(x / 1000.0, y / 1000.0, z / 1000.0);
-				return;
-			}
-		}
 		Food new_food;
 		new_food.foodID = food_id;
 		new_food.Position = glm::vec3(x / 1000.0, y / 1000.0, z / 1000.0);

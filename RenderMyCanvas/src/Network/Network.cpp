@@ -113,8 +113,8 @@ void RMC::Network::start_game(const std::string& message)
 void RMC::Network::recv_data(const std::string& message)
 {
 	// ½âÎö JSON Êý¾Ý
-	m_jsonObj = nlohmann::json::parse(message);
-
+	if (!jsonObj_lock)
+		m_jsonObj = nlohmann::json::parse(message);
 }
 
 void RMC::Network::send_data(int frame_idx, std::string player_id, uint32_t x, uint32_t y, uint32_t z)

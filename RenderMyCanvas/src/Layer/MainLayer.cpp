@@ -22,7 +22,8 @@ namespace RMC
     {
         m_ballGame.OnUpdate(ts);
 		m_Scene.OnUpdate(ts, m_ballGame);
-        if (m_Camera.OnUpdate(ts))
+		glm::vec3 position = m_ballGame.Players[0].Position;
+        if (m_Camera.OnUpdate(ts,position))
         {
 			m_Renderer.ResetFrameIndex();
         }

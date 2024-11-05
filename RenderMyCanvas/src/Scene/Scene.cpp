@@ -4,11 +4,6 @@ namespace RMC {
 	Scene::Scene()
 	{
 		std::vector<glm::vec3> predefinedColors = {
-	{0.9f, 0.6f, 0.7f},
-	{0.4f, 0.6f, 0.9f},
-	{0.6f, 0.9f, 0.7f},
-	{0.9f, 0.9f, 0.5f},
-	{0.8f, 0.5f, 0.4f},
 	{0.5f, 0.8f, 0.9f},
 	{0.7f, 0.8f, 0.4f},
 	{0.9f, 0.7f, 0.4f},
@@ -34,26 +29,34 @@ namespace RMC {
 
 		for (int i = 0; i < 3; i++) {
 			Material& randomMaterial = Materials.emplace_back();
-			randomMaterial.Albedo = predefinedColors[rand() % predefinedColors.size()];
-			randomMaterial.Roughness = static_cast<float>(rand()) / RAND_MAX * 1.0f;
+			randomMaterial.Albedo = predefinedColors[(rand()+1) % predefinedColors.size()];
+			randomMaterial.Roughness = 0.1f;
 			randomMaterial.Metallic = 0.0f;
-			randomMaterial.EmissionColor = randomMaterial.Albedo * 0.5f;
-			randomMaterial.EmissionPower = 5.0f;
+			randomMaterial.EmissionColor = randomMaterial.Albedo;
+			randomMaterial.EmissionPower = 2.0f;
+		}
+
+		for (int i = 0; i < 3; i++) {
+			Material& metalMaterial = Materials.emplace_back();
+			metalMaterial.Albedo = predefinedColors[rand() % predefinedColors.size()];
+			metalMaterial.Roughness = static_cast<float>(rand()) / RAND_MAX * 0.2f;
+			metalMaterial.Metallic = static_cast<float>(rand()) / RAND_MAX * 0.2f + 0.8f;
 		}
 
 		for (int i = 0; i < 3; i++) {
 			Material& randomMaterial = Materials.emplace_back();
 			randomMaterial.Albedo = predefinedColors[rand() % predefinedColors.size()];
-			randomMaterial.Roughness = static_cast<float>(rand()) / RAND_MAX * 0.2f;
-			randomMaterial.Metallic = static_cast<float>(rand()) / RAND_MAX * 0.2f + 0.8f;
-		}
-
-		for (int i = 0; i < 4; i++) {
-			Material& randomMaterial = Materials.emplace_back();
-			randomMaterial.Albedo = predefinedColors[rand() % predefinedColors.size()];
-			randomMaterial.Roughness = static_cast<float>(rand()) / RAND_MAX * 1.0f;
+			randomMaterial.Roughness = 0.8f;
 			randomMaterial.Metallic = 0.0f;
 		}
+
+		Material& glowingMaterial = Materials.emplace_back();
+		glowingMaterial.Albedo = { 0.8f, 0.5f, 0.2f };
+		glowingMaterial.Roughness = 0.2f;
+		glowingMaterial.EmissionColor = glowingMaterial.Albedo;
+		glowingMaterial.EmissionPower = 2.0f;
+		glowingMaterial.Metallic = 0.0f;
+
 	}
 
 	Scene::~Scene()

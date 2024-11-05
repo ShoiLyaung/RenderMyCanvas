@@ -44,6 +44,9 @@ namespace RMC {
 
 		m_network.jsonObj_lock = true;
 		// 访问并遍历 "players" 列表
+		Player p = Players[0];
+		Players.clear();
+		Players.push_back(p);
 		if (m_network.m_jsonObj.contains("data") && m_network.m_jsonObj["data"].contains("players") && m_network.m_jsonObj["data"]["players"].is_array()) {
 			std::cout << "Players:" << std::endl;
 			for (const auto& player : m_network.m_jsonObj["data"]["players"]) {
@@ -143,19 +146,10 @@ namespace RMC {
 
 	void BallGame::UpdateOtherPlayer(std::string player_id, uint32_t x, uint32_t y, uint32_t z, uint32_t weight)
 	{
-		for (auto& player : Players)
-		{
-			if (player.playerID == player_id)
-			{
-				player.Position = glm::vec3(x / 1000.0, y / 1000.0, z / 1000.0);
-				player.Radius = weight/1000.0;
-				return;
-			}
-		}
 		Player new_player;
 		new_player.playerID = player_id;
 		new_player.Position = glm::vec3(x / 1000.0, y / 1000.0, z / 1000.0);
-		new_player.Radius = weight;
+		new_player.Radius = weight / 1000.0;
 		new_player.MaterialIndex = 7;
 		Players.push_back(new_player);
 	}

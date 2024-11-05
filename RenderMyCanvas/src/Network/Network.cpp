@@ -114,8 +114,30 @@ void RMC::Network::start_game(const std::string& message)
 void RMC::Network::recv_data(const std::string& message)
 {
 	// ½âÎö JSON Êý¾Ý
+	nlohmann::json m_jsonObj;
 	if (!jsonObj_lock)
 		m_jsonObj = nlohmann::json::parse(message);
+
+	if (m_jsonObj.contains("data") && m_jsonObj["data"].contains("players") && m_jsonObj["data"]["players"].is_array()) {
+		for (const auto& player : m_jsonObj["data"]["players"]) {
+			PlayerData p;
+			p.id = player["id"];
+			p.alive = player["alive"];
+			p.weight = float(player["weight"]) / 1000.0f;
+			p.pos = glm::vec3((float)player["pos"][0] / 1000.0f, (float)player["pos"][1] / 1000.0f, (float)player["pos"][2] / 1000.0f);
+
+			players.push_back(p);
+		}
+	}
+	if (m_jsonObj.contains("data") && m_jsonObj["data"].contains("foods") && m_jsonObj["data"]["foods"].is_array()) {
+		for (const auto& food : m_jsonObj["data"]["foods"]) {
+			FoodData f;
+			f.id = food["id"];
+			f.pos = glm::vec3((float)food["pos"][0] / 1000.0f, (float)food["pos"][1] / 1000.0f, (float)food["pos"][2] / 1000.0f);
+
+			foods.push_back(f);
+		}
+	}
 }
 
 void RMC::Network::send_data(int frame_idx, std::string player_id, uint32_t x, uint32_t y, uint32_t z)

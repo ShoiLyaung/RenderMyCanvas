@@ -3,6 +3,7 @@
 #include <iostream>
 #include <websocketpp/config/asio_no_tls_client.hpp>
 #include <websocketpp/client.hpp>
+#include <glm/glm.hpp>
 
 typedef websocketpp::client<websocketpp::config::asio_client> client;
 
@@ -22,8 +23,24 @@ namespace RMC
 		websocketpp::connection_hdl connection_hdl; // ´æ´¢Á¬½Ó¾ä±ú
 		bool game_started = false;
 		std::string m_playerID;
-		nlohmann::json m_jsonObj;
 		bool jsonObj_lock = false;
 		std::string message_to_send;
+
+		struct PlayerData
+		{
+			std::string id;
+			float weight;
+			bool alive;
+			glm::vec3 pos;
+		};
+		struct FoodData
+		{
+			std::string id;
+			glm::vec3 pos;
+		};
+
+		std::vector<PlayerData> players;
+		std::vector<FoodData> foods;
+
 	};
 }

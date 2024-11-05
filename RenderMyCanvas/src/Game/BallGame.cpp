@@ -47,41 +47,20 @@ namespace RMC {
 		Player p = Players[0];
 		Players.clear();
 		Players.push_back(p);
-		if (m_network.m_jsonObj.contains("data") && m_network.m_jsonObj["data"].contains("players") && m_network.m_jsonObj["data"]["players"].is_array()) {
-			for (const auto& player : m_network.m_jsonObj["data"]["players"]) {
-				std::string id = player["id"];
-				int weight = player["weight"];
-				bool alive = player["alive"];
-				auto pos = player["pos"];
-
-				if (id == m_playerID)
-				{
-					Players[0].Radius = weight / 1000.0f;
-					continue;
-				}
-					
-				//UpdateOtherPlayer(id, pos[0], pos[1], pos[2],weight);
-				Player new_player;
-				new_player.playerID = id;
-				new_player.Position = glm::vec3((float)pos[0] / 1000.0f, (float)pos[1] / 1000.0f, (float)pos[2] / 1000.0f);
-				new_player.Radius = (float)weight / 1000.0f;
-				new_player.MaterialIndex = 7;
-				Players.push_back(new_player);
+		for (const auto& player : m_network.players)
+		{
+			if (player.id == m_playerID)
+			{
+				Players[0].Radius = player.weight;
+				continue;
 			}
+			UpdateOtherPlayer(player.id, player.pos, player.weight);
 		}
-		//std::cout << "Food LEN:" << Foods.size() << std::endl;
 
-		// 访问并遍历 "foods" 列表
-		if (m_network.m_jsonObj.contains("data") && m_network.m_jsonObj["data"].contains("foods") && m_network.m_jsonObj["data"]["foods"].is_array()) {
-			//std::cout << "Foods:" << std::endl;
-			Foods.clear();
-			for (const auto& food : m_network.m_jsonObj["data"]["foods"]) {
-				std::string id = food["id"];
-				auto pos = food["pos"];
-
-				// 输出食物信息
-				UpdateFood(id, pos[0], pos[1], pos[2]);	
-			}
+		Foods.clear();
+		for (const auto& food : m_network.foods)
+		{
+			UpdateFood(food.id, food.pos);
 		}
 		m_network.jsonObj_lock = false;
 	}
@@ -142,21 +121,21 @@ namespace RMC {
 		}
 	}
 
-	void BallGame::UpdateOtherPlayer(std::string player_id, uint32_t x, uint32_t y, uint32_t z, uint32_t weight)
+	void BallGame::UpdateOtherPlayer(std::string player_id, glm::vec3 position, float weight)
 	{
 		Player new_player;
 		new_player.playerID = player_id;
-		new_player.Position = glm::vec3(x / 1000.0f, y / 1000.0f, z / 1000.0f);
-		new_player.Radius = 1.0f;
+		new_player.Position = position;
+		new_player.Radius = weight;
 		new_player.MaterialIndex = 7;
 		Players.push_back(new_player);
 	}
 
-	void BallGame::UpdateFood(std::string food_id, uint32_t x, uint32_t y, uint32_t z)
+	void BallGame::UpdateFood(std::string food_id, glm::vec3 position)
 	{
 		Food new_food;
 		new_food.foodID = food_id;
-		new_food.Position = glm::vec3(x / 1000.0f, y / 1000.0f, z / 1000.0f);
+		new_food.Position = position;
 		new_food.Radius = 0.2f;
 		new_food.MaterialIndex = 2;
 		Foods.push_back(new_food);

@@ -21,8 +21,8 @@ namespace RMC {
         BallGame();
         void OnUpdate(float ts);
         void HandleInput();
-        void UpdateOtherPlayer(std::string player_id, uint32_t x, uint32_t y, uint32_t z, uint32_t weight);
-		void UpdateFood(std::string food_id, uint32_t x, uint32_t y, uint32_t z);
+        void UpdateOtherPlayer(std::string player_id, glm::vec3 position, float weight);
+		void UpdateFood(std::string food_id, glm::vec3 position);
         std::vector<Player> Players;
         std::vector<Food> Foods;
         std::string m_playerID = "1001";

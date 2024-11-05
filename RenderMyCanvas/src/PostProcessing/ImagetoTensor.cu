@@ -1,62 +1,6 @@
-#include"ImagetoTensor.cuh"
+ï»¿#include"ImagetoTensor.cuh"
 #include <glm/glm.hpp>
 #include<iostream>
- 
-// CUDA ºËº¯Êı£¬ÓÃÓÚÖ´ĞĞ×î½üÁÚ²åÖµ
-__global__ void NearestNeighborKernel(const uint32_t* d_img_data, int old_width, int old_height, uint32_t* d_scaled_img_data, int new_width, int new_height)
-{
-    // »ñÈ¡Ïß³ÌµÄÈ«¾ÖË÷Òı
-    int new_x = blockIdx.x * blockDim.x + threadIdx.x;
-    int new_y = blockIdx.y * blockDim.y + threadIdx.y;
-
-    // È·±£Ïß³ÌË÷ÒıÔÚĞÂÍ¼ÏñµÄ·¶Î§ÄÚ
-    if (new_x < new_width && new_y < new_height)
-    {
-        // ¼ÆËãÔ­Í¼ÏñÖĞµÄ×ø±ê
-        int orig_x = new_x / 2;
-        int orig_y = new_y / 2;
-        int orig_index = orig_y * old_width + orig_x;
-
-        // ¼ÆËãĞÂÍ¼ÏñÖĞµÄË÷Òı
-        int new_index = new_y * new_width + new_x;
-
-        // ½«Ô­Í¼ÏñµÄÏñËØÖµ¸´ÖÆµ½ĞÂÍ¼ÏñÖĞ
-        d_scaled_img_data[new_index] = d_img_data[orig_index];
-    }
-}
-
-
-// µ÷ÓÃ CUDA ºËº¯ÊıµÄÖ÷º¯Êı
-void NearestNeighborScaleCUDA(uint32_t* img_data, int old_width, int old_height, uint32_t* scaled_img_data)
-{
-    uint32_t* d_img_data, *d_scaled_img_data;
-
-    // ÔÚÉè±¸ÉÏ·ÖÅäÄÚ´æ
-    cudaMalloc(&d_img_data, old_width * old_height * sizeof(uint32_t));
-    cudaMalloc(&d_scaled_img_data, old_width * 2 * old_height * 2 * sizeof(uint32_t));
-
-    // ½«Êı¾İ´ÓÖ÷»ú¸´ÖÆµ½Éè±¸
-    cudaMemcpy(d_img_data, img_data, old_width * old_height * sizeof(uint32_t), cudaMemcpyHostToDevice);
-
-
-    int new_width = old_width * 2;
-    int new_height = old_height * 2;
-
-    // ¶¨Òå CUDA Ïß³Ì¿éºÍÍø¸ñµÄ´óĞ¡
-    dim3 blockSize(16, 16); // Ã¿¸öÏß³Ì¿é 16x16 ¸öÏß³Ì
-    dim3 gridSize((new_width + blockSize.x - 1) / blockSize.x, (new_height + blockSize.y - 1) / blockSize.y);
-
-    // µ÷ÓÃ CUDA ºËº¯Êı
-    NearestNeighborKernel << <gridSize, blockSize >> > (d_img_data, old_width, old_height, d_scaled_img_data, new_width, new_height);
-
-    // ½«½á¹û´ÓÉè±¸¸´ÖÆ»ØÖ÷»ú
-    cudaMemcpy(scaled_img_data, d_scaled_img_data, new_width * new_height * sizeof(uint32_t), cudaMemcpyDeviceToHost);
-
-    cudaDeviceSynchronize();
-    // ÊÍ·ÅÉè±¸ÉÏµÄÄÚ´æ
-    cudaFree(d_img_data);
-    cudaFree(d_scaled_img_data);
-}
 
 
 void ImageToTensor(const uint32_t* img_data, float* tensor_data, int width, int height) 
@@ -67,22 +11,22 @@ void ImageToTensor(const uint32_t* img_data, float* tensor_data, int width, int 
     cudaMemcpy(d_img_data, img_data, width * height * sizeof(uint32_t), cudaMemcpyHostToDevice);
 
 
-    // Éè¶¨CUDAÍø¸ñºÍÏß³Ì¿é´óĞ¡
+    // è®¾å®šCUDAç½‘æ ¼å’Œçº¿ç¨‹å—å¤§å°
     dim3 block_size(16, 16);
     dim3 grid_size((width*2 + block_size.x - 1) / block_size.x, (height*2 + block_size.y - 1) / block_size.y);
 
-    // Æô¶¯ CUDA ºËº¯Êı
+    // å¯åŠ¨ CUDA æ ¸å‡½æ•°
     ImageToTensorKernel << <grid_size, block_size >> > (d_img_data, tensor_data, width, height);
 
-    // µÈ´ıCUDAÍê³É
+    // ç­‰å¾…CUDAå®Œæˆ
     cudaDeviceSynchronize();
 
-    // ÊÍ·Å·ÖÅäµÄÄÚ´æ
+    // é‡Šæ”¾åˆ†é…çš„å†…å­˜
     cudaFree(d_img_data);
 
 }
 
-// CUDA ºËº¯Êı£¬ÓÃÀ´´¦ÀíÍ¼ÏñÊı¾İ
+// CUDA æ ¸å‡½æ•°ï¼Œç”¨æ¥å¤„ç†å›¾åƒæ•°æ®
 __global__ void ImageToTensorKernel(const uint32_t* img_data, float* tensor_data, int width, int height) {
     int h = blockIdx.y * blockDim.y + threadIdx.y;
     int w = blockIdx.x * blockDim.x + threadIdx.x;
@@ -91,66 +35,67 @@ __global__ void ImageToTensorKernel(const uint32_t* img_data, float* tensor_data
         int index = h * width + w;
         uint32_t pixel = img_data[index];
 
-        // RGBA×ª»»Îª¸¡µãÑÕÉ«Öµ
-        float r = ((pixel >> 24) & 0xFF) / 255.0f;
-        float g = ((pixel >> 16) & 0xFF) / 255.0f;
-        float b = ((pixel >> 8) & 0xFF) / 255.0f;
+        // AABBGGRR è½¬æ¢ä¸ºæµ®ç‚¹é¢œè‰²å€¼
+        float r = ((pixel & 0x000000FF) / 255.0f);
+        float g = ((pixel & 0x0000FF00) >> 8) / 255.0f;
+        float b = ((pixel & 0x00FF0000) >> 16) / 255.0f;
+        float a = ((pixel & 0xFF000000) >> 24) / 255.0f;
 
-        int base_index = (h * width + w) * 3;
-        tensor_data[base_index] = r;
-        tensor_data[base_index + 1] = g;
-        tensor_data[base_index + 2] = b;
+        int base_index_r = index;
+        int base_index_g = height * width + index;
+        int base_index_b = 2 * height * width + index;
+        tensor_data[base_index_r] = r;
+        tensor_data[base_index_g] = g;
+        tensor_data[base_index_b] = b;
     }
 }
 
 void convertTensorToImage(const float* data_ptr, uint32_t* img_data, int width, int height)
 {
-    // ÔÚÉè±¸ÉÏ·ÖÅäÄÚ´æ
+    // åœ¨è®¾å¤‡ä¸Šåˆ†é…å†…å­˜
        //float* d_tensor_data;
        uint32_t* d_img_data;
        //cudaMalloc(&d_tensor_data, sizeof(float)* (width* height * 3));
        cudaMalloc(&d_img_data, sizeof(uint32_t)* (width* height));
 
-       // ½«Êı¾İ´ÓÖ÷»ú¸´ÖÆµ½Éè±¸
+       // å°†æ•°æ®ä»ä¸»æœºå¤åˆ¶åˆ°è®¾å¤‡
        //cudaMemcpy(d_tensor_data, data_ptr, sizeof(float)* (width* height * 3), cudaMemcpyHostToDevice);
 
-       // 4. ÅäÖÃ CUDA Íø¸ñºÍ¿éµÄÎ¬¶È
-       dim3 blockSize(16, 16); // Ã¿¸ö¿éÖĞµÄÏß³ÌÊı
-       dim3 gridSize((width + blockSize.x - 1) / blockSize.x, (height + blockSize.y - 1) / blockSize.y); // Íø¸ñ³ß´ç
+       // 4. é…ç½® CUDA ç½‘æ ¼å’Œå—çš„ç»´åº¦
+       dim3 blockSize(16, 16); // æ¯ä¸ªå—ä¸­çš„çº¿ç¨‹æ•°
+       dim3 gridSize((width + blockSize.x - 1) / blockSize.x, (height + blockSize.y - 1) / blockSize.y); // ç½‘æ ¼å°ºå¯¸
 
-       // 5. µ÷ÓÃ CUDA ÄÚºË
+       // 5. è°ƒç”¨ CUDA å†…æ ¸
        convertTensorToImageKernel << <gridSize, blockSize >> > (data_ptr, d_img_data, height, width);
-       cudaDeviceSynchronize(); // È·±£ÄÚºËÖ´ĞĞÍê³É
+       cudaDeviceSynchronize(); // ç¡®ä¿å†…æ ¸æ‰§è¡Œå®Œæˆ
 
-       // 6. ´ÓÉè±¸¸´ÖÆÊı¾İ»ØÖ÷»ú
+       // 6. ä»è®¾å¤‡å¤åˆ¶æ•°æ®å›ä¸»æœº
        cudaMemcpy(img_data, d_img_data, sizeof(uint32_t)* (width* height), cudaMemcpyDeviceToHost);
 
-       // 8. ÊÍ·ÅÉè±¸ÄÚ´æ
+       // 8. é‡Šæ”¾è®¾å¤‡å†…å­˜
        //cudaFree(d_tensor_data);
        cudaFree(d_img_data);
 
 }
 
 __global__ void convertTensorToImageKernel(const float* tensor_data, uint32_t* img_data, int height, int width) {
-    int x = blockIdx.x * blockDim.x + threadIdx.x; // ¼ÆËãÃ¿¸öÏß³ÌµÄ x ×ø±ê
-    int y = blockIdx.y * blockDim.y + threadIdx.y; // ¼ÆËãÃ¿¸öÏß³ÌµÄ y ×ø±ê
+    int h = blockIdx.y * blockDim.y + threadIdx.y;
+    int w = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (x < width && y < height) {
-        // ¼ÆËãµ±Ç°ÏñËØµÄË÷Òı
-        int index = y * width + x;
+    if (h < height && w < width) {
+        int index = h * width + w; 
+        int base_index_r = index;
+        int base_index_g = height * width + index;
+        int base_index_b = 2 * height * width + index;
 
-        // ÌáÈ¡ÑÕÉ«Í¨µÀ
-        float r = tensor_data[index]; // Red
-        float g = tensor_data[1 * height * width + index]; // Green
-        float b = tensor_data[2 * height * width + index]; // Blue
-        float a = 1.0f; // Alpha Öµ
+        // æµ®ç‚¹é¢œè‰²å€¼è½¬æ¢ä¸ºæ•´æ•°
+        uint8_t r = static_cast<uint8_t>(tensor_data[base_index_r] * 255.0f);
+        uint8_t g = static_cast<uint8_t>(tensor_data[base_index_g] * 255.0f);
+        uint8_t b = static_cast<uint8_t>(tensor_data[base_index_b] * 255.0f);
 
-        // ½«ÑÕÉ«×ª»»Îª uint32_t
-        uint32_t uint_r = static_cast<uint32_t>(r * 255.0f);
-        uint32_t uint_g = static_cast<uint32_t>(g * 255.0f);
-        uint32_t uint_b = static_cast<uint32_t>(b * 255.0f);
-        uint32_t uint_a = static_cast<uint32_t>(a * 255.0f);
+        // ç»„åˆæˆä¸€ä¸ª32ä½çš„åƒç´ å€¼ï¼ˆAABBGGRRï¼‰
+        uint32_t pixel = (0xFF << 24) | (b << 16) | (g << 8) | r; // å‡è®¾Aé€šé“æ€»æ˜¯255ï¼ˆå®Œå…¨ä¸é€æ˜ï¼‰
 
-        img_data[index] = (uint_a << 24) | (uint_b << 16) | (uint_g << 8) | uint_r; // Ö±½ÓÔÚÄÚºËÖĞÉú³É RGBA Öµ
+        img_data[index] = pixel;
     }
 }

@@ -15,9 +15,16 @@ namespace RMC {
        ImVec2 viewportPos = ImGui::GetWindowPos();
        ImVec2 cursorPos = ImGui::GetCursorScreenPos();
 
-       if (image)
+       
+       if (currentRenderer -> has_img)
+       {
+           std::cout << "start" << image->GetWidth()<<' '<< image->GetHeight() << std::endl;
+           uint32_t* final_image_data = currentRenderer->m_PpPipeline->process(currentRenderer->m_outImageData, image->GetWidth(), image->GetHeight());
+           std::cout << "mid" << std::endl;
+           Walnut::Image final_img(image->GetWidth(), image->GetHeight(), Walnut::ImageFormat::RGBA, final_image_data);
+           std::cout << "end" << std::endl;
            ImGui::Image(
-               image->GetDescriptorSet(),
+               final_img.GetDescriptorSet(),
 			   { 
                    (float)image->GetWidth() * scale, 
 				   (float)image->GetHeight()* scale
@@ -25,8 +32,8 @@ namespace RMC {
                currentRenderer->Get_uv0(),
 			   currentRenderer->Get_uv1()
            );
-       
-       image = currentRenderer->m_PpPipeline->process(image);
+           delete[] final_image_data;
+       }
 
        ImGui::End();
        ImGui::PopStyleVar();

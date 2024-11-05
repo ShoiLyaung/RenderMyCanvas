@@ -26,16 +26,15 @@ namespace Utils {
     }
 
 
-    torch::Tensor WalnutImageToTensor(std::shared_ptr<Walnut::Image> img)
+    torch::Tensor WalnutImageToTensor(uint32_t* image_data, int width, int height)
     {
-        int width = img->GetWidth();
-        int height = img->GetHeight();
+
         int channels = 3;
 
         torch::Tensor tensor;
 
         // 从 Walnut::Image 获取原始数据
-        const uint32_t* img_data = reinterpret_cast<const uint32_t*>(img->GetDescriptorSet());
+        const uint32_t* img_data = image_data;
 
         // 为张量的数据分配GPU内存
         float* d_tensor_data;
@@ -54,7 +53,7 @@ namespace Utils {
         return tensor;
     }
 
-    std::shared_ptr<Walnut::Image> tensorToWalnutImage(const torch::Tensor& tensor) {
+    uint32_t* tensorToWalnutImage(const torch::Tensor& tensor) {
         // 1. 获取张量的尺寸
         auto sizes = tensor.sizes();
         //std::cout << sizes << std::endl;
@@ -65,8 +64,6 @@ namespace Utils {
         int height = sizes[2];
         int width = sizes[3];
 
-        // 2. 创建 Walnut::Image 对象
-        auto img = std::make_shared<Walnut::Image>(width, height, Walnut::ImageFormat::RGBA); // 4 表示 RGBA 通道
 
         // 3. 将张量数据复制到 Walnut::Image
         float* data_ptr = tensor.data_ptr<float>();
@@ -76,19 +73,16 @@ namespace Utils {
         convertTensorToImage(data_ptr, img_data, width, height);
 
         // 7. 将图像数据设置到 Walnut::Image
-        img->SetData(img_data);
 
-        delete[] img_data;
-
-        return img;
+        return img_data;
     }
 }
 
 RMC::DLSSProcess::DLSSProcess()
 {
     try {
-        std::cout << "G:\\code\\RenderMyCanvas\\SRCNN.pt" << std::endl;
-        model = torch::jit::load("G:\\code\\RenderMyCanvas\\SRCNN.pt");
+        std::cout << "D:\\RMC\\RenderMyCanvas\\RenderMyCanvas\\src\\PostProcessing\\SRCNN.pt" << std::endl;
+        model = torch::jit::load("D:\\RMC\\RenderMyCanvas\\RenderMyCanvas\\src\\PostProcessing\\SRCNN.pt");
         model.eval();
         model.to(torch::kCUDA);
     }
@@ -97,20 +91,19 @@ RMC::DLSSProcess::DLSSProcess()
     }
 }
 
-std::shared_ptr<Walnut::Image> RMC::DLSSProcess::process(std::shared_ptr<Walnut::Image> img)
+uint32_t* RMC::DLSSProcess::process(uint32_t* image_data, int width, int height)
 {
     //std::cout << "DLSSProcess" << std::endl;
     //std::cout << "img" << img->GetWidth() << img->GetHeight() << std::endl;
-    torch::Tensor inputTensor = Utils::WalnutImageToTensor(img).toType(torch::kFloat32);
+    torch::Tensor inputTensor = Utils::WalnutImageToTensor(image_data, width, height).toType(torch::kFloat32);
     //std::cout<<"inputTensor"<<inputTensor.sizes()<<std::endl;
     std::vector<torch::jit::IValue> inputs;
     inputs.push_back(inputTensor);
     torch::Tensor outputTensor = model.forward(inputs).toTensor();
     //std::cout << "outputTensor" << outputTensor.sizes() << std::endl;
-    std::shared_ptr<Walnut::Image> outputImage = Utils::tensorToWalnutImage(outputTensor);
+    uint32_t* output_image_data = Utils::tensorToWalnutImage(outputTensor);
     //std::cout << "outputImage" << outputImage->GetWidth() << outputImage->GetHeight() << std::endl;
-
-    return img;
+    return output_image_data;
 }
 
 

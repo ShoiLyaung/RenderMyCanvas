@@ -2,7 +2,7 @@
 #include <iostream>
 RMC::PostProcessingPipeLine::PostProcessingPipeLine()
 {
-}
+} 
 
 RMC::PostProcessingPipeLine::PostProcessingPipeLine(std::vector<std::shared_ptr<PostProcessingBase> > list)
 {
@@ -14,15 +14,12 @@ void RMC::PostProcessingPipeLine::addProcess(std::shared_ptr<PostProcessingBase>
 	ProcessList.push_back(process);
 }
 
-std::shared_ptr<Walnut::Image> RMC::PostProcessingPipeLine::process(std::shared_ptr<Walnut::Image> img)
+uint32_t* RMC::PostProcessingPipeLine::process(uint32_t *image_data, int width, int height)
 {
-	if (!img)
-		return img;
-	std::shared_ptr<Walnut::Image> FinalImage = std::make_shared<Walnut::Image>(img->GetWidth(), img->GetHeight(), Walnut::ImageFormat::RGBA);
+	uint32_t* FinalImageData = new uint32_t[width * height];
 	for (auto &process : ProcessList)
 	{
-		FinalImage = process->process(img);
-		img = FinalImage;
+		FinalImageData = process->process(image_data, width, height);
 	}
-	return FinalImage;
+	return FinalImageData;
 }

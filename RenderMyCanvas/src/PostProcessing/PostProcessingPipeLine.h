@@ -13,7 +13,7 @@ namespace RMC
 		~PostProcessingPipeLine() = default;
 		PostProcessingPipeLine(std::vector<std::shared_ptr<PostProcessingBase> > list);
 		void addProcess(std::shared_ptr<PostProcessingBase> process);
-		std::shared_ptr<Walnut::Image> process(std::shared_ptr<Walnut::Image> img);
+		uint32_t* RMC::PostProcessingPipeLine::process(uint32_t* image_data, int width, int height);
 	};
 }
 

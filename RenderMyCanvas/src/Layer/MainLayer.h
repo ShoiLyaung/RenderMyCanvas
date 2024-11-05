@@ -28,8 +28,7 @@ namespace RMC
 		void RenderViewport();
 
 		Renderer m_Renderer;
-		DrawBoard m_DrawBoard;
-		Renderer* m_CurrentRenderer = &m_DrawBoard;
+		Renderer* m_CurrentRenderer = &m_Renderer;
 		Scene m_Scene;
 		Camera m_Camera;
 		BallGame m_ballGame;

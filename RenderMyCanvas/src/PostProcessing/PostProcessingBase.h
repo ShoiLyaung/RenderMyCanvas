@@ -6,6 +6,6 @@
 
 class PostProcessingBase{
 public:
-	virtual std::shared_ptr<Walnut::Image> process(std::shared_ptr<Walnut::Image> img) = 0;
+	virtual uint32_t* process(uint32_t* image_data, int width, int height) = 0;
 };
 

@@ -13,7 +13,7 @@ namespace RMC
     public:
         DLSSProcess();
         ~DLSSProcess() = default;
-        std::shared_ptr<Walnut::Image> process(std::shared_ptr<Walnut::Image> img);
+        uint32_t* process(uint32_t* image_data, int width, int height);
     private:
         torch::jit::script::Module model;
     };

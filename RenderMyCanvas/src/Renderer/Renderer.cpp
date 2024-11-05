@@ -98,7 +98,13 @@ namespace RMC
 						glm::vec4 accumulatedColor = m_AccumulationData[x + y * m_FinalImage->GetWidth()];
 						accumulatedColor /= (float)m_FrameIndex;
 						accumulatedColor = glm::clamp(accumulatedColor, glm::vec4(0.0f), glm::vec4(1.0f));
-						m_ImageData[(x * m_ImageScale) + (y * m_FinalImage->GetWidth() * m_ImageScale * m_ImageScale)] = Utils::ConvertToRGBA(accumulatedColor);
+						for (uint32_t i = 0; i < m_ImageScale; i++)
+						{
+							for (uint32_t j = 0; j < m_ImageScale; j++)
+							{
+								m_ImageData[(x * m_ImageScale + i) + ((y * m_ImageScale + j) * m_FinalImage->GetWidth() * m_ImageScale)] = Utils::ConvertToRGBA(accumulatedColor);
+							}
+						}
 					});
 			});
 

@@ -27,5 +27,18 @@ namespace RMC
         {
 			m_Renderer.ResetFrameIndex();
         }
+
+        // Handle mouse input for drawing in DrawBoard
+        if (m_CurrentRenderer == &m_DrawBoard)
+        {
+            ImGuiIO& io = ImGui::GetIO();
+            glm::vec2 mousePos = glm::vec2(io.MousePos.x - m_ViewportOffset.x, io.MousePos.y - m_ViewportOffset.y);
+            // Limit drawing to inside the viewport bounds
+            if (m_ToolManager != ToolManager::Tool::None && mousePos.x >= 0 && mousePos.y >= 0 && mousePos.x < m_ViewportWidth && mousePos.y < m_ViewportHeight)
+            {
+                ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+				m_DrawBoard.OnMouseEvent(io.MouseDown[0], mousePos.x, mousePos.y);
+            }
+        }
     }
 } // namespace RMC

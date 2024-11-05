@@ -26,8 +26,8 @@ namespace RMC {
            ImGui::Image(
                final_img.GetDescriptorSet(),
 			   { 
-                   (float)image->GetWidth() * scale, 
-				   (float)image->GetHeight()* scale
+                   (float)image->GetWidth(), 
+				   (float)image->GetHeight()
                },
                currentRenderer->Get_uv0(),
 			   currentRenderer->Get_uv1()

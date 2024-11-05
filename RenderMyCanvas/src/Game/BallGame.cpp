@@ -127,7 +127,7 @@ namespace RMC {
 		new_player.playerID = player_id;
 		new_player.Position = position;
 		new_player.Radius = weight;
-		new_player.MaterialIndex = 7;
+		new_player.MaterialIndex = 5;
 		Players.push_back(new_player);
 	}
 
@@ -137,7 +137,7 @@ namespace RMC {
 		new_food.foodID = food_id;
 		new_food.Position = position;
 		new_food.Radius = 0.2f;
-		new_food.MaterialIndex = 2;
+		new_food.MaterialIndex = std::stoi(food_id) % 10 + 1;
 		Foods.push_back(new_food);
 	}
 

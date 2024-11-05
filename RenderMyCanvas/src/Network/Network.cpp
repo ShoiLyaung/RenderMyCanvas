@@ -119,6 +119,7 @@ void RMC::Network::recv_data(const std::string& message)
 		m_jsonObj = nlohmann::json::parse(message);
 
 	if (m_jsonObj.contains("data") && m_jsonObj["data"].contains("players") && m_jsonObj["data"]["players"].is_array()) {
+		players.clear();
 		for (const auto& player : m_jsonObj["data"]["players"]) {
 			PlayerData p;
 			p.id = player["id"];
@@ -130,6 +131,7 @@ void RMC::Network::recv_data(const std::string& message)
 		}
 	}
 	if (m_jsonObj.contains("data") && m_jsonObj["data"].contains("foods") && m_jsonObj["data"]["foods"].is_array()) {
+		foods.clear();
 		for (const auto& food : m_jsonObj["data"]["foods"]) {
 			FoodData f;
 			f.id = food["id"];

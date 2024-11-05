@@ -6,13 +6,13 @@ RMC::Network::Network()
 	ws_client.init_asio();
 
 	ws_client.set_open_handler([this](websocketpp::connection_hdl hdl) {
-		std::cout << "Connected to server!" << std::endl;
+		//std::cout << "Connected to server!" << std::endl;
 		connection_hdl = hdl;  // 存储连接句柄，以便发送消息
 		});
 
 	ws_client.set_message_handler([this](websocketpp::connection_hdl, client::message_ptr msg) {
 		// 接收消息时的回调函数
-		std::cout << "Received message: " << msg->get_payload() << std::endl;
+		//std::cout << "Received message: " << msg->get_payload() << std::endl;
 		recv_message(msg->get_payload());
 		});
 
@@ -31,8 +31,14 @@ RMC::Network::Network()
 		return;
 	}
 
-	ws_client.connect(con);
-	ws_client.run();
+	ws_client.connect(con); 
+	std::thread([this]() {
+		ws_client.run();  // 在新的线程中运行
+		}).detach();  // 使线程分离，允许主线程继续执行
+
+	
+
+	
 };
 
 // 发送消息
@@ -50,7 +56,7 @@ void RMC::Network::send_message(const std::string& message)
 		std::cout << "Send failed: " << ec.message() << std::endl;
 	}
 	else {
-		std::cout << "Message sent: " << message << std::endl;
+		//std::cout << "Message sent: " << message << std::endl;
 	}
 }
 
@@ -68,7 +74,9 @@ void RMC::Network::recv_message(const std::string& message)
 
 void RMC::Network::start_game(const std::string& message)
 {
+	std::cout << message << std::endl;
 	nlohmann::json jsonObj = nlohmann::json::parse(message);
+	std::cout << "json done" << std::endl;
 	if (jsonObj.contains("id"))
 	{
 		std::cout << "Player ID: " << jsonObj["id"] << std::endl;

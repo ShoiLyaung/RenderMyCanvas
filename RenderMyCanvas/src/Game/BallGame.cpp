@@ -5,12 +5,12 @@ namespace RMC {
 
 	BallGame::BallGame() : bigBallDirection(0.0f)
 	{
-		//// 初始化大球和小球
-		//Player player;
-		//player.MaterialIndex = 0;
-		//player.Position = glm::vec3(0.0f, 0.0f, 0.0f);
-		//player.Radius = 1.0f;
-		//Players.push_back(player);
+		// 初始化大球和小球
+		Player player;
+		player.MaterialIndex = 0;
+		player.Position = glm::vec3(0.0f, 0.0f, 0.0f);
+		player.Radius = 1.0f;
+		Players.push_back(player);
 
 		//// 生成一些小球
 		//for (int i = 0; i < 100; ++i) {
@@ -23,11 +23,10 @@ namespace RMC {
 	}
 
 	void BallGame::OnUpdate(float ts) {
-		while (!m_network.game_started)
-		{
-
-		}
+		if (!m_network.game_started)
+			return;
 		m_playerID = m_network.m_playerID;
+		Players[0].playerID = m_playerID;
 
 		HandleInput();
 		//CheckCollision(scene);
@@ -57,7 +56,7 @@ namespace RMC {
 			}
 		}
 		else {
-			std::cout << "No players found in JSON data." << std::endl;
+			//std::cout << "No players found in JSON data." << std::endl;
 		}
 
 		// 访问并遍历 "foods" 列表
@@ -72,7 +71,7 @@ namespace RMC {
 			}
 		}
 		else {
-			std::cout << "No foods found in JSON data." << std::endl;
+			//std::cout << "No foods found in JSON data." << std::endl;
 		}
 	}
 
@@ -108,7 +107,7 @@ namespace RMC {
 		}
 		Player new_player;
 		new_player.playerID = player_id;
-		new_player.Position = glm::vec3(x, y, z);
+		new_player.Position = glm::vec3(x / 1000.0, y / 1000.0, z / 1000.0);
 		Players.push_back(new_player);
 	}
 

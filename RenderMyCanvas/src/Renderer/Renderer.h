@@ -24,7 +24,8 @@ namespace RMC
 		~Renderer() = default;
 		void OnResize(uint32_t width, uint32_t height);
 		virtual void Render(const Scene& scene, const Camera& camera);
-		std::shared_ptr<Walnut::Image> GetFinalImage() const { return m_FinalImage; }
+		//std::shared_ptr<Walnut::Image> GetFinalImage() const { return m_FinalImage; }
+		std::shared_ptr<Walnut::Image> GetFinalImage() const { return m_ScaledImage; }
 		uint32_t GetImageScale() const { return m_ImageScale; }
 		ImVec2 Get_uv0() const { return m_uv0; }
 		ImVec2 Get_uv1() const { return m_uv1; }
@@ -48,6 +49,7 @@ namespace RMC
 		HitPayload Miss(const Ray& ray);
 
 		std::shared_ptr<Walnut::Image> m_FinalImage;
+		std::shared_ptr<Walnut::Image> m_ScaledImage;
 		Settings m_Settings;
 		std::vector<uint32_t> m_ImageHorizontalIter, m_ImageVerticalIter;
 

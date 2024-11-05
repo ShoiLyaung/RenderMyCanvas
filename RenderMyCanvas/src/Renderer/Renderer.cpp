@@ -57,14 +57,16 @@ namespace RMC
 				return;
 
 			m_FinalImage->Resize(width, height);
+			m_ScaledImage-> Resize(width * 4, height * 4);
 		}
 		else
 		{
 			m_FinalImage = std::make_shared<Walnut::Image>(width, height, Walnut::ImageFormat::RGBA);
+			m_ScaledImage = std::make_shared<Walnut::Image>(width * 4, height * 4, Walnut::ImageFormat::RGBA);
 		}
 
 		delete[] m_ImageData;
-		m_ImageData = new uint32_t[width * height];
+		m_ImageData = new uint32_t[width * m_ImageScale * height * m_ImageScale];
 
 		delete[] m_AccumulationData;
 		m_AccumulationData = new glm::vec4[width * height];
@@ -96,11 +98,12 @@ namespace RMC
 						glm::vec4 accumulatedColor = m_AccumulationData[x + y * m_FinalImage->GetWidth()];
 						accumulatedColor /= (float)m_FrameIndex;
 						accumulatedColor = glm::clamp(accumulatedColor, glm::vec4(0.0f), glm::vec4(1.0f));
-						m_ImageData[x + y * m_FinalImage->GetWidth()] = Utils::ConvertToRGBA(accumulatedColor);
+						m_ImageData[(x * m_ImageScale) + (y * m_FinalImage->GetWidth() * m_ImageScale * m_ImageScale)] = Utils::ConvertToRGBA(accumulatedColor);
 					});
 			});
 
 		m_FinalImage->SetData(m_ImageData);
+		m_ScaledImage->SetData(m_ImageData);
 		if (m_Settings.Accumulate)
 			m_FrameIndex++;
 		else

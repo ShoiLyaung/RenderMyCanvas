@@ -26,6 +26,7 @@ namespace RMC {
     private:
         glm::vec3 bigBallDirection; // 大球移动方向
         Network m_network;
+        int frame_idx = 0;
         //void CheckCollision(Scene& scene);
     };
 

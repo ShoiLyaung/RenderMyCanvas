@@ -1,4 +1,5 @@
 #include "Network.h"
+#include <chrono>
 
 RMC::Network::Network()
 {
@@ -12,7 +13,7 @@ RMC::Network::Network()
 
 	ws_client.set_message_handler([this](websocketpp::connection_hdl, client::message_ptr msg) {
 		// 接收消息时的回调函数
-		//std::cout << "Received message: " << msg->get_payload() << std::endl;
+		std::cout << "Received message: " << msg->get_payload() << std::endl;
 		recv_message(msg->get_payload());
 		});
 
@@ -36,7 +37,31 @@ RMC::Network::Network()
 		ws_client.run();  // 在新的线程中运行
 		}).detach();  // 使线程分离，允许主线程继续执行
 
-	
+	std::thread([this]() {
+		while (1)
+		{
+			auto start = std::chrono::high_resolution_clock::now();
+
+			// 执行要计时的函数
+			send_message(message_to_send);
+
+
+
+			// 结束计时
+			auto stop = std::chrono::high_resolution_clock::now();
+
+			// 计算耗时
+			auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
+
+			int remaining_sleep_time = 100 - duration;  // 期望总时间为100ms
+
+			// 检查剩余的暂停时间是否为正值
+			if (remaining_sleep_time > 0) {
+				// 暂停剩余的时间
+				std::this_thread::sleep_for(std::chrono::milliseconds(remaining_sleep_time));
+			}
+		}
+		}).detach();  // 使线程分离，允许主线程继续执行
 
 	
 };
@@ -56,7 +81,7 @@ void RMC::Network::send_message(const std::string& message)
 		std::cout << "Send failed: " << ec.message() << std::endl;
 	}
 	else {
-		//std::cout << "Message sent: " << message << std::endl;
+		std::cout << "Message sent: " << message << std::endl;
 	}
 }
 
@@ -105,5 +130,5 @@ void RMC::Network::send_data(int frame_idx, std::string player_id, uint32_t x, u
 	jsonData["pos"] = pos;
 
 	// 输出 JSON 数据 (可以替换为实际发送逻辑)
-	send_message(jsonData.dump(4));
+	message_to_send = jsonData.dump(4);
 }

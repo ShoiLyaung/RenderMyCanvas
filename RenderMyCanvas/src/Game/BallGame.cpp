@@ -7,7 +7,7 @@ namespace RMC {
 	{
 		// 初始化大球和小球
 		Player player;
-		player.MaterialIndex = 0;
+		player.MaterialIndex = 7;
 		player.Position = glm::vec3(0.0f, 0.0f, 0.0f);
 		player.Radius = 1.0f;
 		Players.push_back(player);
@@ -23,6 +23,7 @@ namespace RMC {
 	}
 
 	void BallGame::OnUpdate(float ts) {
+		frame_idx++;
 		if (!m_network.game_started)
 			return;
 		m_playerID = m_network.m_playerID;
@@ -36,7 +37,7 @@ namespace RMC {
 			if (player.GetPlayerID() == m_playerID)
 			{
 				player.Position += bigBallDirection * player.GetSpeed() * ts;
-				m_network.send_data(0, m_playerID, player.Position[0]*1000, player.Position[1] * 1000, player.Position[2] * 1000);
+				m_network.send_data(frame_idx, m_playerID, player.Position[0]*1000, player.Position[1] * 1000, player.Position[2] * 1000);
 			}
 		}
 
@@ -58,6 +59,7 @@ namespace RMC {
 		else {
 			//std::cout << "No players found in JSON data." << std::endl;
 		}
+		std::cout << "Food LEN:" << Foods.size() << std::endl;
 
 		// 访问并遍历 "foods" 列表
 		if (m_network.m_jsonObj.contains("data") && m_network.m_jsonObj["data"].contains("foods") && m_network.m_jsonObj["data"]["foods"].is_array()) {
@@ -67,7 +69,7 @@ namespace RMC {
 				auto pos = food["pos"];
 
 				// 输出食物信息
-				UpdateFood(id, pos[0], pos[1], pos[2]);
+				UpdateFood(id, pos[0], pos[1], pos[2]);	
 			}
 		}
 		else {
@@ -101,13 +103,14 @@ namespace RMC {
 			if (player.playerID == player_id)
 			{
 				player.Position = glm::vec3(x / 1000.0, y / 1000.0, z / 1000.0);
-				player.Radius = weight;
+				player.Radius = weight/1000.0;
 				return;
 			}
 		}
 		Player new_player;
 		new_player.playerID = player_id;
 		new_player.Position = glm::vec3(x / 1000.0, y / 1000.0, z / 1000.0);
+		new_player.MaterialIndex = 7;
 		Players.push_back(new_player);
 	}
 
@@ -124,6 +127,8 @@ namespace RMC {
 		Food new_food;
 		new_food.foodID = food_id;
 		new_food.Position = glm::vec3(x / 1000.0, y / 1000.0, z / 1000.0);
+		new_food.Radius = 0.2f;
+		new_food.MaterialIndex = 2;
 		Foods.push_back(new_food);
 	}
 

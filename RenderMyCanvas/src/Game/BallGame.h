@@ -31,6 +31,7 @@ namespace RMC {
         glm::vec2 m_LastMousePosition{ 0.0f, 0.0f };
         glm::vec3 bigBallDirection; // 大球移动方向
         Network m_network;
+        int frame_idx = 0;
         //void CheckCollision(Scene& scene);
     };
 

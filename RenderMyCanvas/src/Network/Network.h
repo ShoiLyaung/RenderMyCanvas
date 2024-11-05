@@ -23,5 +23,6 @@ namespace RMC
 		bool game_started = false;
 		std::string m_playerID;
 		nlohmann::json m_jsonObj;
+		std::string message_to_send;
 	};
 }

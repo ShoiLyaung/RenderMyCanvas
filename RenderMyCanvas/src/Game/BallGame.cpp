@@ -5,6 +5,7 @@ namespace RMC {
 
 	BallGame::BallGame() : bigBallDirection(0.0f)
 	{
+		m_ForwardDirection = glm::vec3(0.0f, 0.0f, -1.0f);
 		// 初始化大球和小球
 		Player player;
 		player.MaterialIndex = 7;
@@ -27,7 +28,6 @@ namespace RMC {
 		if (!m_network.game_started)
 			return;
 		m_playerID = m_network.m_playerID;
-		Players[0].playerID = m_playerID;
 
 		HandleInput();
 		//CheckCollision(scene);
@@ -86,16 +86,53 @@ namespace RMC {
 
 	void BallGame::HandleInput() {
 		bigBallDirection = glm::vec3(0.0f);
+		glm::vec2 mousePos = Walnut::Input::GetMousePosition();
+		glm::vec2 delta = (mousePos - m_LastMousePosition) * 0.002f;
+		m_LastMousePosition = mousePos;
 
 		if (!Walnut::Input::IsMouseButtonDown(Walnut::MouseButton::Left))
 		{
 			return;
 		}
+		constexpr glm::vec3 upDirection(0.0f, 1.0f, 0.0f);
+		glm::vec3 rightDirection = glm::cross(m_ForwardDirection, upDirection);
 
-		if (Walnut::Input::IsKeyDown(Walnut::KeyCode::W)) bigBallDirection.z -= 1.0f;
-		if (Walnut::Input::IsKeyDown(Walnut::KeyCode::S)) bigBallDirection.z += 1.0f;
-		if (Walnut::Input::IsKeyDown(Walnut::KeyCode::A)) bigBallDirection.x -= 1.0f;
-		if (Walnut::Input::IsKeyDown(Walnut::KeyCode::D)) bigBallDirection.x += 1.0f;
+		// Movement
+		if (Walnut::Input::IsKeyDown(Walnut::KeyCode::W))
+		{
+			bigBallDirection += m_ForwardDirection;
+		}
+		else if (Walnut::Input::IsKeyDown(Walnut::KeyCode::S))
+		{
+			bigBallDirection -= m_ForwardDirection;
+		}
+		if (Walnut::Input::IsKeyDown(Walnut::KeyCode::A))
+		{
+			bigBallDirection -= rightDirection;
+		}
+		else if (Walnut::Input::IsKeyDown(Walnut::KeyCode::D))
+		{
+			bigBallDirection += rightDirection;
+		}
+		if (Walnut::Input::IsKeyDown(Walnut::KeyCode::Q))
+		{
+			bigBallDirection -= upDirection;
+		}
+		else if (Walnut::Input::IsKeyDown(Walnut::KeyCode::E))
+		{
+			bigBallDirection += upDirection;
+		}
+
+		// Rotation
+		if (delta.x != 0.0f || delta.y != 0.0f)
+		{
+			float pitchDelta = delta.y * 0.3;
+			float yawDelta = delta.x * 0.3;
+
+			glm::quat q = glm::normalize(glm::cross(glm::angleAxis(-pitchDelta, rightDirection),
+				glm::angleAxis(-yawDelta, glm::vec3(0.f, 1.0f, 0.0f))));
+			m_ForwardDirection = glm::rotate(q, m_ForwardDirection);
+		}
 
 		// 归一化方向
 		if (glm::length(bigBallDirection) > 0.0f) {
@@ -117,6 +154,7 @@ namespace RMC {
 		Player new_player;
 		new_player.playerID = player_id;
 		new_player.Position = glm::vec3(x / 1000.0, y / 1000.0, z / 1000.0);
+		new_player.Radius = weight;
 		new_player.MaterialIndex = 7;
 		Players.push_back(new_player);
 	}

@@ -6,6 +6,9 @@ namespace RMC {
         ImGui::Begin("Setting");
         ImGui::Text("Render Time: %.3fms", lastRenderTime);
         ImGui::Checkbox("Accumulate", &renderer.GetSettings().Accumulate);
+		ImGui::Checkbox("Sampler", &renderer.GetSettings().Sampler);
+		ImGui::Checkbox("DLSS", &renderer.GetSettings().DLSS);
+
         if (ImGui::Button("Reset"))
             renderer.ResetFrameIndex();
         ImGui::End();

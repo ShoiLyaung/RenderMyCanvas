@@ -19,6 +19,8 @@ namespace RMC
 		struct Settings
 		{
 			bool Accumulate = true;
+			bool Sampler = true;
+			bool DLSS = false;
 		};
 		Renderer();
 		~Renderer() = default;
@@ -26,6 +28,7 @@ namespace RMC
 		virtual void Render(const Scene& scene, const Camera& camera);
 		std::shared_ptr<Walnut::Image> GetFinalImage() const { return m_FinalImage; }
 		uint32_t GetImageScale() const { return m_ImageScale; }
+		void SetImageScale(uint32_t scale) { m_ImageScale = scale; }
 		ImVec2 Get_uv0() const { return m_uv0; }
 		ImVec2 Get_uv1() const { return m_uv1; }
 		void ResetFrameIndex() { m_FrameIndex = 1; }

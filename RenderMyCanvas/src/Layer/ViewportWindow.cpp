@@ -34,6 +34,16 @@ namespace RMC {
        viewportOffset = { cursorPos.x, cursorPos.y };
 
        Walnut::Timer timer;
+
+       if (!currentRenderer->GetSettings().Sampler)
+       {
+		   currentRenderer->SetImageScale(1);
+	   }
+	   else
+	   {
+		   currentRenderer->SetImageScale(4);
+	   }
+
        currentRenderer->OnResize(viewportWidth, viewportHeight);
        camera.OnResize(viewportWidth, viewportHeight);
        currentRenderer->Render(scene, camera);

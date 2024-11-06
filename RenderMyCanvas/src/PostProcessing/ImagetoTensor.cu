@@ -36,14 +36,14 @@ __global__ void ImageToTensorKernel(const uint32_t* img_data, float* tensor_data
         uint32_t pixel = img_data[index];
 
         // AABBGGRR 转换为浮点颜色值
-        float r = ((pixel & 0x000000FF) / 255.0f);
-        float g = ((pixel & 0x0000FF00) >> 8) / 255.0f;
-        float b = ((pixel & 0x00FF0000) >> 16) / 255.0f;
-        float a = ((pixel & 0xFF000000) >> 24) / 255.0f;
+        float r = 1 - ((pixel & 0x000000FF) / 255.0f);
+        float g = 1 - ((pixel & 0x0000FF00) >> 8) / 255.0f;
+        float b = 1 - ((pixel & 0x00FF0000) >> 16) / 255.0f;
+        float a = 1 - ((pixel & 0xFF000000) >> 24) / 255.0f;
 
         int base_index_r = index;
-        int base_index_g = height * width + index;
-        int base_index_b = 2 * height * width + index;
+        int base_index_b = height * width + index;
+        int base_index_g = 2 * height * width + index;
         tensor_data[base_index_r] = r;
         tensor_data[base_index_g] = g;
         tensor_data[base_index_b] = b;
@@ -85,13 +85,13 @@ __global__ void convertTensorToImageKernel(const float* tensor_data, uint32_t* i
     if (h < height && w < width) {
         int index = h * width + w; 
         int base_index_r = index;
-        int base_index_g = height * width + index;
-        int base_index_b = 2 * height * width + index;
+        int base_index_b = height * width + index;
+        int base_index_g = 2 * height * width + index;
 
         // 浮点颜色值转换为整数
-        uint8_t r = static_cast<uint8_t>(tensor_data[base_index_r] * 255.0f);
-        uint8_t g = static_cast<uint8_t>(tensor_data[base_index_g] * 255.0f);
-        uint8_t b = static_cast<uint8_t>(tensor_data[base_index_b] * 255.0f);
+        uint32_t r = static_cast<uint32_t>((1 - tensor_data[base_index_r]) * 255.0f);
+        uint32_t g = static_cast<uint32_t>((1 - tensor_data[base_index_g]) * 255.0f);
+        uint32_t b = static_cast<uint32_t>((1 - tensor_data[base_index_b]) * 255.0f);
 
         // 组合成一个32位的像素值（AABBGGRR）
         uint32_t pixel = (0xFF << 24) | (b << 16) | (g << 8) | r; // 假设A通道总是255（完全不透明）

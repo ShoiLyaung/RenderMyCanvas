@@ -6,7 +6,7 @@ namespace RMC {
        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
        ImGui::Begin("Viewport");
 
-       auto image = currentRenderer->GetFinalImage();
+       auto image = currentRenderer->m_ScaledImage;
 	   auto scale = currentRenderer->GetImageScale();
 
 	   viewportWidth = (uint32_t)ImGui::GetContentRegionAvail().x / scale;

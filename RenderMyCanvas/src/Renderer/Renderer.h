@@ -35,6 +35,9 @@ namespace RMC
 		uint32_t* m_ImageData = nullptr;
 		uint32_t* m_outImageData = nullptr;
 		bool has_img = false;
+
+		std::shared_ptr<Walnut::Image> m_FinalImage;
+		std::shared_ptr<Walnut::Image> m_ScaledImage;
 	protected:
 		int _width = 0, _height = 0;
 		struct HitPayload
@@ -51,8 +54,6 @@ namespace RMC
 		HitPayload ClosestHit(const Ray& ray, float hitDistance, int objectIndex);
 		HitPayload Miss(const Ray& ray);
 
-		std::shared_ptr<Walnut::Image> m_FinalImage;
-		std::shared_ptr<Walnut::Image> m_ScaledImage;
 		Settings m_Settings;
 		std::vector<uint32_t> m_ImageHorizontalIter, m_ImageVerticalIter;
 
